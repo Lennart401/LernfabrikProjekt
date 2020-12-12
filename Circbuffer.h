@@ -16,7 +16,11 @@ struct Row {
     float distance;
 };
 
-void WriteRow(Row row);
+bool RowAvailable();
+Row* ReadRow();
+
+void WriteRow(Row* row);
+bool IsBufferFull();
 
 } // namespace circbuffer
 

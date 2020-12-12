@@ -6,7 +6,7 @@
 namespace ultrasonic {
 
 void Initialize();
-void Loop();
+void ReadValue(float* value);
 
 } // namespace ultrasonic
 

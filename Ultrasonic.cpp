@@ -34,7 +34,7 @@ namespace {
     }
 
     long duration;
-    double distance;
+    //double distance;
 }
 
 void Initialize() {
@@ -42,15 +42,10 @@ void Initialize() {
     pinMode(ECHO_PIN, INPUT);
 }
 
-void Loop() {
+void ReadValue(float* value) {
     SendPulse();
     duration = newPulseIn(ECHO_PIN, HIGH);
-    distance = 0.017 * duration;
-
-    Serial.print("dist\t");
-    Serial.print(distance);
-    Serial.print("\tdur\t");
-    Serial.print(duration);
+    *value = 0.017 * duration;
 }
 
 }
