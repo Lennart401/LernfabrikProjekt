@@ -11,32 +11,25 @@ namespace {
     Row buffer[buffer_size];
 } // namespace
 
-bool RowAvailable() {
-    return buffer_start < buffer_end;
-}
-
 Row* ReadRow() {
     Row* row = &buffer[buffer_start];
-    buffer_start++;
-
-    if (buffer_start >= buffer_size) {
-        buffer_start -= buffer_size;
-    }
+    buffer_start = (buffer_start + 1) % buffer_size;
 
     return row;
 }
 
 void WriteRow(Row* row) {
     buffer[buffer_end] = *row;
-    buffer_end++;
+    buffer_end = (buffer_end + 1) % buffer_size;
 
-    if (buffer_end >= buffer_size) {
-        buffer_end -= buffer_size;
+    // keep pushing buffer_start
+    if (buffer_end == buffer_start) {
+        buffer_start = (buffer_start + 1) % buffer_size;
     }
 }
 
 bool IsBufferFull() {
-    return buffer_end == buffer_size - 1;
+    return buffer_end == buffer_start;
 }
 
 } // namespace circbuffer
