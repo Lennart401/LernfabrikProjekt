@@ -6,6 +6,7 @@
 namespace circbuffer {
 
 struct Row {
+    uint64_t timestamp;
     float acc_x;
     float acc_y;
     float acc_z;
@@ -16,6 +17,7 @@ struct Row {
     float distance;
 };
 
+bool IsBufferEmpty();
 bool IsBufferFull();
 
 Row* ReadRow();
