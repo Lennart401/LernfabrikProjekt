@@ -1,5 +1,7 @@
 # LernfabrikProjektArduino
 
+__ATTENTION!!!__ If the code does not compile for weird reasons, see [Library Source Adjustments](#Library-Source-Adjustments) down below!
+
 Arduino code for my "intelligent boxes" project for the Lernfabrik at Leuphana University. These boxes will host the Arduino Portenta H7, so the code is written for that platform. The job of these boxes is to demonstrate machine learning/IoT/industry 4.0 in factories. The Lernfabrik will be the host factory for these boxes.
 
 The boxes themselfes shall be capable of detecting their current state based on sensory data. These states could for example be "in production", "in warehouse", "being moved from warehouse to production", "being moved in production", etc. The machine learning will be implemented in Python in a different Repository, which will be linked here. Since the trained models have to be executed on the Arduino, Tensorflow will be used for training and deploying and Tensorflow Lite for production on the Arduino.
@@ -24,3 +26,24 @@ The M7 is responsible for buffering the sensor data, preprocessing it and applyi
 At this point there aren't many libraries required, but more will be added once the project matures.
 - the required Arduino mbed libraries
 - [I2C Device Library](https://github.com/jrowberg/i2cdevlib) from jrowberg
+
+## Library Source Adjustments
+Since the Arduino mbed API is still in its infancy, some library source code edits are required to compile this code.
+
+### MPU6050 Library
+At the very end of `MPU6050.cpp` there is a macro `printfloatx` defined, which uses the `char *dtostrf` function, that, at the point of writing, is not yet included in the Arduino mbed library. To fix the issue, the following code has to be pasted above the macro:
+
+    char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
+	    char fmt[20];
+	    sprintf(fmt, "%%%d.%df", width, prec);
+	    sprintf(sout, fmt, val);
+	    return sout;
+    }
+
+Futhermore, the definition of `BUFFER_LENGTH` from `I2Cdev.cpp` does not make it to `MPU6050.cpp` for some reason and the file fails to compile. To fix it, simple add the guarded definition of BUFFER_LENGTH to the file just above the method where it is needed, `int8_t MPU6050::GetCurrentFIFOPacket(uint8_t*, uint8_t)`:
+
+    #ifndef BUFFER_LENGTH
+    // band-aid fix for platforms without Wire-defined BUFFER_LENGTH (removed from some official implementations)
+    #define BUFFER_LENGTH 32
+    #endif
+
