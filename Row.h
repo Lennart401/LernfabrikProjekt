@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #ifndef ROW_H_
 #define ROW_H_
 
