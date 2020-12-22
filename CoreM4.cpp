@@ -4,7 +4,7 @@
 #include "Ultrasonic.h"
 
 #define HZ 1 // would be 200 or 400 or whatever
-#define FETCH_TIME (1000/HZ)
+#define FETCH_TIME (1000000/HZ)
 
 namespace core_m4 {
 
@@ -28,24 +28,27 @@ void Loop() {
     accelerometer::ReadValues(temp);
     ultrasonic::ReadValue(&temp[7]);
 
-    // print values over rpc --> this needs work
-    RPC1.print(temp[0], 5);
-    RPC1.print(",");
-    RPC1.print(temp[1], 5);
-    RPC1.print(",");
-    RPC1.print(temp[2], 5);
-    RPC1.print(",");
-    RPC1.print(temp[3], 5);
-    RPC1.print(",");
-    RPC1.print(temp[4], 5);
-    RPC1.print(",");
-    RPC1.print(temp[5], 5);
-    RPC1.print(",");
-    RPC1.print(temp[6], 5);
-    RPC1.print(",");
-    RPC1.println(temp[7], 5);
+    // send values to M7 
+    RPC1.call("appendMeasurement", temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7]);
     
-    delay(1000);
+    // print values over rpc --> this needs work
+    // RPC1.print(temp[0], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[1], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[2], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[3], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[4], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[5], 5);
+    // RPC1.print(",");
+    // RPC1.print(temp[6], 5);
+    // RPC1.print(",");
+    // RPC1.println(temp[7], 5);
+    
+    // delay(1000);
 }
 
 }
