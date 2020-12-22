@@ -13,7 +13,7 @@ namespace {
 } // namespace
 
 Row* ReadRow() {
-    if (IsBufferEmpty) return nullptr;
+    if (IsBufferEmpty()) return nullptr;
 
     Row* row = &buffer[buffer_start];
     buffer_start = (buffer_start + 1) % buffer_num_rows;
@@ -25,12 +25,10 @@ Row* ReadRow() {
 void WriteRow(Row* row) {
     buffer[buffer_end] = *row;
     buffer_end = (buffer_end + 1) % buffer_num_rows;
-
-    // keep pushing buffer_start
-    if (buffer_end == buffer_start) {
-        buffer_start = (buffer_start + 1) % buffer_num_rows;
-        full = true;
-    }
+    // advance start also if buffer is full
+    if (full) buffer_start = (buffer_start + 1) % buffer_num_rows;
+    // find out if buffer is full now
+    else full = buffer_end == buffer_start;
 }
 
 bool IsBufferEmpty() {
