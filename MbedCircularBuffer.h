@@ -32,6 +32,8 @@
 #include "platform/Span.h"
 #include "platform/mbed_atomic.h"
 
+#define BUF_ROWS 100
+
 namespace mbed {
 
 // not needed in mbed namespace
