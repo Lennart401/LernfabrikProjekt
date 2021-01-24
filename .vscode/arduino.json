@@ -1,5 +1,0 @@
-{
-    "sketch": "FullProject.ino",
-    "board": "arduino:mbed:envie_m7",
-    "port": "COM6"
-}
