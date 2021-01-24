@@ -1,9 +1,11 @@
+#ifdef CORE_CM4
+
 #include <Arduino.h>
 #include <RPC_internal.h>
 #include "Accelerometer.h"
 #include "Ultrasonic.h"
 
-#define HZ 1 // would be 200 or 400 or whatever
+#define HZ 10 // would be 200 or 400 or whatever
 #define FETCH_TIME (1000000/HZ)
 
 namespace core_m4 {
@@ -29,7 +31,7 @@ void Loop() {
     ultrasonic::ReadValue(&temp[7]);
 
     // send values to M7 
-    RPC1.call("appendMeasurement", temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7]);
+    RPC1.call("appendMeasurement", (uint64_t) micros(), temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7]);
     
     // print values over rpc --> this needs work
     // RPC1.print(temp[0], 5);
@@ -52,3 +54,5 @@ void Loop() {
 }
 
 }
+
+#endif // CORE_CM4
