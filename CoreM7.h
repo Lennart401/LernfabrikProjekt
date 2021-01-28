@@ -5,8 +5,8 @@
 
 namespace core_m7 {
 
-void Setup();
-void Loop();
+void setup();
+void loop();
 
 }
 

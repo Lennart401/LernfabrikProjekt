@@ -7,7 +7,7 @@ void setup() {
     Serial.begin(115200);
 
     #ifdef CORE_CM7
-        core_m7::Setup();
+        core_m7::setup();
     #endif
 
     //#ifdef CORE_CM4
@@ -17,7 +17,7 @@ void setup() {
 
 void loop() {
     #ifdef CORE_CM7
-        core_m7::Loop();
+        core_m7::loop();
     #endif
 
     //#ifdef CORE_CM4

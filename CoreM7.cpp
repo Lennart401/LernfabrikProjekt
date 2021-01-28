@@ -21,15 +21,15 @@ namespace {
     rtos::Thread unitSensorsThread(osPriorityRealtime);
 }
 
-void Setup() {
+void setup() {
     SDRAM.begin();
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
 
-    unitSensorsThread.start(mbed::callback(units::RunSensors, crcBuffer));
+    unitSensorsThread.start(mbed::callback(units::runSensors, crcBuffer));
 }
 
-void Loop() {
+void loop() {
     Serial.println("crcBuffer size: " + String(crcBuffer->size()));
     rtos::ThisThread::sleep_for((uint32_t) 500);
 }

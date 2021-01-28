@@ -23,17 +23,17 @@ namespace {
     Row insertRow;
 }
 
-void RunSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer) {
-    accelerometer::Initialize();
-    ultrasonic::Initialize();
+void runSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer) {
+    accelerometer::initialize();
+    ultrasonic::initialize();
 
     while (running) {
         // TODO replace with std::chrono::time_point
         currentTime = rtos::Kernel::get_ms_count();
         nextFetch = currentTime + FETCH_TIME;
 
-        accelerometer::ReadValues(temp);
-        ultrasonic::ReadValue(&temp[7]);
+        accelerometer::readValues(temp);
+        ultrasonic::readValue(&temp[7]);
 
         insertRow.timestamp = currentTime;
         insertRow.acc_x = temp[0];
@@ -50,7 +50,7 @@ void RunSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer) {
     }
 }
 
-void StopSensors() {
+void stopSensors() {
     running = false;
 }
 

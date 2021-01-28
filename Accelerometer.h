@@ -5,11 +5,11 @@
 
 namespace accelerometer {
 
-void Initialize();
-void ReadValues(float *temp);
+void initialize();
+void readValues(float *temp);
 
-bool RunningOK();
-void GetError(char *buffer);
+bool runningOK();
+void getError(char *buffer);
 
 } // namespace accelerometer
 

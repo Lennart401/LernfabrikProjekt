@@ -30,7 +30,7 @@ namespace {
 
     float temperature;
 
-    void ConfigureOffsets() {
+    void configureOffsets() {
         mpu.setXGyroOffset(154);
         mpu.setYGyroOffset(74);
         mpu.setZGyroOffset(-75);
@@ -40,7 +40,7 @@ namespace {
     }
 } // namespace
 
-void Initialize() {
+void initialize() {
     // Serial.println("Accelerometer -- Setup");
 
     Wire.begin();
@@ -49,7 +49,7 @@ void Initialize() {
     mpu.initialize();
     devStatus = mpu.dmpInitialize();
 
-    ConfigureOffsets();
+    configureOffsets();
 
     if (devStatus == 0) {
         mpu.PrintActiveOffsets();
@@ -64,7 +64,7 @@ void Initialize() {
     Serial.println(mpu.getFullScaleAccelRange());
 }
 
-void ReadValues(float *temp) {
+void readValues(float *temp) {
     if (dmpReady && mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
@@ -84,7 +84,7 @@ void ReadValues(float *temp) {
     }
 }
 
-bool RunningOK() {
+bool runningOK() {
     return dmpReady;
 }
 

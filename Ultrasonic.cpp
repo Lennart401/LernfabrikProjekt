@@ -27,7 +27,7 @@ static unsigned int newPulseIn(const byte pin, const byte state, const unsigned 
 namespace ultrasonic {
 
 namespace {
-    void SendPulse() {
+    void sendPulse() {
         digitalWrite(TRIGGER_PIN, HIGH);
         delayMicroseconds(10);
         digitalWrite(TRIGGER_PIN, LOW);
@@ -37,13 +37,13 @@ namespace {
     //double distance;
 }
 
-void Initialize() {
+void initialize() {
     pinMode(TRIGGER_PIN, OUTPUT);
     pinMode(ECHO_PIN, INPUT);
 }
 
-void ReadValue(float* value) {
-    SendPulse();
+void readValue(float* value) {
+    sendPulse();
     duration = newPulseIn(ECHO_PIN, HIGH);
     *value = 0.017 * duration;
 }

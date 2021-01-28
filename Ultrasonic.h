@@ -5,8 +5,8 @@
 
 namespace ultrasonic {
 
-void Initialize();
-void ReadValue(float* value);
+void initialize();
+void readValue(float* value);
 
 } // namespace ultrasonic
 
