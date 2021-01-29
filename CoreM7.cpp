@@ -18,7 +18,12 @@ namespace {
     Row* buffer_space;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
 
+    UnitSensors sensors;
     rtos::Thread unitSensorsThread(osPriorityRealtime);
+
+    void runUnitSensors() {
+        sensors.runSensors(crcBuffer);
+    }
 }
 
 void setup() {
@@ -26,7 +31,7 @@ void setup() {
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
 
-    unitSensorsThread.start(mbed::callback(units::runSensors, crcBuffer));
+    unitSensorsThread.start(runUnitSensors); // mbed::callback(runUnitSensors, crcBuffer)
 }
 
 void loop() {
