@@ -1,3 +1,5 @@
 settings.json
 .vscode
 .temp_remove
+arduino_secrets.h
+build
