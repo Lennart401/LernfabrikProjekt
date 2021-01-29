@@ -18,12 +18,10 @@ namespace {
     Row* buffer_space;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
 
-    UnitSensors sensors;
+    UnitSensors sensors(crcBuffer);
     rtos::Thread unitSensorsThread(osPriorityRealtime);
 
-    void runUnitSensors() {
-        sensors.runSensors(crcBuffer);
-    }
+    void runUnitSensors() { sensors.runSensors(); }
 }
 
 void setup() {
