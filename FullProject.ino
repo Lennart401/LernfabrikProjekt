@@ -5,6 +5,7 @@
 
 void setup() {
     Serial.begin(115200);
+    while (!Serial);
 
     #ifdef CORE_CM7
         core_m7::setup();

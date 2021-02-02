@@ -32,7 +32,7 @@
 #include "platform/Span.h"
 #include "platform/mbed_atomic.h"
 
-#define BUF_ROWS 100
+#define BUF_ROWS 1000
 
 namespace mbed {
 

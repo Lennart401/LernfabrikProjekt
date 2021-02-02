@@ -9,15 +9,16 @@
 class UnitWiFi {
 
 public:
-    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS>* buffer);
+    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
     ~UnitWiFi();
-    void runWiFi();
+    void runWiFi(WiFiClient &client);
     void stopWiFi();
 
 private:
     void connectWiFi();
     void sendBuffer(WiFiClient &client);
     void displayConnectError();
+    void printWifiStatus();
 
     IPAddress *host;
     uint16_t port = 5000;
