@@ -3,3 +3,4 @@ settings.json
 .temp_remove
 arduino_secrets.h
 build
+start.cmm
