@@ -71,6 +71,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
     client.println("POST /send HTTP/1.1");
     client.print("Host: "); client.print("192.168.178.67"); client.print(":"); client.println(port);
     client.println("Accept: */*");
+    client.println("Connection: close");
     client.println("Content-Length: " + String(headerLength + MIN_ROWS_PER_PACKET * sizeof(Row)));
     client.println("Content-Type: application/octet-stream");
     client.println();
