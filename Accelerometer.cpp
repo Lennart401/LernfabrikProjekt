@@ -37,9 +37,9 @@ void Accelerometer::readValues(float *temp) {
         mpu.dmpGetLinearAccelInWorld(&realAccelerationInWorld, &realAcceleration, &q);
         temperature = mpu.getTemperature() / 340.0 + 36.53;
 
-        temp[0] = (float) realAccelerationInWorld.x / acc_scale;
-        temp[1] = (float) realAccelerationInWorld.y / acc_scale;
-        temp[2] = (float) realAccelerationInWorld.z / acc_scale;
+        temp[0] = (float) realAccelerationInWorld.x / accScale;
+        temp[2] = (float) realAccelerationInWorld.z / accScale;
+        temp[1] = (float) realAccelerationInWorld.y / accScale;
         temp[3] = ypr[0] * 180/M_PI;
         temp[4] = ypr[1] * 180/M_PI;
         temp[5] = ypr[2] * 180/M_PI;

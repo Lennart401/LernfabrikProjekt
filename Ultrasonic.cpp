@@ -30,8 +30,8 @@ void Ultrasonic::initialize() {
 
 void Ultrasonic::readValue(float* value) {
     sendPulse();
-    duration = newPulseIn(mEchoPin, HIGH);
-    *value = 0.017 * duration;
+    mDuration = newPulseIn(mEchoPin, HIGH);
+    *value = 0.017 * mDuration;
 }
 
 void Ultrasonic::sendPulse() {

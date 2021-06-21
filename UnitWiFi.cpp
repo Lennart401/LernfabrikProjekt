@@ -150,7 +150,3 @@ void UnitWiFi::printWifiStatus() {
     Serial.print(rssi);
     Serial.println(" dBm");
 }
-
-char[] UnitWiFi::buildHeader() {
-    
-}

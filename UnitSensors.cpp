@@ -10,7 +10,9 @@
 
 UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
     : crcBuffer(buffer)
-    , mHz(hz) {
+    , mHz(hz)
+    , mAccelerometer(2)
+    , mUltrasonic(4, 5) {
 }
 
 void UnitSensors::runSensors() {

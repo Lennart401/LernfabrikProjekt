@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #ifndef ULTRASONIC_H_
 #define ULTRASONIC_H_
 
@@ -11,7 +9,7 @@ public:
     Ultrasonic(int triggerPin, int echoPin);
 
     void initialize();
-    void readValues(float *value);
+    void readValue(float *value);
 
 private:
     void sendPulse();
