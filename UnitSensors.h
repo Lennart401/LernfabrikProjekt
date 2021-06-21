@@ -4,11 +4,13 @@
 #include <Arduino.h>
 #include "Row.h"
 #include "MbedCircularBuffer.h"
+#include "Accelerometer.h"
+#include "Ultrasonic.h"
 
 class UnitSensors {
 
 public:
-    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS>* buffer);
+    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz = 10);
     void runSensors();
     void stopSensors();
 
@@ -19,6 +21,10 @@ private:
     volatile bool running = true;
     Row insertRow;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
+    uint32_t mHz;
+
+    Accelerometer mAccelerometer(2);
+    Ultrasonic mUltrasonic(4, 5);
 
 };
 

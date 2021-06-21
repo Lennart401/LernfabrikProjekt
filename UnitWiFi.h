@@ -9,7 +9,7 @@
 class UnitWiFi {
 
 public:
-    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
+    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint8_t ip[] = {192, 168, 100, 22});
     ~UnitWiFi();
     void runWiFi(WiFiClient &client);
     void stopWiFi();
@@ -19,6 +19,8 @@ private:
     void sendBuffer(WiFiClient &client);
     void displayConnectError();
     void printWifiStatus();
+
+    void buildHeader();
 
     IPAddress *host;
     uint16_t port = 5000;

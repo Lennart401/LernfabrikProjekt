@@ -1,48 +1,11 @@
 // header file
 #include "Accelerometer.h"
 
-// required dependencies
-#include <Arduino.h>
-#include <stdint.h>
-#include <I2Cdev.h>
-#include <Wire.h>
-#include <MPU6050_6Axis_MotionApps20.h>
+Accelerometer::Accelerometer(uint8_t gRange)
+    : accScale((0x4000 / gRange) * 9.81) {
+}
 
-#define acc_range 2 // 2g
-#define acc_scale (0x4000 / acc_range) * 9.81
-
-namespace accelerometer {
-
-namespace {
-    MPU6050 mpu;
-
-    bool dmpReady = false;
-    uint8_t devStatus;
-    uint16_t fifoCount;
-    uint8_t fifoBuffer[64];
-
-    Quaternion q;
-    VectorInt16 acceleration;
-    VectorInt16 realAcceleration;
-    VectorInt16 realAccelerationInWorld;
-    VectorFloat gravity;
-    float ypr[3];
-
-    float temperature;
-
-    void configureOffsets() {
-        mpu.setXGyroOffset(154);
-        mpu.setYGyroOffset(74);
-        mpu.setZGyroOffset(-75);
-        mpu.setXAccelOffset(1330);
-        mpu.setYAccelOffset(-1565);
-        mpu.setZAccelOffset(1588);
-    }
-} // namespace
-
-void initialize() {
-    // Serial.println("Accelerometer -- Setup");
-
+void Accelerometer::initialize() {
     Wire.begin();
     Wire.setClock(400000);
 
@@ -64,7 +27,7 @@ void initialize() {
     Serial.println(mpu.getFullScaleAccelRange());
 }
 
-void readValues(float *temp) {
+void Accelerometer::readValues(float *temp) {
     if (dmpReady && mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
@@ -84,8 +47,15 @@ void readValues(float *temp) {
     }
 }
 
-bool runningOK() {
+bool Accelerometer::runningOK() {
     return dmpReady;
 }
 
-} // namespace accelerometer
+void Accelerometer::configureOffsets() {
+    mpu.setXGyroOffset(154);
+    mpu.setYGyroOffset(74);
+    mpu.setZGyroOffset(-75);
+    mpu.setXAccelOffset(1330);
+    mpu.setYAccelOffset(-1565);
+    mpu.setZAccelOffset(1588);
+}

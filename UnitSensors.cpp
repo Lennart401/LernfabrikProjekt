@@ -8,21 +8,22 @@
 #define UNITS_PER_SECOND 1000 // 1000000 for µs
 #define FETCH_TIME (UNITS_PER_SECOND/SENSORS_HZ)
 
-UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS>* buffer) {
-    this->crcBuffer = buffer;
+UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
+    : crcBuffer(buffer)
+    , mHz(hz) {
 }
 
 void UnitSensors::runSensors() {
-    accelerometer::initialize();
-    ultrasonic::initialize();
+    mAccelerometer.initialize();
+    mUltrasonic.initialize();
 
     while (running) {
         // TODO replace with std::chrono::time_point
         currentTime = rtos::Kernel::get_ms_count();
         nextFetch = currentTime + FETCH_TIME;
 
-        accelerometer::readValues(temp);
-        ultrasonic::readValue(&temp[7]);
+        mAccelerometer.readValues(temp);
+        mUltrasonic.readValue(&temp[7]);
 
         insertRow.timestamp = currentTime;
         insertRow.acc_x = temp[0];

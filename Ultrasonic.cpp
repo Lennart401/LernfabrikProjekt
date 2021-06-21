@@ -1,12 +1,6 @@
 // header file
 #include "Ultrasonic.h"
 
-// required dependencies
-#include <Arduino.h>
-
-#define TRIGGER_PIN 5
-#define ECHO_PIN 4
-
 // using a macro to avoid function call overhead
 #define WAIT_FOR_PIN_STATE(state) \
     while (digitalRead(pin) != (state)) { \
@@ -24,28 +18,24 @@ static unsigned int newPulseIn(const byte pin, const byte state, const unsigned 
     return micros() - timestamp;
 }
 
-namespace ultrasonic {
-
-namespace {
-    void sendPulse() {
-        digitalWrite(TRIGGER_PIN, HIGH);
-        delayMicroseconds(10);
-        digitalWrite(TRIGGER_PIN, LOW);
-    }
-
-    long duration;
-    //double distance;
+Ultrasonic::Ultrasonic(int triggerPin, int echoPin)
+    : mTriggerPin(triggerPin)
+    , mEchoPin(echoPin) {
 }
 
-void initialize() {
-    pinMode(TRIGGER_PIN, OUTPUT);
-    pinMode(ECHO_PIN, INPUT);
+void Ultrasonic::initialize() {
+    pinMode(mTriggerPin, OUTPUT);
+    pinMode(mEchoPin, INPUT);
 }
 
-void readValue(float* value) {
+void Ultrasonic::readValue(float* value) {
     sendPulse();
-    duration = newPulseIn(ECHO_PIN, HIGH);
+    duration = newPulseIn(mEchoPin, HIGH);
     *value = 0.017 * duration;
 }
 
+void Ultrasonic::sendPulse() {
+    digitalWrite(mTriggerPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(mTriggerPin, LOW);
 }
