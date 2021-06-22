@@ -6,6 +6,7 @@
 #include <SDRAM.h>
 #include <mbed.h>
 #include <rtos.h>
+#include <RPC_internal.h>
 #include "Row.h"
 #include "MbedCircularBuffer.h"
 #include "UnitSensors.h"
@@ -25,6 +26,7 @@ static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
 
 static rtos::Thread unitSensorsThread(osPriorityRealtime);
 static rtos::Thread unitWiFiThread(osPriorityNormal);
+static rtos::Thread m7RPCReceiverThread(osPriorityNormal);
 
 static void runUnitSensors() {
     UnitSensors sensors(crcBuffer);
@@ -36,6 +38,22 @@ static void runUnitWiFi() {
     wifi.runWiFi(globClient);
 }
 
+static void runM7RPCReceiver() {
+    String bufferString;
+
+    while (true) {
+        while (RPC1.available()) {
+            char currentChar = RPC1.read();
+            if (currentChar != '\n') bufferString += currentChar;
+            else {
+                Serial.println("RPC message: '" + bufferString + "'"); 
+                bufferString = "";
+            }
+        }
+        rtos::ThisThread::sleep_for((uint32_t) 50);
+    }
+}
+
 void setup() {
     Serial.begin(115200);
     bootM4();
@@ -45,7 +63,8 @@ void setup() {
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
 
     unitSensorsThread.start(runUnitSensors); // mbed::callback(runUnitSensors, crcBuffer)
-    unitWiFiThread.start(runUnitWiFi);
+    //unitWiFiThread.start(runUnitWiFi);
+    m7RPCReceiverThread.start(runM7RPCReceiver);
 }
 
 void loop() {
