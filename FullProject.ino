@@ -12,7 +12,7 @@ void setup() {
     #endif
 
     #ifdef CORE_CM4
-        core_m4::Setup();
+        core_m4::setup();
     #endif
 }
 
@@ -22,6 +22,6 @@ void loop() {
     #endif
 
     #ifdef CORE_CM4
-        core_m4::Loop();
+        core_m4::loop();
     #endif
 }
