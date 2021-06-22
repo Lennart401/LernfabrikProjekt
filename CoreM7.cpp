@@ -1,5 +1,7 @@
 #ifdef CORE_CM7
 
+#include "CoreM7.h"
+
 #include <Arduino.h>
 #include <SDRAM.h>
 #include <mbed.h>
@@ -12,28 +14,26 @@
 // wifi client workaround -- it will only work when created as a global variable
 WiFiClient globClient;
 
-namespace core_m7 {
-
 // we will use a circular buffer here
 // feed the input side from the RPC input and read values from the output of the buffer
 // to be preprocessed put into the (first) model as input (tensor)
 
-namespace {
-    Row* buffer_space;
-    mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
+namespace core_m7 {
 
-    rtos::Thread unitSensorsThread(osPriorityRealtime);
-    rtos::Thread unitWiFiThread(osPriorityNormal);
+static Row *buffer_space;
+static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
 
-    void runUnitSensors() {
-        UnitSensors sensors(crcBuffer);
-        sensors.runSensors();
-    }
+static rtos::Thread unitSensorsThread(osPriorityRealtime);
+static rtos::Thread unitWiFiThread(osPriorityNormal);
 
-    void runUnitWiFi() {
-        UnitWiFi wifi(crcBuffer);
-        wifi.runWiFi(globClient);
-    }
+static void runUnitSensors() {
+    UnitSensors sensors(crcBuffer);
+    sensors.runSensors();
+}
+
+static void runUnitWiFi() {
+    UnitWiFi wifi(crcBuffer);
+    wifi.runWiFi(globClient);
 }
 
 void setup() {
