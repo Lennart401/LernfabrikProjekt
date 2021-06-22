@@ -37,6 +37,9 @@ static void runUnitWiFi() {
 }
 
 void setup() {
+    Serial.begin(115200);
+    bootM4();
+
     SDRAM.begin();
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
