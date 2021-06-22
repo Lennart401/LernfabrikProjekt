@@ -11,12 +11,11 @@
 UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
     : crcBuffer(buffer)
     , mHz(hz)
-    , mAccelerometer(2)
     , mUltrasonic(4, 5) {
 }
 
 void UnitSensors::runSensors() {
-    mAccelerometer.initialize();
+    accelerometer::initialize();
     mUltrasonic.initialize();
 
     while (running) {
@@ -24,7 +23,7 @@ void UnitSensors::runSensors() {
         currentTime = rtos::Kernel::get_ms_count();
         nextFetch = currentTime + FETCH_TIME;
 
-        mAccelerometer.readValues(temp);
+        accelerometer::readValues(temp);
         mUltrasonic.readValue(&temp[7]);
 
         insertRow.timestamp = currentTime;

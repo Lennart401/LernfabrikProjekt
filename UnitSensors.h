@@ -23,7 +23,6 @@ private:
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
     uint32_t mHz;
 
-    Accelerometer mAccelerometer;
     Ultrasonic mUltrasonic;
 
 };

@@ -9,7 +9,7 @@
 class UnitWiFi {
 
 public:
-    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint8_t ip[]);
+    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
     ~UnitWiFi();
     void runWiFi(WiFiClient &client);
     void stopWiFi();

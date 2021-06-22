@@ -11,9 +11,9 @@
 #define MIN_ROWS_PER_PACKET 100
 #define MYLED LEDB
 
-UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint8_t ip[])
+UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
-    , host(new IPAddress(ip[0], ip[1], ip[2], ip[3])) {
+    , host(new IPAddress(192, 168, 100, 22)) {
 }
 
 UnitWiFi::~UnitWiFi() {
