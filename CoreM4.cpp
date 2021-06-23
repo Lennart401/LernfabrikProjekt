@@ -37,16 +37,13 @@ static lv_disp_buf_t disp_buf;
 static lv_color_t buf_1[COLOR_BUFFER_SIZE];
 static lv_color_t buf_2[COLOR_BUFFER_SIZE];
 
-static lv_obj_t *label;
+static lv_group_t *mainGroup;
 
-static rtos::Thread sendThread(osPriorityNormal);
+static lv_obj_t *btnStart;
+static lv_obj_t *btnStartLabel;
 
-static void runSendThread() {
-    while (true) {
-        RPC1.println("SET mode/running 1");
-        rtos::ThisThread::sleep_for((uint32_t) 1000);
-    }
-}
+static lv_obj_t *btnStop;
+static lv_obj_t *btnStopLabel;
 
 static void checkPosition() {
     encoder.tick();
@@ -91,6 +88,16 @@ static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     return false;
 }
 
+static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
+    if (event == LV_EVENT_CLICKED) {
+        if (obj == btnStart) {
+            RPC1.println("SET mode/running 1");
+        } else if (obj == btnStop) {
+            RPC1.println("SET mode/running 0");
+        }
+    }
+}
+
 void setup() {
     // input initialization
     encoderInterruptA.rise(&checkPosition);
@@ -100,9 +107,6 @@ void setup() {
     encoderInterruptB.fall(&checkPosition);
 
     pinMode(ENCODER_BUTTON, INPUT_PULLUP);
-
-    // thread initialization
-    sendThread.start(runSendThread);
 
     // lvgl stuff
     lv_init();
@@ -124,21 +128,39 @@ void setup() {
     lv_disp_t *disp;
     disp = lv_disp_drv_register(&disp_drv);
 
-    // touch screen driver
+    // encoder driver
     lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_ENCODER;
     indev_drv.read_cb = encoder_read;
-    lv_indev_drv_register(&indev_drv);
+    lv_indev_t *encoderIndev = lv_indev_drv_register(&indev_drv);
 
     // lvgl init done, setup widgets now
     //label = lv_label_create(lv_scr_act(), NULL);
     //lv_label_set_text(label, "WICHSER!");
     //lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    mainGroup = lv_group_create();
+    lv_indev_set_group(encoderIndev, mainGroup);
     
+    btnStart = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_set_event_cb(btnStart, handleButtonClick);
+    lv_obj_align(btnStart, NULL, LV_ALIGN_CENTER, 0, -30);
+    lv_group_add_obj(mainGroup, btnStart);
+
+    btnStartLabel = lv_label_create(btnStart, NULL);    
+    lv_label_set_text(btnStartLabel, "Start");
+
+    btnStop = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_set_event_cb(btnStop, handleButtonClick);
+    lv_obj_align(btnStop, NULL, LV_ALIGN_CENTER, 0, 30);
+    lv_group_add_obj(mainGroup, btnStop);
+
+    btnStopLabel = lv_label_create(btnStop, NULL);
+    lv_label_set_text(btnStopLabel, "Stop");
     
     //lv_demo_benchmark();
-    lv_demo_keypad_encoder();
+    //lv_demo_keypad_encoder();
 }
 
 void loop() {
