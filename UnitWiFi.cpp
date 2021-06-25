@@ -1,6 +1,8 @@
+#include "UnitWiFi.h"
+
 #include <mbed.h>
 #include <rtos.h>
-#include "UnitWiFi.h"
+#include <SPI.h>
 
 // this file contains the wifi credentials for now, this will change
 // as the project progresses. the idea is to save the credentials in the
@@ -13,46 +15,49 @@
 
 UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
-    , host(new IPAddress(192, 168, 100, 22)) {
+    , dataServerHost(new IPAddress(192, 168, 100, 22))
+    , dataServerPort(5000)
+    , currentMode(IDLE) {
+    Serial.println("Port: " + String(dataServerPort));
+    Serial.println("SSID: " + String(SECRET_SSID));
+    Serial.println("Pass: " + String(SECRET_PASS));
+    Serial.println("Mode: " + String(currentMode));
 }
 
 UnitWiFi::~UnitWiFi() {
-    delete host;
+    delete dataServerHost;
 }
 
 void UnitWiFi::runWiFi(WiFiClient &client) {
     // Setup
     Serial.println("Setting up, connecting...");
     pinMode(MYLED, OUTPUT);
-    pinMode(LEDG, OUTPUT);
     digitalWrite(MYLED, HIGH);
-    digitalWrite(LEDG, HIGH);
 
     connectWiFi();
+    //Serial.println("Dummy connected");
 
-    Serial.println("Entering loop...");
+    Serial.println("Entering WiFi loop...");
     // Loop
     while (running) {
-        if (crcBuffer->size() > MIN_ROWS_PER_PACKET) {
-            digitalWrite(LEDG, LOW);
-            // pop all rows from the buffer and send them
+        switch (currentMode) {
 
-            Serial.println("\nStarting connection to server...");
-            if (client.connect(*host, port)) {
-                Serial.println("Sending data to server");
-                sendBuffer(client);
+        case SEND_TO_DATASERVER:
+            loopSendToDataServer(client);
+            //Serial.println("--SENDING TO DATASERVER......--");
+            //rtos::ThisThread::sleep_for(200);
+            break;
 
-                // could also read from the server here, maybe implement that later
-            } else {
-                Serial.println("not connected!");
-                displayConnectError();
-            }
+        case REPORT_TO_BROKER:
+            //loopReportToBroker(client);
+            Serial.println("--REPORTING TO BROKER........--");
+            rtos::ThisThread::sleep_for(200);
+            break;
 
-            client.stop();
-            digitalWrite(LEDG, HIGH);
-            //rtos::ThisThread::sleep_for(1000);
-        } else {
-            rtos::ThisThread::sleep_for(250);
+        case IDLE:
+            rtos::ThisThread::sleep_for(200);
+            break;
+
         }
     }
 }
@@ -61,27 +66,52 @@ void UnitWiFi::stopWiFi() {
     running = false;
 }
 
+void UnitWiFi::setMode(WiFiMode mode) {
+    currentMode = mode;
+}
+
 void UnitWiFi::connectWiFi() {
     char ssid[] = SECRET_SSID;
     char pass[] = SECRET_PASS;
 
-    Serial.println("trying to connect...");
+    Serial.println("Connecting to network " + String(SECRET_SSID) + "...");
     digitalWrite(MYLED, LOW);
-    while (status != WL_CONNECTED) {
-        Serial.print("Attempting to connect to network: ");
-        Serial.println(ssid);
-        status = WiFi.begin(ssid, pass);
 
-        // for (int i = 0; i < 10; i++) {
-        //     Serial.print(i);
-        //     Serial.println("-th try...");
-        //     if (status == WL_CONNECTED) break;
-        //     rtos::ThisThread::sleep_for(500);
-        // }
-        delay(5000);
+    while (status != WL_CONNECTED) {
+        status = WiFi.begin(ssid, pass);
+        //delay(1000); // 5000
     }
     digitalWrite(MYLED, HIGH);
+
     printWifiStatus();
+}
+
+void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
+    if (crcBuffer->size() > MIN_ROWS_PER_PACKET) {
+        digitalWrite(LEDG, LOW);
+        // pop all rows from the buffer and send them
+
+        Serial.println("\nStarting connection to data server...");
+        if (client.connect(*dataServerHost, dataServerPort)) {
+            Serial.println("Sending data to data server");
+            sendBuffer(client);
+
+            // could also read from the server here, maybe implement that later
+        } else {
+            Serial.println("could not connect!");
+            displayConnectError();
+        }
+
+        client.stop();
+        digitalWrite(LEDG, HIGH);
+        //rtos::ThisThread::sleep_for(1000);
+    } else {
+        rtos::ThisThread::sleep_for(200);
+    }
+}
+
+void UnitWiFi::loopReportToBroker(WiFiClient &client) {
+
 }
 
 void UnitWiFi::sendBuffer(WiFiClient &client) {
@@ -100,7 +130,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
     int headerLength = 4 + 9*5;
 
     client.println("POST /send HTTP/1.1");
-    client.print("Host: "); client.print("192.168.178.67"); client.print(":"); client.println(port);
+    client.print("Host: "); client.print("192.168.100.22"); client.print(":"); client.println(dataServerPort);
     client.println("Accept: */*");
     client.println("Connection: close");
     client.println("Content-Length: " + String(headerLength + MIN_ROWS_PER_PACKET * sizeof(Row)));
@@ -125,13 +155,15 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
 }
 
 void UnitWiFi::displayConnectError() {
-    Serial.println("Connect error!");
-    for (int i = 0; i < 5; i++) {
-        digitalWrite(MYLED, LOW);
-        rtos::ThisThread::sleep_for(30);
-        digitalWrite(MYLED, HIGH);
-        rtos::ThisThread::sleep_for(70);
-    }
+    // Serial.println("Connect error!");
+    // for (int i = 0; i < 5; i++) {
+    //     digitalWrite(MYLED, LOW);
+    //     rtos::ThisThread::sleep_for(30);
+    //     digitalWrite(MYLED, HIGH);
+    //     rtos::ThisThread::sleep_for(70);
+    // }
+
+    // TODO send message over RPC to display on screen!
 }
 
 void UnitWiFi::printWifiStatus() {

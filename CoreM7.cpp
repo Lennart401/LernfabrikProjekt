@@ -24,18 +24,25 @@ namespace core_m7 {
 static Row *buffer_space;
 static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
 
-static rtos::Thread unitSensorsThread(osPriorityRealtime);
-static rtos::Thread unitWiFiThread(osPriorityNormal);
-static rtos::Thread m7RPCReceiverThread(osPriorityNormal);
+static UnitWiFi *unitWiFi = nullptr;
+
+static rtos::Thread unitSensorsThread(osPriorityRealtime, OS_STACK_SIZE, nullptr, "sensors-thread");
+static rtos::Thread unitWiFiThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "wifi-thread");
+static rtos::Thread m7RPCReceiverThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "rpc-recv-thread");
 
 static void runUnitSensors() {
+    //rtos::ThisThread::sleep_for((uint32_t) 15000);
+    Serial.println("Starting sensors...");
     UnitSensors sensors(crcBuffer);
     sensors.runSensors();
 }
 
 static void runUnitWiFi() {
-    UnitWiFi wifi(crcBuffer);
-    wifi.runWiFi(globClient);
+    //UnitWiFi wifi(crcBuffer);
+    //wifi.runWiFi(globClient);
+    unitWiFi = new UnitWiFi(crcBuffer);
+    unitWiFi->runWiFi(globClient);
+    delete unitWiFi;
 }
 
 static void runM7RPCReceiver() {
@@ -47,6 +54,34 @@ static void runM7RPCReceiver() {
             if (currentChar != '\n') bufferString += currentChar;
             else {
                 Serial.println("RPC message: '" + bufferString + "'"); 
+
+                int firstDelimiter = bufferString.indexOf(' ');
+                String command = bufferString.substring(0, firstDelimiter);
+                String subject;
+                String payload;
+
+                if (command == "GET") {
+                    subject = bufferString.substring(firstDelimiter+1, bufferString.length() - 1);
+                } else if (command == "SET") {
+                    int secondDelimiter = bufferString.indexOf(' ', firstDelimiter + 1);
+                    subject = bufferString.substring(firstDelimiter+1, secondDelimiter);
+                    payload = bufferString.substring(secondDelimiter+1, bufferString.length() - 1);
+                }
+
+                Serial.println("\nDecoded command: ");
+                Serial.println("Command: '" + command + "'");
+                Serial.println("Subject: '" + subject + "'");
+                if (payload.length() > 0) Serial.println("Payload: '" + payload + "'");
+                else Serial.println("No payload");
+
+                if (command == "SET" && subject == "mode/running" && payload == "1") {
+                    Serial.println("Setting to to SEND_TO_DATASERVER");
+                    unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
+                } else if (command == "SET" && subject == "mode/running" && payload == "0") {
+                    Serial.println("Setting to to IDLE");
+                    unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
+                }
+
                 bufferString = "";
             }
         }
@@ -56,15 +91,18 @@ static void runM7RPCReceiver() {
 
 void setup() {
     Serial.begin(115200);
+    while (!Serial);
     bootM4();
 
     SDRAM.begin();
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
 
-    unitSensorsThread.start(runUnitSensors); // mbed::callback(runUnitSensors, crcBuffer)
-    //unitWiFiThread.start(runUnitWiFi);
+    unitWiFiThread.start(runUnitWiFi);
     m7RPCReceiverThread.start(runM7RPCReceiver);
+
+    //rtos::ThisThread::sleep_for((uint32_t) 10000);
+    unitSensorsThread.start(runUnitSensors); // mbed::callback(runUnitSensors, crcBuffer)
 }
 
 void loop() {

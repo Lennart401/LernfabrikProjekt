@@ -3,27 +3,40 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <SPI.h>
 #include "MbedCircularBuffer.h"
 #include "Row.h"
 
 class UnitWiFi {
 
 public:
+    enum WiFiMode {
+        SEND_TO_DATASERVER,
+        REPORT_TO_BROKER,
+        IDLE
+    };
+
     UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
     ~UnitWiFi();
     void runWiFi(WiFiClient &client);
     void stopWiFi();
 
+    void setMode(WiFiMode mode);
+
 private:
     void connectWiFi();
+
+    void loopSendToDataServer(WiFiClient &client);
+    void loopReportToBroker(WiFiClient &client);
+
     void sendBuffer(WiFiClient &client);
     void displayConnectError();
     void printWifiStatus();
 
-    //void buildHeader();
+    volatile WiFiMode currentMode;
 
-    IPAddress *host;
-    uint16_t port = 5000;
+    IPAddress *dataServerHost;
+    uint16_t dataServerPort;
     int status = WL_IDLE_STATUS;
 
     Row readRow;
