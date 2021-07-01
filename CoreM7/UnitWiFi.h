@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <SPI.h>
 #include "MbedCircularBuffer.h"
 #include "Row.h"
 
