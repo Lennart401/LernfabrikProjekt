@@ -1,36 +1,46 @@
 #include <Arduino.h>
 #include <RPC_internal.h>
-#include <lvgl.h>
-#include <stdint.h>
-#include <SPI.h>
+
 #include <Adafruit_ILI9341.h>
-#include <lv_examples.h>
-#include <mbed.h>
+#include <lvgl.h>
+
 #include <InterruptIn.h>
 #include <RotaryEncoder.h>
 #include <rtos.h>
 
-#define TFT_CS 7
-#define TFT_DC 6
+// ---------------------------------------------------------
+// defines
+#define TFT_CS_PIN 7
+#define TFT_DC_PIN 6
 
 #define COLOR_BUFFER_SIZE LV_HOR_RES_MAX * 20
 
-#define PIN_A 3
-#define PIN_B 2
-#define ENCODER_BUTTON A6
+#define ENCODER_PIN_A 3
+#define ENCODER_PIN_B 2
+#define ENCODER_BUTTON_PIN A6
 
-static RotaryEncoder encoder(PIN_A, PIN_B, RotaryEncoder::LatchMode::FOUR3);
-static mbed::InterruptIn encoderInterruptA(digitalPinToPinName(PIN_A)); // (digitalPinToPinName(PIN_A), PullUp);
-static mbed::InterruptIn encoderInterruptB(digitalPinToPinName(PIN_B)); // (digitalPinToPinName(PIN_B), PullUp);
+// ---------------------------------------------------------
+// rotary encoder stuff
+static RotaryEncoder encoder(ENCODER_PIN_A, ENCODER_PIN_B, RotaryEncoder::LatchMode::FOUR3);
+static mbed::InterruptIn encoderInterruptA(digitalPinToPinName(ENCODER_PIN_A)); // (digitalPinToPinName(PIN_A), PullUp);
+static mbed::InterruptIn encoderInterruptB(digitalPinToPinName(ENCODER_PIN_B)); // (digitalPinToPinName(PIN_B), PullUp);
 static int encoderLastPosition = 0;
 
-static Adafruit_ILI9341 tft(TFT_CS, TFT_DC);
+static void checkPosition() {
+    encoder.tick();
+}
+
+// ---------------------------------------------------------
+// display variables
+static Adafruit_ILI9341 tft(TFT_CS_PIN, TFT_DC_PIN);
 
 static lv_disp_buf_t disp_buf;
 
 static lv_color_t buf_1[COLOR_BUFFER_SIZE];
 static lv_color_t buf_2[COLOR_BUFFER_SIZE];
 
+// ---------------------------------------------------------
+// UI variables (temp)
 static lv_group_t *mainGroup;
 
 static lv_obj_t *btnStart;
@@ -39,10 +49,8 @@ static lv_obj_t *btnStartLabel;
 static lv_obj_t *btnStop;
 static lv_obj_t *btnStopLabel;
 
-static void checkPosition() {
-    encoder.tick();
-}
-
+// ---------------------------------------------------------
+// lvgl callbacks
 static void my_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
@@ -61,20 +69,11 @@ static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
 
     int16_t diff = static_cast<int16_t>(pos) - static_cast<int16_t>(encoderLastPosition);
     data->enc_diff = diff;
-    
-    if (pos != encoderLastPosition) {
-        //Serial.println("Encoder Position: " + String(pos) + " with diff: " + String(diff));
-        //RPC1.println("Encoder Position: " + String(pos) + " with diff: " + String(diff));
-    }
-    
     encoderLastPosition = pos;
 
-    bool isButtonStateLow = (digitalRead(ENCODER_BUTTON) == LOW);
-
+    bool isButtonStateLow = (digitalRead(ENCODER_BUTTON_PIN) == LOW);
     if (isButtonStateLow) {
         data->state = LV_INDEV_STATE_PR;
-        //Serial.println("BUTTON PRESSED");
-        //RPC1.println("Button pressed");
     } else {
         data->state = LV_INDEV_STATE_REL;
     }
@@ -82,6 +81,8 @@ static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     return false;
 }
 
+// ---------------------------------------------------------
+// UI callbacks (temp)
 static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
     if (event == LV_EVENT_CLICKED) {
         if (obj == btnStart) {
@@ -92,6 +93,8 @@ static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
     }
 }
 
+// ---------------------------------------------------------
+// arduino functions
 void setup() {
     RPC1.begin();
 
@@ -102,13 +105,13 @@ void setup() {
     encoderInterruptB.rise(&checkPosition);
     encoderInterruptB.fall(&checkPosition);
 
-    pinMode(ENCODER_BUTTON, INPUT_PULLUP);
+    pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
 
-    // lvgl stuff
+    // lvgl initialization
     lv_init();
 
     // tft initialization
-    tft.begin(60000000);
+    tft.begin();
     tft.setRotation(1);
 
     // display buffer
@@ -131,11 +134,7 @@ void setup() {
     indev_drv.read_cb = encoder_read;
     lv_indev_t *encoderIndev = lv_indev_drv_register(&indev_drv);
 
-    // lvgl init done, setup widgets now
-    //label = lv_label_create(lv_scr_act(), NULL);
-    //lv_label_set_text(label, "WICHSER!");
-    //lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
-
+    // ui initialization (temp)
     mainGroup = lv_group_create();
     lv_indev_set_group(encoderIndev, mainGroup);
     
@@ -154,12 +153,9 @@ void setup() {
 
     btnStopLabel = lv_label_create(btnStop, NULL);
     lv_label_set_text(btnStopLabel, "Stop");
-    
-    //lv_demo_benchmark();
-    //lv_demo_keypad_encoder();
 }
 
 void loop() {
     lv_task_handler();
-    rtos::ThisThread::sleep_for((uint32_t) 1);
+    rtos::ThisThread::sleep_for((uint32_t) 5);
 }
