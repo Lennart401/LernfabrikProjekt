@@ -1,7 +1,3 @@
-#ifdef CORE_CM4
-
-#include "CoreM4.h"
-
 #include <Arduino.h>
 #include <RPC_internal.h>
 #include <lvgl.h>
@@ -22,8 +18,6 @@
 #define PIN_A 13
 #define PIN_B 14
 #define ENCODER_BUTTON A6
-
-namespace core_m4 {
 
 static RotaryEncoder encoder(PIN_A, PIN_B, RotaryEncoder::LatchMode::FOUR3);
 static mbed::InterruptIn encoderInterruptA(digitalPinToPinName(PIN_A)); // (digitalPinToPinName(PIN_A), PullUp);
@@ -99,6 +93,8 @@ static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
 }
 
 void setup() {
+    RPC1.begin();
+
     // input initialization
     encoderInterruptA.rise(&checkPosition);
     encoderInterruptA.fall(&checkPosition);
@@ -167,7 +163,3 @@ void loop() {
     lv_task_handler();
     rtos::ThisThread::sleep_for((uint32_t) 1);
 }
-
-}
-
-#endif // CORE_CM4

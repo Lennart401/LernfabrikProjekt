@@ -1,7 +1,3 @@
-#ifdef CORE_CM7
-
-#include "CoreM7.h"
-
 #include <Arduino.h>
 #include <SDRAM.h>
 #include <mbed.h>
@@ -18,8 +14,6 @@ WiFiClient globClient;
 // we will use a circular buffer here
 // feed the input side from the RPC input and read values from the output of the buffer
 // to be preprocessed put into the (first) model as input (tensor)
-
-namespace core_m7 {
 
 static Row *buffer_space;
 static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
@@ -90,9 +84,13 @@ static void runM7RPCReceiver() {
 }
 
 void setup() {
+    // Open RPC connection and boot M4 core
+    RPC1.begin();
+    bootM4();
+
+    // Open Serial connection
     Serial.begin(115200);
     while (!Serial);
-    bootM4();
 
     SDRAM.begin();
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
@@ -100,9 +98,7 @@ void setup() {
 
     unitWiFiThread.start(runUnitWiFi);
     m7RPCReceiverThread.start(runM7RPCReceiver);
-
-    //rtos::ThisThread::sleep_for((uint32_t) 10000);
-    unitSensorsThread.start(runUnitSensors); // mbed::callback(runUnitSensors, crcBuffer)
+    unitSensorsThread.start(runUnitSensors);
 }
 
 void loop() {
@@ -110,6 +106,3 @@ void loop() {
     rtos::ThisThread::sleep_for((uint32_t) 1000);
 }
 
-} // namespace core_m7
-
-#endif // CORE_CM7
