@@ -15,8 +15,8 @@
 
 #define COLOR_BUFFER_SIZE LV_HOR_RES_MAX * 20
 
-#define PIN_A 13
-#define PIN_B 14
+#define PIN_A 3
+#define PIN_B 2
 #define ENCODER_BUTTON A6
 
 static RotaryEncoder encoder(PIN_A, PIN_B, RotaryEncoder::LatchMode::FOUR3);
