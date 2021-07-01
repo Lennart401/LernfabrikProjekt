@@ -22,9 +22,15 @@
 // ---------------------------------------------------------
 // rotary encoder stuff
 static RotaryEncoder encoder(ENCODER_PIN_A, ENCODER_PIN_B, RotaryEncoder::LatchMode::FOUR3);
-static mbed::InterruptIn encoderInterruptA(digitalPinToPinName(ENCODER_PIN_A)); // (digitalPinToPinName(PIN_A), PullUp);
-static mbed::InterruptIn encoderInterruptB(digitalPinToPinName(ENCODER_PIN_B)); // (digitalPinToPinName(PIN_B), PullUp);
+//static mbed::InterruptIn encoderInterruptA(digitalPinToPinName(ENCODER_PIN_A), PullUp); // (digitalPinToPinName(PIN_A), PullUp);
+//static mbed::InterruptIn encoderInterruptB(digitalPinToPinName(ENCODER_PIN_B), PullUp); // (digitalPinToPinName(PIN_B), PullUp);
 static int encoderLastPosition = 0;
+static rtos::Thread encoderCheckThread(osPriorityRealtime);
+
+static void runEncoderCheckThread() {
+    encoder.tick();
+    rtos::ThisThread::sleep_for(1);
+}
 
 static void checkPosition() {
     encoder.tick();
@@ -99,13 +105,17 @@ void setup() {
     RPC1.begin();
 
     // input initialization
-    encoderInterruptA.rise(&checkPosition);
-    encoderInterruptA.fall(&checkPosition);
+    // encoderInterruptA.rise(&checkPosition);
+    // encoderInterruptA.fall(&checkPosition);
+    // encoderInterruptB.rise(&checkPosition);
+    // encoderInterruptB.fall(&checkPosition);
 
-    encoderInterruptB.rise(&checkPosition);
-    encoderInterruptB.fall(&checkPosition);
+    pinMode(ENCODER_PIN_A, INPUT_PULLUP);
+    pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 
     pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
+
+    encoderCheckThread.start(runEncoderCheckThread);
 
     // lvgl initialization
     lv_init();
