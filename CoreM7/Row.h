@@ -6,11 +6,14 @@ struct Row {
     float acc_x;
     float acc_y;
     float acc_z;
-    float gyro_x;
-    float gyro_y;
-    float gyro_z;
-    float temperature;
-    float distance;
+    float realacc_x;
+    float realacc_y;
+    float realacc_z;
+    //float gyro_x;
+    //float gyro_y;
+    //float gyro_z;
+    //float temperature;
+    //float distance;
 };
 
 #endif // ROW_H_

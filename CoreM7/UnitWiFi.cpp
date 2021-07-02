@@ -115,22 +115,35 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 }
 
 void UnitWiFi::sendBuffer(WiFiClient &client) {
+    uint8_t num_sensors = 7;
+
     char header[] = {
-        0x01, 0x02, 0x00, 0x09, // version, device id, num sensors
+        0x01, 0x02, 0x00, num_sensors, // version, device id, num sensors
         0x03, 0x74, 0x69, 0x6d, 0x65, // uint64_t, "time"
         0x04, 0x61, 0x63, 0x63, 0x78, // float32, "accx"
         0x04, 0x61, 0x63, 0x63, 0x79, // float32, "accy"
         0x04, 0x61, 0x63, 0x63, 0x7a, // float32, "accz"
-        0x04, 0x67, 0x79, 0x72, 0x78, // float32, "gyrx"
-        0x04, 0x67, 0x79, 0x72, 0x79, // float32, "gyrx"
-        0x04, 0x67, 0x79, 0x72, 0x7a, // float32, "gyrx"
-        0x04, 0x74, 0x65, 0x6d, 0x70, // float32, "temp"
-        0x04, 0x64, 0x69, 0x73, 0x74  // float32, "dist"
+        0x04, 0x72, 0x61, 0x63, 0x78, // float32, "racx"
+        0x04, 0x72, 0x61, 0x63, 0x79, // float32, "racy"
+        0x04, 0x72, 0x61, 0x63, 0x7a // float32, "racz"
+        //0x04, 0x67, 0x79, 0x72, 0x78, // float32, "gyrx"
+        //0x04, 0x67, 0x79, 0x72, 0x79, // float32, "gyry"
+        //0x04, 0x67, 0x79, 0x72, 0x7a // float32, "gyrz"
+        //0x04, 0x74, 0x65, 0x6d, 0x70, // float32, "temp"
+        //0x04, 0x64, 0x69, 0x73, 0x74  // float32, "dist"
     };
-    int headerLength = 4 + 9*5;
+    int headerLength = 4 + num_sensors * 5;
+
+    uint32_t ipAddress = *dataServerHost;
 
     client.println("POST /send HTTP/1.1");
-    client.print("Host: "); client.print("192.168.100.22"); client.print(":"); client.println(dataServerPort);
+    client.print("Host: "); //client.print("192.168.4.1"); 
+            // optimize this?
+            client.print(ipAddress & 0xFF); client.print("."); 
+            client.print((ipAddress & 0xFF00) >> 8); client.print(".");
+            client.print((ipAddress & 0xFF0000) >> 16); client.print(".");
+            client.print(ipAddress >> 24);
+            client.print(":"); client.println(dataServerPort);
     client.println("Accept: */*");
     client.println("Connection: close");
     client.println("Content-Length: " + String(headerLength + MIN_ROWS_PER_PACKET * sizeof(Row)));
@@ -145,11 +158,14 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
         buf =       (char*) &readRow.acc_x;       client.write(buf, sizeof(readRow.acc_x));
         buf =       (char*) &readRow.acc_y;       client.write(buf, sizeof(readRow.acc_y));
         buf =       (char*) &readRow.acc_z;       client.write(buf, sizeof(readRow.acc_z));
-        buf =       (char*) &readRow.gyro_x;      client.write(buf, sizeof(readRow.gyro_x));
-        buf =       (char*) &readRow.gyro_y;      client.write(buf, sizeof(readRow.gyro_y));
-        buf =       (char*) &readRow.gyro_z;      client.write(buf, sizeof(readRow.gyro_z));
-        buf =       (char*) &readRow.temperature; client.write(buf, sizeof(readRow.temperature));
-        buf =       (char*) &readRow.distance;    client.write(buf, sizeof(readRow.distance));
+        buf =       (char*) &readRow.realacc_x;   client.write(buf, sizeof(readRow.realacc_x));
+        buf =       (char*) &readRow.realacc_y;   client.write(buf, sizeof(readRow.realacc_y));
+        buf =       (char*) &readRow.realacc_z;   client.write(buf, sizeof(readRow.realacc_z));
+        //buf =       (char*) &readRow.gyro_x;      client.write(buf, sizeof(readRow.gyro_x));
+        //buf =       (char*) &readRow.gyro_y;      client.write(buf, sizeof(readRow.gyro_y));
+        //buf =       (char*) &readRow.gyro_z;      client.write(buf, sizeof(readRow.gyro_z));
+        //buf =       (char*) &readRow.temperature; client.write(buf, sizeof(readRow.temperature));
+        //buf =       (char*) &readRow.distance;    client.write(buf, sizeof(readRow.distance));
     }
     client.println();
 }

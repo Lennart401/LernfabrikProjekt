@@ -15,7 +15,7 @@ public:
     void stopSensors();
 
 private:
-    float temp[8];
+    float temp[9];
     uint64_t currentTime;
     uint64_t nextFetch;
     volatile bool running = true;

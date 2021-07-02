@@ -26,6 +26,7 @@ static VectorInt16 acceleration;
 static VectorInt16 realAcceleration;
 static VectorInt16 realAccelerationInWorld;
 static VectorFloat gravity;
+static VectorInt16 gyro;
 static float ypr[3];
 
 static float temperature;
@@ -62,25 +63,33 @@ void initialize() {
     }
 
     Serial.println(mpu.getFullScaleAccelRange());
+    Serial.println(mpu.getFullScaleGyroRange());
 }
 
 void readValues(float *temp) {
     if (dmpReady && mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+        //mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
         mpu.dmpGetAccel(&acceleration, fifoBuffer);
         mpu.dmpGetLinearAccel(&realAcceleration, &acceleration, &gravity);
         mpu.dmpGetLinearAccelInWorld(&realAccelerationInWorld, &realAcceleration, &q);
+        mpu.dmpGetGyro(&gyro);
         temperature = mpu.getTemperature() / 340.0 + 36.53;
 
-        temp[0] = (float) realAccelerationInWorld.x / acc_scale;
-        temp[1] = (float) realAccelerationInWorld.y / acc_scale;
-        temp[2] = (float) realAccelerationInWorld.z / acc_scale;
-        temp[3] = ypr[0] * 180/M_PI;
-        temp[4] = ypr[1] * 180/M_PI;
-        temp[5] = ypr[2] * 180/M_PI;
-        temp[6] = temperature;
+        temp[0] = (float) realAcceleration.x / acc_scale;
+        temp[1] = (float) realAcceleration.y / acc_scale;
+        temp[2] = (float) realAcceleration.z / acc_scale;
+        temp[3] = (float) realAccelerationInWorld.x / acc_scale;
+        temp[4] = (float) realAccelerationInWorld.y / acc_scale;
+        temp[5] = (float) realAccelerationInWorld.z / acc_scale;
+        temp[6] = (float) gyro.x;
+        temp[7] = (float) gyro.y;
+        temp[8] = (float) gyro.z;
+
+        //temp[6] = ypr[0] * 180/M_PI;
+        //temp[7] = ypr[1] * 180/M_PI;
+        //temp[8] = ypr[2] * 180/M_PI;
     }
 }
 
