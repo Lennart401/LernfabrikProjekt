@@ -4,6 +4,11 @@
 #include <rtos.h>
 #include <SPI.h>
 
+#define MIN(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 // this file contains the wifi credentials for now, this will change
 // as the project progresses. the idea is to save the credentials in the
 // QSPI flash and then get them from there before connecting. they could
@@ -17,7 +22,7 @@ UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
     , dataServerHost(new IPAddress(192, 168, 4, 1))
     , dataServerPort(5000)
-    , currentMode(IDLE) {
+    , currentMode(WiFiMode::SEND_TO_DATASERVER) {
     Serial.println("Port: " + String(dataServerPort));
     Serial.println("SSID: " + String(SECRET_SSID));
     Serial.println("Pass: " + String(SECRET_PASS));
@@ -66,6 +71,10 @@ void UnitWiFi::stopWiFi() {
     running = false;
 }
 
+void UnitWiFi::flush() {
+    flushBuffer = true;
+}
+
 void UnitWiFi::setMode(WiFiMode mode) {
     currentMode = mode;
 }
@@ -87,7 +96,9 @@ void UnitWiFi::connectWiFi() {
 }
 
 void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
-    if (crcBuffer->size() > MIN_ROWS_PER_PACKET) {
+    if (crcBuffer->size() > MIN_ROWS_PER_PACKET || flushBuffer) {
+        if (crcBuffer->size() <= MIN_ROWS_PER_PACKET) flushBuffer = false;
+
         digitalWrite(LEDG, LOW);
         // pop all rows from the buffer and send them
 
@@ -133,6 +144,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
         //0x04, 0x64, 0x69, 0x73, 0x74  // float32, "dist"
     };
     int headerLength = 4 + num_sensors * 5;
+    int numRows = MIN(crcBuffer->size(), MIN_ROWS_PER_PACKET);
 
     uint32_t ipAddress = *dataServerHost;
 
@@ -146,13 +158,13 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
             client.print(":"); client.println(dataServerPort);
     client.println("Accept: */*");
     client.println("Connection: close");
-    client.println("Content-Length: " + String(headerLength + MIN_ROWS_PER_PACKET * sizeof(Row)));
+    client.println("Content-Length: " + String(headerLength + numRows * sizeof(Row)));
     client.println("Content-Type: application/octet-stream");
     client.println();
 
     client.write(header, headerLength);
 
-    for (int i = 0; i < MIN_ROWS_PER_PACKET; i++) {
+    for (int i = 0; i < numRows; i++) {
         crcBuffer->pop(readRow);
         char *buf = (char*) &readRow.timestamp;   client.write(buf, sizeof(readRow.timestamp)); // static_cast<char*>(static_cast<void*>(&readRow.timestamp))
         buf =       (char*) &readRow.acc_x;       client.write(buf, sizeof(readRow.acc_x));

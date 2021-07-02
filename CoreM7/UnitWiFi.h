@@ -20,6 +20,8 @@ public:
     void runWiFi(WiFiClient &client);
     void stopWiFi();
 
+    void flush();
+
     void setMode(WiFiMode mode);
 
 private:
@@ -42,6 +44,7 @@ private:
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
 
     volatile bool running = true;
+    volatile bool flushBuffer = false;
 
 };
 
