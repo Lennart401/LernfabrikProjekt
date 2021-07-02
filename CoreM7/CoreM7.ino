@@ -58,7 +58,7 @@ static void runM7RPCReceiver() {
                 String subject;
                 String payload;
 
-                if (command == "GET") {
+                if (command == "GET" || command == "DO") {
                     subject = bufferString.substring(firstDelimiter+1, bufferString.length() - 1);
                 } else if (command == "SET") {
                     int secondDelimiter = bufferString.indexOf(' ', firstDelimiter + 1);
@@ -84,6 +84,12 @@ static void runM7RPCReceiver() {
                             if (unitWiFi) unitWiFi->flush();                            
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
                         }
+                    }
+                }
+
+                if (command == "DO") {
+                    if (subject == "sensors/calibrate") {
+                        if (unitSensors) unitSensors->calibrate();
                     }
                 }
 

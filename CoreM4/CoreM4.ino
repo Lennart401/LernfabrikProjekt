@@ -55,6 +55,9 @@ static lv_obj_t *btnStartLabel;
 static lv_obj_t *btnStop;
 static lv_obj_t *btnStopLabel;
 
+static lv_obj_t *btnCalibrate;
+static lv_obj_t *btnCalibrateLabel;
+
 // ---------------------------------------------------------
 // lvgl callbacks
 static void my_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p) {
@@ -95,6 +98,8 @@ static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
             RPC1.println("SET mode/running 1");
         } else if (obj == btnStop) {
             RPC1.println("SET mode/running 0");
+        } else if (obj == btnCalibrate) {
+            RPC1.println("DO sensors/calibrate");
         }
     }
 }
@@ -150,7 +155,7 @@ void setup() {
     
     btnStart = lv_btn_create(lv_scr_act(), NULL);
     lv_obj_set_event_cb(btnStart, handleButtonClick);
-    lv_obj_align(btnStart, NULL, LV_ALIGN_CENTER, 0, -30);
+    lv_obj_align(btnStart, NULL, LV_ALIGN_IN_RIGHT_MID, -10, -55);
     lv_group_add_obj(mainGroup, btnStart);
 
     btnStartLabel = lv_label_create(btnStart, NULL);    
@@ -158,11 +163,19 @@ void setup() {
 
     btnStop = lv_btn_create(lv_scr_act(), NULL);
     lv_obj_set_event_cb(btnStop, handleButtonClick);
-    lv_obj_align(btnStop, NULL, LV_ALIGN_CENTER, 0, 30);
+    lv_obj_align(btnStop, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
     lv_group_add_obj(mainGroup, btnStop);
 
     btnStopLabel = lv_label_create(btnStop, NULL);
     lv_label_set_text(btnStopLabel, "Stop");
+
+    btnCalibrate = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_set_event_cb(btnCalibrate, handleButtonClick);
+    lv_obj_align(btnCalibrate, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 55);
+    lv_group_add_obj(mainGroup, btnCalibrate);
+
+    btnCalibrateLabel = lv_label_create(btnCalibrate, NULL);
+    lv_label_set_text(btnCalibrateLabel, "Calibrate");
 }
 
 void loop() {

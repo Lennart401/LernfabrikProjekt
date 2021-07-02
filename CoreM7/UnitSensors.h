@@ -18,6 +18,7 @@ public:
     UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz = 10);
     void runSensors();
     void stopSensors();
+    void calibrate();
 
     void setMode(SensorsMode mode);
 

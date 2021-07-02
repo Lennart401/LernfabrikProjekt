@@ -11,8 +11,6 @@
 #define acc_range 2 // 2g
 #define acc_scale (0x4000 / acc_range) * 9.81
 
-namespace accelerometer {
-
 // internal stuff
 static MPU6050 mpu;
 
@@ -41,7 +39,7 @@ static void configureOffsets() {
 }
 
 // implementations from header
-void initialize() {
+void accelerometer::initialize() {
     // Serial.println("Accelerometer -- Setup");
 
     Wire.begin();
@@ -66,7 +64,7 @@ void initialize() {
     Serial.println(mpu.getFullScaleGyroRange());
 }
 
-void readValues(float *temp) {
+void accelerometer::readValues(float *temp) {
     if (dmpReady && mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
@@ -93,8 +91,12 @@ void readValues(float *temp) {
     }
 }
 
-bool runningOK() {
-    return dmpReady;
+void accelerometer::calibrate() {
+    mpu.CalibrateAccel();
+    mpu.CalibrateGyro();
+    mpu.PrintActiveOffsets();
 }
 
-} // namespace accelerometer
+bool accelerometer::runningOK() {
+    return dmpReady;
+}

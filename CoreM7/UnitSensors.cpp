@@ -62,6 +62,10 @@ void UnitSensors::stopSensors() {
     running = false;
 }
 
+void UnitSensors::calibrate() {
+    accelerometer::calibrate();
+}
+
 void UnitSensors::setMode(SensorsMode mode) {
     currentMode = mode;
 }

@@ -8,6 +8,8 @@ namespace accelerometer {
 void initialize();
 void readValues(float *temp);
 
+void calibrate();
+
 bool runningOK();
 void getError(char *buffer);
 
