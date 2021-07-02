@@ -15,7 +15,7 @@
 
 UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
-    , dataServerHost(new IPAddress(192, 168, 100, 22))
+    , dataServerHost(new IPAddress(192, 168, 4, 1))
     , dataServerPort(5000)
     , currentMode(IDLE) {
     Serial.println("Port: " + String(dataServerPort));
