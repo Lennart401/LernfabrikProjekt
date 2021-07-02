@@ -65,15 +65,19 @@ static void runM7RPCReceiver() {
                 Serial.println("\nDecoded command: ");
                 Serial.println("Command: '" + command + "'");
                 Serial.println("Subject: '" + subject + "'");
-                if (payload.length() > 0) Serial.println("Payload: '" + payload + "'");
-                else Serial.println("No payload");
+                if (payload.length() > 0) Serial.println("Payload: '" + payload + "'\n");
+                else Serial.println("No payload\n");
 
-                if (command == "SET" && subject == "mode/running" && payload == "1") {
-                    Serial.println("Setting to to SEND_TO_DATASERVER");
-                    unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
-                } else if (command == "SET" && subject == "mode/running" && payload == "0") {
-                    Serial.println("Setting to to IDLE");
-                    unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
+                if (command == "SET") {
+                    if (subject == "mode/running") {
+                        if (payload == "1") {
+                            Serial.println("Enabling data record and send mode");
+                            unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
+                        } else if (payload == "0") {
+                            Serial.println("Disabling data record and send mode");
+                            unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
+                        }
+                    }
                 }
 
                 bufferString = "";
@@ -90,7 +94,7 @@ void setup() {
 
     // Open Serial connection
     Serial.begin(115200);
-    while (!Serial);
+    //while (!Serial);
 
     SDRAM.begin();
     buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
