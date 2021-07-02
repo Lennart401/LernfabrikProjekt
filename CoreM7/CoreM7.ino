@@ -19,6 +19,7 @@ static Row *buffer_space;
 static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
 
 static UnitWiFi *unitWiFi = nullptr;
+static UnitSensors *unitSensors = nullptr;
 
 static rtos::Thread unitSensorsThread(osPriorityRealtime, OS_STACK_SIZE, nullptr, "sensors-thread");
 static rtos::Thread unitWiFiThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "wifi-thread");
@@ -26,9 +27,12 @@ static rtos::Thread m7RPCReceiverThread(osPriorityNormal, OS_STACK_SIZE, nullptr
 
 static void runUnitSensors() {
     //rtos::ThisThread::sleep_for((uint32_t) 15000);
-    Serial.println("Starting sensors...");
-    UnitSensors sensors(crcBuffer);
-    sensors.runSensors();
+    //Serial.println("Starting sensors...");
+    //UnitSensors sensors(crcBuffer);
+    //sensors.runSensors();
+    unitSensors = new UnitSensors(crcBuffer);
+    unitSensors->runSensors();
+    delete unitSensors;
 }
 
 static void runUnitWiFi() {
@@ -72,10 +76,12 @@ static void runM7RPCReceiver() {
                     if (subject == "mode/running") {
                         if (payload == "1") {
                             Serial.println("Enabling data record and send mode");
-                            unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
+                            //if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
+                            if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING);
                         } else if (payload == "0") {
                             Serial.println("Disabling data record and send mode");
-                            unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
+                            //if (unitWifi) unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
+                            if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
                         }
                     }
                 }
