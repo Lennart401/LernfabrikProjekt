@@ -8,8 +8,6 @@
 #include "UnitSensors.h"
 #include "UnitWiFi.h"
 
-#define BUF_ROWS 1000
-
 // wifi client workaround -- it will only work when created as a global variable
 WiFiClient globClient;
 

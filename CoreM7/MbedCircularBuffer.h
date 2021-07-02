@@ -31,6 +31,7 @@
 #include "platform/mbed_assert.h"
 #include "platform/Span.h"
 #include "platform/mbed_atomic.h"
+#include "BufferSize.h"
 
 namespace mbed {
 
