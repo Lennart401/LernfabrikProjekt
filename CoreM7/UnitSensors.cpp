@@ -4,9 +4,9 @@
 #include "Ultrasonic.h"
 #include "UnitSensors.h"
 
-#define SENSORS_HZ 10 // would be 200 or 400 or whatever
+//#define SENSORS_HZ 10 // would be 200 or 400 or whatever
 #define UNITS_PER_SECOND 1000 // 1000000 for µs
-#define FETCH_TIME (UNITS_PER_SECOND/SENSORS_HZ)
+#define FETCH_TIME(_hz) (UNITS_PER_SECOND/_hz)
 
 UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
     : crcBuffer(buffer)
@@ -21,7 +21,7 @@ void UnitSensors::runSensors() {
     while (running) {
         // TODO replace with std::chrono::time_point
         currentTime = rtos::Kernel::get_ms_count();
-        nextFetch = currentTime + FETCH_TIME;
+        nextFetch = currentTime + FETCH_TIME(mHz);
 
         accelerometer::readValues(temp);
         //mUltrasonic.readValue(&temp[7]);
