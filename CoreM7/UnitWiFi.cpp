@@ -3,6 +3,7 @@
 #include <mbed.h>
 #include <rtos.h>
 #include <SPI.h>
+#include <RPC_internal.h>
 
 #define MIN(a,b) \
    ({ __typeof__ (a) _a = (a); \
@@ -84,6 +85,7 @@ void UnitWiFi::connectWiFi() {
     char pass[] = SECRET_PASS;
 
     Serial.println("Connecting to network " + String(SECRET_SSID) + "...");
+    RPC1.println("POST wifi/status connecting");
     digitalWrite(MYLED, LOW);
 
     while (status != WL_CONNECTED) {
@@ -91,6 +93,7 @@ void UnitWiFi::connectWiFi() {
         //delay(1000); // 5000
     }
     digitalWrite(MYLED, HIGH);
+    RPC1.println("POST wifi/status OK");
 
     printWifiStatus();
 }
@@ -209,4 +212,6 @@ void UnitWiFi::printWifiStatus() {
     Serial.print("signal strength (RSSI):");
     Serial.print(rssi);
     Serial.println(" dBm");
+
+    RPC1.println("POST wifi/signalstrength " + String(rssi));
 }

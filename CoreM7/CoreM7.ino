@@ -119,7 +119,8 @@ void setup() {
 }
 
 void loop() {
-    Serial.println("crcBuffer size: " + String(crcBuffer->size()));
-    rtos::ThisThread::sleep_for((uint32_t) 1000);
+    //Serial.println("crcBuffer size: " + String(crcBuffer->size()));
+    rtos::ThisThread::sleep_for((uint32_t) 500);
+    RPC1.println("POST buffer/fill " + String((crcBuffer->size() * 100) / BUF_ROWS));
 }
 
