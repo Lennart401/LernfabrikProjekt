@@ -15,7 +15,7 @@ public:
         IDLE
     };
 
-    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz = 10);
+    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz = 100);
     void runSensors();
     void stopSensors();
     void calibrate();
