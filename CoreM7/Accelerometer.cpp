@@ -8,7 +8,7 @@
 #include <Wire.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 
-#define acc_range 2 // 2g
+#define acc_range 8 // unit: g
 #define acc_scale (0x4000 / acc_range) * 9.81
 
 // internal stuff
@@ -30,12 +30,12 @@ static float ypr[3];
 static float temperature;
 
 static void configureOffsets() {
-	mpu.setXGyroOffset(154);
-	mpu.setYGyroOffset(74);
-	mpu.setZGyroOffset(-75);
-	mpu.setXAccelOffset(1330);
-	mpu.setYAccelOffset(-1565);
-	mpu.setZAccelOffset(1588);
+	mpu.setXGyroOffset(163);
+	mpu.setYGyroOffset(80);
+	mpu.setZGyroOffset(-92);
+	mpu.setXAccelOffset(1300);
+	mpu.setYAccelOffset(-1587);
+	mpu.setZAccelOffset(1606);
 }
 
 // implementations from header
@@ -58,6 +58,13 @@ void accelerometer::initialize() {
         Serial.print("Accelerometer -- MPU Init Error: ");
         Serial.println(devStatus);
         // TODO implement error
+    }
+
+    switch (acc_range) {
+    case  2: mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_2);  break;
+    case  4: mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);  break;
+    case  8: mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);  break;
+    case 16: mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_16); break;
     }
 
     Serial.println(mpu.getFullScaleAccelRange());
@@ -92,9 +99,16 @@ void accelerometer::readValues(float *temp) {
 }
 
 void accelerometer::calibrate() {
+    mpu.setDMPEnabled(false);
     mpu.CalibrateAccel();
     mpu.CalibrateGyro();
     mpu.PrintActiveOffsets();
+    mpu.setDMPEnabled(true);
+
+    Serial.println(mpu.getFullScaleAccelRange());
+    Serial.println(mpu.getFullScaleGyroRange());
+    //Serial.println(mpu.dmpGetSampleFrequency());
+    //Serial.println(mpu.dmpGetFIFORate());
 }
 
 bool accelerometer::runningOK() {
