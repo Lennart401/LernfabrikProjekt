@@ -16,7 +16,7 @@
 // been entered/changed through the touch screen user interface
 #include "arduino_secrets.h"
 
-#define MIN_ROWS_PER_PACKET 1000
+#define MIN_ROWS_PER_PACKET 2000
 #define MYLED LEDB
 
 UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
