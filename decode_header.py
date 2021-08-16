@@ -33,4 +33,12 @@ def decode_header_v1(content, length):
         }
         sensors_dict.append(sensor)
 
-    return 1, header_device_id, offset + header_num_sensors * sensors_field_length, pd.DataFrame(sensors_dict)
+    # return 1, header_device_id, offset + header_num_sensors * sensors_field_length, pd.DataFrame(sensors_dict)
+    return {
+        "version": 1,
+        "header_size": offset + header_device_id * sensors_field_length,
+        "sensors": pd.DataFrame(sensors_dict),
+        "metadata": {
+            "device_id": header_device_id
+        }
+    }

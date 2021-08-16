@@ -21,13 +21,18 @@ def send():
     length = request.content_length
     print("length", length)
 
-    version, device_id, header_size, sensors = dh.decode_header(content, length)
+    # version, device_id, header_size, sensors = dh.decode_header(content, length)
+    header = dh.decode_header(content, length)
+    device_id = header["metadata"]["device_id"]
+    header_size = header["header_size"]
+    sensors = header["sensors"]
+
     print("device_id", device_id)
     print("header_size", header_size)
     print(sensors)
 
     payload = content[header_size:length]
-    df = dp.decode_payload(version, payload, sensors)
+    df = dp.decode_payload(header["version"], payload, sensors)
     # print(df)
 
     df.to_csv(datetime.now().strftime(f"./saved2/dev_{device_id}_%Y-%m-%d_%H-%M-%S.csv"), index=False)
