@@ -5,7 +5,7 @@ import struct
 
 
 def decode_payload(version, payload, sensors):
-    if version == 1:
+    if version == 1 or version == 2:
         return decode_payload_v1(payload, sensors)
 
 
