@@ -9,6 +9,8 @@
 #include <Mutex.h>
 #include <rtos.h>
 
+#include "RecordScreen.h"
+
 // ---------------------------------------------------------
 // defines
 #define TFT_CS_PIN 7
@@ -50,23 +52,9 @@ static lv_color_t buf_1[COLOR_BUFFER_SIZE];
 static lv_color_t buf_2[COLOR_BUFFER_SIZE];
 
 // ---------------------------------------------------------
-// UI variables (temp)
-static lv_group_t *mainGroup;
-
-static lv_obj_t *btnStart;
-static lv_obj_t *btnStartLabel;
-
-static lv_obj_t *btnStop;
-static lv_obj_t *btnStopLabel;
-
-static lv_obj_t *btnCalibrate;
-static lv_obj_t *btnCalibrateLabel;
-
+// Top layer UI variables
 static lv_obj_t *labelWiFi;
 static lv_obj_t *labelWiFiStatus;
-
-static lv_obj_t *labelBufferSize;
-static lv_obj_t *barBufferSize;
 
 // ---------------------------------------------------------
 // lvgl callbacks
@@ -98,20 +86,6 @@ static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     }
 
     return false;
-}
-
-// ---------------------------------------------------------
-// UI callbacks (temp)
-static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
-    if (event == LV_EVENT_CLICKED) {
-        if (obj == btnStart) {
-            RPC1.println("SET mode/running 1");
-        } else if (obj == btnStop) {
-            RPC1.println("SET mode/running 0");
-        } else if (obj == btnCalibrate) {
-            RPC1.println("DO sensors/calibrate");
-        }
-    }
 }
 
 // ---------------------------------------------------------
@@ -161,11 +135,9 @@ static void runM4RPCReceiver() {
                             lvglMutex.unlock();
                         }
                     }
-
-                    if (subject == "buffer/fill") {
-                        lv_bar_set_value(barBufferSize, payload.toInt(), LV_ANIM_ON);
-                    }
                 }
+
+                record_screen_receive_message(command, subject, payload);
 
                 bufferString = "";
             }
@@ -230,50 +202,14 @@ void setup() {
     lv_label_set_recolor(labelWiFiStatus, true);
     lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
 
-    // ui initialization (temp)
-    // buttons 
-    mainGroup = lv_group_create();
-    lv_indev_set_group(encoderIndev, mainGroup);
-    
-    btnStart = lv_btn_create(lv_scr_act(), NULL);
-    lv_obj_set_event_cb(btnStart, handleButtonClick);
-    lv_obj_align(btnStart, NULL, LV_ALIGN_IN_RIGHT_MID, -10, -55);
-    lv_group_add_obj(mainGroup, btnStart);
-
-    btnStartLabel = lv_label_create(btnStart, NULL);    
-    lv_label_set_text(btnStartLabel, "Start");
-
-    btnStop = lv_btn_create(lv_scr_act(), NULL);
-    lv_obj_set_event_cb(btnStop, handleButtonClick);
-    lv_obj_align(btnStop, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
-    lv_group_add_obj(mainGroup, btnStop);
-
-    btnStopLabel = lv_label_create(btnStop, NULL);
-    lv_label_set_text(btnStopLabel, "Stop");
-
-    btnCalibrate = lv_btn_create(lv_scr_act(), NULL);
-    lv_obj_set_event_cb(btnCalibrate, handleButtonClick);
-    lv_obj_align(btnCalibrate, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 55);
-    lv_group_add_obj(mainGroup, btnCalibrate);
-
-    btnCalibrateLabel = lv_label_create(btnCalibrate, NULL);
-    lv_label_set_text(btnCalibrateLabel, "Calibrate");
-
-    
-
-    // buffer bar
-    labelBufferSize = lv_label_create(lv_scr_act(), NULL);
-    lv_obj_align(labelBufferSize, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 0, -35);
-    lv_label_set_text(labelBufferSize, "Buffer fill:");
-
-    barBufferSize = lv_bar_create(lv_scr_act(), NULL);
-    lv_obj_set_size(barBufferSize, 150, 30);
-    lv_obj_align(barBufferSize, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
-    lv_bar_set_anim_time(barBufferSize, 1000);
-    lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
-
     // RPC comm
     m4RPCReceiverThread.start(runM4RPCReceiver);
+
+    // init screens
+    record_screen_create(encoderIndev);
+
+    // start onboarding/record screen
+    record_screen_load();
 }
 
 void loop() {
