@@ -19,25 +19,21 @@ All these components will be mounted on a stackable box for better handling and 
 -- WIP --
 
 ## Dual core processing
-FullProject.ino is the main arduino project file with is uploaded to the arduino. The processor-specific code for both the M7 and M4 core is in their respective ```CoreMx.h/.cpp``` files. These header files contain the same ```setup()``` and ```loop()``` methods as the main arduino sketch and are called from the main sketch file.
-
-In summary, all M7-related core is in [```CoreM7.h```](CoreM7.h)[```/.cpp```](CoreM7.cpp) and all M4-related core is in [```CoreM7.h```](CoreM4.h)[```/.cpp```](CoreM4.cpp).
+Since both cores on the portenta H7 need to be programmed seperately, each core-specific code is in their respective subprojects `CoreM7` and `CoreM4` with their .ino-files. The cores communicate soly via a custom text-based protocol layered on top of the RPC message-based communication mechanism (see [custom RPC protocol](#Internal-RPC-communication-protocol)).
 
 ### Core M4
-The M4's job is to control the user interface using [Little VGL](https://lvgl.io/), display information received from the M7 core and hand input events (e. g. mode change) to the M7 core.
-
-The communication will work using a [custom protocol](#Internal-RPC-communication-protocol) over the RPC-communication mechanism.
+The M4's job is to control the user interface using [Little VGL](https://lvgl.io/), display information received from the M7 core and dispatch input events (e. g. mode change) to the M7 core.
 
 ### Core M7
-The M7 is responsible for multiple tasks and therefore has multiple threads running.
+The M7 is responsible for multiple different tasks and is therefore split into multiple units:
 
-- Reading sensor data und writing it into a ring buffer. See [UnitSensors](UnitSensors.h)
-- Communicating to a server over WiFi. See [UnitWiFi](UnitWiFi.h)
+- Reading sensor data und writing it into a ring buffer. See [UnitSensors](/CoreM7/UnitSensors.h)
+- Send the recorded data to a the [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver) over WiFi. See [UnitWiFi](/CoreM7/UnitWiFi.h)
 - Running a machine learning modell using TensorFlow Lite
 - Communicate with the M4 core using a [custom RPC protocol](#Internal-RPC-communication-protocol)
 
 Depeding on its mode of operation, the M7 will...
-- ...either record sensor data and send the data in batches to a webserver (See [LernfabrikWebserver](https://github.com/Lennart401/LernfabrikWebserver))
+- ...either record sensor data and send the data in batches to a webserver (See [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver))
 - ...or record sensor data and feed it into the Machine Learning Model Unit and then only send its currect state/position to the webserver
 
 ## Libraries
@@ -73,7 +69,20 @@ Futhermore, the definition of `BUFFER_LENGTH` from `I2Cdev.cpp` does not make it
 ## Protocols and definitions
 
 ### Internal RPC communication protocol
--- WIP --
+This protocol is a text based protocol layered on top of the RPC message-based communication mechanism. Each transmitted line is handled as a single message (i.e. each message terminates with a line feed (`\n`) character). The protocol has been inspired by HTTP and MQTT.
+
+Each message consists of three parts: `<command> <subject> [payload] \n`
+
+There are four types of commands, only some of them contain a payload:
+
+| Command                       | Usage                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `GET <subject> \n`            | Request information. Sent from M4 -> M7, M7 will respond with `POST` on the same subject. |
+| `POST <subject> <payload> \n` | Send information (e.g. to be displayed). Sent from M7 -> M4, no response.                 |
+| `SET <subject> <payload> \n`  | Change mode/settings/etc. Sent from M4 -> M7, no response.                                |
+| `DO <subject> \n`             | Run an action without any payload. Sent from M4 -> M7, no response.                       |
+
+The subject string shall be formatted like a MQTT subject string, e.g. `wifi/status`.
 
 ### WiFi Webserver communication protocol
 To minimize the data that required to be sent over wifi, I have develop a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikWebserver](https://github.com/Lennart401/LernfabrikWebserver/#communication-protocol)-Repository.
