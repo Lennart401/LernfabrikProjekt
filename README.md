@@ -1,4 +1,4 @@
-# LernfabrikProjektArduino
+# LernfabrikArduino
 
 __ATTENTION!!!__ If the code does not compile for weird reasons, see [Library Source Adjustments](#Library-Source-Adjustments) down below!
 
