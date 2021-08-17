@@ -219,6 +219,17 @@ void setup() {
     indev_drv.read_cb = encoder_read;
     lv_indev_t *encoderIndev = lv_indev_drv_register(&indev_drv);
 
+    // top layer ui initialization
+    // status labels
+    labelWiFi = lv_label_create(lv_layer_top(), NULL);
+    lv_obj_align(labelWiFi, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
+    lv_label_set_text(labelWiFi, "WiFi:");
+
+    labelWiFiStatus = lv_label_create(lv_layer_top(), NULL);
+    lv_obj_align(labelWiFiStatus, NULL, LV_ALIGN_IN_TOP_LEFT, 40, 0);
+    lv_label_set_recolor(labelWiFiStatus, true);
+    lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
+
     // ui initialization (temp)
     // buttons 
     mainGroup = lv_group_create();
@@ -248,15 +259,7 @@ void setup() {
     btnCalibrateLabel = lv_label_create(btnCalibrate, NULL);
     lv_label_set_text(btnCalibrateLabel, "Calibrate");
 
-    // status labels
-    labelWiFi = lv_label_create(lv_scr_act(), NULL);
-    lv_obj_align(labelWiFi, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
-    lv_label_set_text(labelWiFi, "WiFi:");
-
-    labelWiFiStatus = lv_label_create(lv_scr_act(), NULL);
-    lv_obj_align(labelWiFiStatus, NULL, LV_ALIGN_IN_TOP_LEFT, 40, 0);
-    lv_label_set_recolor(labelWiFiStatus, true);
-    lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
+    
 
     // buffer bar
     labelBufferSize = lv_label_create(lv_scr_act(), NULL);
