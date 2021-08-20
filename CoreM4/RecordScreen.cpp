@@ -6,6 +6,9 @@ static lv_obj_t *recordScreen;
 
 static lv_group_t *mainGroup;
 
+static lv_obj_t *labelHeading;
+static lv_style_t labelHeadingStyle;
+
 static lv_obj_t *btnStart;
 static lv_obj_t *btnStartLabel;
 
@@ -40,6 +43,14 @@ void record_screen_create(lv_indev_t *encoderIndev) {
     // buttons 
     mainGroup = lv_group_create();
     lv_indev_set_group(encoderIndev, mainGroup);
+
+    lv_style_init(&labelHeadingStyle);
+    lv_style_set_text_font(&labelHeadingStyle, LV_STATE_DEFAULT, &lv_font_montserrat_26);
+
+    labelHeading = lv_label_create(recordScreen, NULL);
+    lv_label_set_text(labelHeading, "Record");
+    lv_obj_align(labelHeading, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 30);
+    lv_obj_add_style(labelHeading, 0, &labelHeadingStyle);
     
     btnStart = lv_btn_create(recordScreen, NULL);
     lv_obj_set_event_cb(btnStart, handleButtonClick);
