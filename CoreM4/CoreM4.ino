@@ -9,6 +9,7 @@
 #include <Mutex.h>
 #include <rtos.h>
 
+#include "OnboardingScreen.h"
 #include "RecordScreen.h"
 
 // ---------------------------------------------------------
@@ -54,7 +55,9 @@ static lv_color_t buf_2[COLOR_BUFFER_SIZE];
 // ---------------------------------------------------------
 // Top layer UI variables
 static lv_obj_t *labelWiFi;
+static lv_style_t labelWiFiStyle;
 static lv_obj_t *labelWiFiStatus;
+static lv_style_t labelWiFiStatusStyle;
 
 // ---------------------------------------------------------
 // lvgl callbacks
@@ -119,15 +122,21 @@ static void runM4RPCReceiver() {
                     if (subject == "wifi/status") {
                         if (payload == "connecting") {
                             lvglMutex.lock();
-                            lv_label_set_text(labelWiFiStatus, "#ffc830 Connecting...");
+                            //lv_label_set_text(labelWiFiStatus, "#ffc830 Connecting...");
+                            lv_label_set_text(labelWiFiStatus, "Connecting...");
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
                             lvglMutex.unlock();
                         } else if (payload == "OK") {
                             lvglMutex.lock();
-                            lv_label_set_text(labelWiFiStatus, "#16a616 OK");
+                            //lv_label_set_text(labelWiFiStatus, "#16a616 OK");
+                            lv_label_set_text(labelWiFiStatus, "OK");
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_GREEN);
                             lvglMutex.unlock();
                         } else if (payload == "error") {
                             lvglMutex.lock();
-                            lv_label_set_text(labelWiFiStatus, "#ff0000 Error");
+                            //lv_label_set_text(labelWiFiStatus, "#ff0000 Error");
+                            lv_label_set_text(labelWiFiStatus, "Error");
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_RED);
                             lvglMutex.unlock();
                         } else {
                             lvglMutex.lock();
@@ -193,23 +202,35 @@ void setup() {
 
     // top layer ui initialization
     // status labels
+    lv_style_init(&labelWiFiStyle);
+    lv_style_set_bg_color(&labelWiFiStyle, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+    lv_style_set_bg_opa(&labelWiFiStyle, LV_STATE_DEFAULT, LV_OPA_50);
+
     labelWiFi = lv_label_create(lv_layer_top(), NULL);
     lv_obj_align(labelWiFi, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
     lv_label_set_text(labelWiFi, "WiFi:");
+    lv_obj_add_style(labelWiFi, 0, &labelWiFiStyle);
+
+    lv_style_init(&labelWiFiStatusStyle);
+    lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+    lv_style_set_bg_opa(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_OPA_50);
 
     labelWiFiStatus = lv_label_create(lv_layer_top(), NULL);
-    lv_obj_align(labelWiFiStatus, NULL, LV_ALIGN_IN_TOP_LEFT, 40, 0);
-    lv_label_set_recolor(labelWiFiStatus, true);
-    lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
+    lv_obj_align(labelWiFiStatus, NULL, LV_ALIGN_IN_TOP_LEFT, 36, 0);
+    lv_obj_add_style(labelWiFiStatus, 0, &labelWiFiStatusStyle);
+    //lv_label_set_recolor(labelWiFiStatus, true);
+    //lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
+    lv_label_set_text(labelWiFiStatus, "unknown");
 
     // RPC comm
     m4RPCReceiverThread.start(runM4RPCReceiver);
 
     // init screens
+    onboarding_screen_create(encoderIndev);
     record_screen_create(encoderIndev);
 
     // start onboarding/record screen
-    record_screen_load();
+    onboarding_screen_load();
 }
 
 void loop() {
