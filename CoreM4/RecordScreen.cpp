@@ -21,8 +21,11 @@ static lv_obj_t *btnCalibrateLabel;
 static lv_obj_t *labelBufferSize;
 static lv_obj_t *barBufferSize;
 
-static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
-    if (event == LV_EVENT_CLICKED) {
+static void handleButtonClick(lv_event_t *event) {
+    lv_event_code_t code = lv_event_get_code(event);
+    lv_obj_t *obj = lv_event_get_target(event);
+
+    if (code == LV_EVENT_CLICKED) {
         if (obj == btnStart) {
             RPC1.println("SET mode/running 1");
         } else if (obj == btnStop) {
@@ -35,7 +38,7 @@ static void handleButtonClick(lv_obj_t *obj, lv_event_t event) {
 
 void record_screen_create(lv_indev_t *encoderIndev) {
     // init screen
-    recordScreen = lv_obj_create(NULL, NULL);
+    recordScreen = lv_obj_create(NULL);
 
     // init heading
 
@@ -45,46 +48,46 @@ void record_screen_create(lv_indev_t *encoderIndev) {
     lv_indev_set_group(encoderIndev, mainGroup);
 
     lv_style_init(&labelHeadingStyle);
-    lv_style_set_text_font(&labelHeadingStyle, LV_STATE_DEFAULT, &lv_font_montserrat_26);
+    lv_style_set_text_font(&labelHeadingStyle, &lv_font_montserrat_26);
 
-    labelHeading = lv_label_create(recordScreen, NULL);
+    labelHeading = lv_label_create(recordScreen);
     lv_label_set_text(labelHeading, "Record");
-    lv_obj_align(labelHeading, NULL, LV_ALIGN_IN_TOP_LEFT, 10, 30);
-    lv_obj_add_style(labelHeading, 0, &labelHeadingStyle);
+    lv_obj_align(labelHeading, LV_ALIGN_TOP_LEFT, 10, 30);
+    lv_obj_add_style(labelHeading, &labelHeadingStyle, 0);
     
-    btnStart = lv_btn_create(recordScreen, NULL);
-    lv_obj_set_event_cb(btnStart, handleButtonClick);
-    lv_obj_align(btnStart, NULL, LV_ALIGN_IN_RIGHT_MID, -10, -55);
+    btnStart = lv_btn_create(recordScreen);
+    lv_obj_add_event_cb(btnStart, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_align(btnStart, LV_ALIGN_RIGHT_MID, -10, -55);
     lv_group_add_obj(mainGroup, btnStart);
 
-    btnStartLabel = lv_label_create(btnStart, NULL);    
+    btnStartLabel = lv_label_create(btnStart);    
     lv_label_set_text(btnStartLabel, "Start");
 
-    btnStop = lv_btn_create(recordScreen, NULL);
-    lv_obj_set_event_cb(btnStop, handleButtonClick);
-    lv_obj_align(btnStop, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
+    btnStop = lv_btn_create(recordScreen);
+    lv_obj_add_event_cb(btnStop, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_align(btnStop, LV_ALIGN_RIGHT_MID, -10, 0);
     lv_group_add_obj(mainGroup, btnStop);
 
-    btnStopLabel = lv_label_create(btnStop, NULL);
+    btnStopLabel = lv_label_create(btnStop);
     lv_label_set_text(btnStopLabel, "Stop");
 
-    btnCalibrate = lv_btn_create(recordScreen, NULL);
-    lv_obj_set_event_cb(btnCalibrate, handleButtonClick);
-    lv_obj_align(btnCalibrate, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 55);
+    btnCalibrate = lv_btn_create(recordScreen);
+    lv_obj_add_event_cb(btnCalibrate, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_align(btnCalibrate, LV_ALIGN_RIGHT_MID, -10, 55);
     lv_group_add_obj(mainGroup, btnCalibrate);
 
-    btnCalibrateLabel = lv_label_create(btnCalibrate, NULL);
+    btnCalibrateLabel = lv_label_create(btnCalibrate);
     lv_label_set_text(btnCalibrateLabel, "Calibrate");
 
     // buffer bar
-    labelBufferSize = lv_label_create(recordScreen, NULL);
-    lv_obj_align(labelBufferSize, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -45);
+    labelBufferSize = lv_label_create(recordScreen);
+    lv_obj_align(labelBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -45);
     lv_label_set_text(labelBufferSize, "Buffer fill:");
 
-    barBufferSize = lv_bar_create(recordScreen, NULL);
+    barBufferSize = lv_bar_create(recordScreen);
     lv_obj_set_size(barBufferSize, 150, 30);
-    lv_obj_align(barBufferSize, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 10, -10);
-    lv_bar_set_anim_time(barBufferSize, 1000);
+    lv_obj_align(barBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -10);
+    //lv_bar_set_anim_time(barBufferSize, 1000);
     lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
 }
 

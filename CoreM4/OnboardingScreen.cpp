@@ -10,20 +10,20 @@ static lv_style_t labelHeadingStyle;
 
 void onboarding_screen_create(lv_indev_t *encoderIndev) {
     // init the screen
-    onboardingScreen = lv_obj_create(NULL, NULL);
+    onboardingScreen = lv_obj_create(NULL);
 
     // init heading
-    imgLeuphanaLogo = lv_img_create(onboardingScreen, NULL);
+    imgLeuphanaLogo = lv_img_create(onboardingScreen);
     lv_img_set_src(imgLeuphanaLogo, &leuphana_logo);
-    lv_obj_align(imgLeuphanaLogo, NULL, LV_ALIGN_IN_TOP_LEFT, 50, 50);
+    lv_obj_align(imgLeuphanaLogo, LV_ALIGN_TOP_LEFT, 50, 50);
 
     lv_style_init(&labelHeadingStyle);
-    lv_style_set_text_font(&labelHeadingStyle, LV_STATE_DEFAULT, &lv_font_montserrat_26);
+    lv_style_set_text_font(&labelHeadingStyle, &lv_font_montserrat_26);
 
-    labelHeading = lv_label_create(onboardingScreen, NULL);
+    labelHeading = lv_label_create(onboardingScreen);
     lv_label_set_text(labelHeading, "Lernfabrik");
-    lv_obj_add_style(labelHeading, 0, &labelHeadingStyle);
-    lv_obj_align(labelHeading, NULL, LV_ALIGN_IN_TOP_LEFT, 90, 53);
+    lv_obj_add_style(labelHeading, &labelHeadingStyle, 0);
+    lv_obj_align(labelHeading, LV_ALIGN_TOP_LEFT, 90, 53);
 
     // init buttons
 

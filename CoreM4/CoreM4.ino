@@ -17,7 +17,10 @@
 #define TFT_CS_PIN 7
 #define TFT_DC_PIN 6
 
-#define COLOR_BUFFER_SIZE LV_HOR_RES_MAX * 20
+#define MONITOR_HOR_RES 320
+#define MONITOR_VER_RES 240
+
+#define COLOR_BUFFER_SIZE MONITOR_HOR_RES * 20
 
 #define ENCODER_PIN_A 3
 #define ENCODER_PIN_B 2
@@ -36,7 +39,7 @@ static rtos::Thread encoderCheckThread(osPriorityRealtime);
 
 static void runEncoderCheckThread() {
     encoder.tick();
-    rtos::ThisThread::sleep_for(1);
+    rtos::ThisThread::sleep_for((uint32_t) 1);
 }
 
 static void checkPosition() {
@@ -47,7 +50,7 @@ static void checkPosition() {
 // display variables
 static Adafruit_ILI9341 tft(TFT_CS_PIN, TFT_DC_PIN);
 
-static lv_disp_buf_t disp_buf;
+static lv_disp_draw_buf_t disp_buf;
 
 static lv_color_t buf_1[COLOR_BUFFER_SIZE];
 static lv_color_t buf_2[COLOR_BUFFER_SIZE];
@@ -73,7 +76,7 @@ static void my_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color
     lv_disp_flush_ready(disp_drv);
 }
 
-static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
+static void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
     encoder.tick();
     int pos = encoder.getPosition();
 
@@ -88,7 +91,7 @@ static bool encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
         data->state = LV_INDEV_STATE_REL;
     }
 
-    return false;
+    //return false;
 }
 
 // ---------------------------------------------------------
@@ -120,29 +123,24 @@ static void runM4RPCReceiver() {
 
                 if (command == "POST") {
                     if (subject == "wifi/status") {
+
+                        lvglMutex.lock();
                         if (payload == "connecting") {
-                            lvglMutex.lock();
                             //lv_label_set_text(labelWiFiStatus, "#ffc830 Connecting...");
                             lv_label_set_text(labelWiFiStatus, "Connecting...");
-                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
-                            lvglMutex.unlock();
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_YELLOW));
                         } else if (payload == "OK") {
-                            lvglMutex.lock();
                             //lv_label_set_text(labelWiFiStatus, "#16a616 OK");
                             lv_label_set_text(labelWiFiStatus, "OK");
-                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_GREEN);
-                            lvglMutex.unlock();
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_GREEN));
                         } else if (payload == "error") {
-                            lvglMutex.lock();
                             //lv_label_set_text(labelWiFiStatus, "#ff0000 Error");
                             lv_label_set_text(labelWiFiStatus, "Error");
-                            lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_RED);
-                            lvglMutex.unlock();
+                            lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_RED));
                         } else {
-                            lvglMutex.lock();
                             lv_label_set_text(labelWiFiStatus, payload.c_str());
-                            lvglMutex.unlock();
                         }
+                        lvglMutex.unlock();
                     }
                 }
 
@@ -181,15 +179,17 @@ void setup() {
     tft.setRotation(1);
 
     // display buffer
-    lv_disp_buf_init(&disp_buf, buf_1, buf_2, COLOR_BUFFER_SIZE);
+    lv_disp_draw_buf_init(&disp_buf, buf_1, buf_2, COLOR_BUFFER_SIZE);
 
     // display driver
-    lv_disp_drv_t disp_drv;
+    static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.flush_cb = my_flush_cb;
     //disp_drv.gpu_fill_cb = gpu_fill;
     //disp_drv.gpu_blend_cb = gpu_blend;
-    disp_drv.buffer = &disp_buf;
+    disp_drv.draw_buf = &disp_buf;
+    disp_drv.hor_res = MONITOR_HOR_RES;
+    disp_drv.ver_res = MONITOR_VER_RES;
     lv_disp_t *disp;
     disp = lv_disp_drv_register(&disp_drv);
 
@@ -203,21 +203,21 @@ void setup() {
     // top layer ui initialization
     // status labels
     lv_style_init(&labelWiFiStyle);
-    lv_style_set_bg_color(&labelWiFiStyle, LV_STATE_DEFAULT, LV_COLOR_GRAY);
-    lv_style_set_bg_opa(&labelWiFiStyle, LV_STATE_DEFAULT, LV_OPA_50);
+    lv_style_set_bg_color(&labelWiFiStyle, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_bg_opa(&labelWiFiStyle, LV_OPA_50);
 
-    labelWiFi = lv_label_create(lv_layer_top(), NULL);
-    lv_obj_align(labelWiFi, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
+    labelWiFi = lv_label_create(lv_layer_top());
+    lv_obj_align(labelWiFi, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_label_set_text(labelWiFi, "WiFi:");
-    lv_obj_add_style(labelWiFi, 0, &labelWiFiStyle);
+    lv_obj_add_style(labelWiFi, &labelWiFiStyle, 0);
 
     lv_style_init(&labelWiFiStatusStyle);
-    lv_style_set_bg_color(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_COLOR_GRAY);
-    lv_style_set_bg_opa(&labelWiFiStatusStyle, LV_STATE_DEFAULT, LV_OPA_50);
+    lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_bg_opa(&labelWiFiStatusStyle, LV_OPA_50);
 
-    labelWiFiStatus = lv_label_create(lv_layer_top(), NULL);
-    lv_obj_align(labelWiFiStatus, NULL, LV_ALIGN_IN_TOP_LEFT, 36, 0);
-    lv_obj_add_style(labelWiFiStatus, 0, &labelWiFiStatusStyle);
+    labelWiFiStatus = lv_label_create(lv_layer_top());
+    lv_obj_align(labelWiFiStatus, LV_ALIGN_TOP_LEFT, 36, 0);
+    lv_obj_add_style(labelWiFiStatus, &labelWiFiStatusStyle, 0);
     //lv_label_set_recolor(labelWiFiStatus, true);
     //lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
     lv_label_set_text(labelWiFiStatus, "unknown");
