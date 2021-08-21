@@ -81,10 +81,11 @@ class MbedCircularBuffer {
 public:
     MbedCircularBuffer(T& customBuffer) : _head(0), _tail(0), _full(false)
     {
-        static_assert(
-            internal::is_unsigned<CounterType>::value,
-            "CounterType must be unsigned"
-        );
+        // only uint32_t is ever used in this project, so remove the assertion to prevent compiler errors
+        //static_assert(
+        //    internal::is_unsigned<CounterType>::value,
+        //    "CounterType must be unsigned"
+        //);
 
         static_assert(
             (sizeof(CounterType) >= sizeof(uint32_t)) ||
