@@ -63,6 +63,10 @@ static lv_obj_t *labelWiFiStatus;
 static lv_style_t labelWiFiStatusStyle;
 
 // ---------------------------------------------------------
+// other lvgl variables
+static lv_indev_t *encoderIndev;
+
+// ---------------------------------------------------------
 // lvgl callbacks
 static void my_flush_cb(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = (area->x2 - area->x1 + 1);
@@ -96,7 +100,7 @@ static void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
 
 // ---------------------------------------------------------
 // extra threads
-rtos::Thread m4RPCReceiverThread(osPriorityNormal);
+static rtos::Thread m4RPCReceiverThread(osPriorityNormal);
 
 static void runM4RPCReceiver() {
     String bufferString;
@@ -153,6 +157,15 @@ static void runM4RPCReceiver() {
     }
 }
 
+static rtos::Thread lvTickThread(osPriorityRealtime);
+
+static void runLvTickThread() {
+    while (true) {
+        lv_tick_inc(5);
+        rtos::ThisThread::sleep_for(5);
+    }
+}
+
 // ---------------------------------------------------------
 // arduino functions
 void setup() {
@@ -194,11 +207,11 @@ void setup() {
     disp = lv_disp_drv_register(&disp_drv);
 
     // encoder driver
-    lv_indev_drv_t indev_drv;
+    static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_ENCODER;
     indev_drv.read_cb = encoder_read;
-    lv_indev_t *encoderIndev = lv_indev_drv_register(&indev_drv);
+    encoderIndev = lv_indev_drv_register(&indev_drv);
 
     // top layer ui initialization
     // status labels
@@ -226,11 +239,13 @@ void setup() {
     m4RPCReceiverThread.start(runM4RPCReceiver);
 
     // init screens
-    onboarding_screen_create(encoderIndev);
-    record_screen_create(encoderIndev);
+    onboarding_screen_create();
+    record_screen_create();
 
     // start onboarding/record screen
-    onboarding_screen_load();
+    onboarding_screen_load(encoderIndev);
+
+    lvTickThread.start(runLvTickThread);
 }
 
 void loop() {

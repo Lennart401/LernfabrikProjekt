@@ -36,7 +36,7 @@ static void handleButtonClick(lv_event_t *event) {
     }
 }
 
-void record_screen_create(lv_indev_t *encoderIndev) {
+void record_screen_create() {
     // init screen
     recordScreen = lv_obj_create(NULL);
 
@@ -45,7 +45,6 @@ void record_screen_create(lv_indev_t *encoderIndev) {
     // init other ui elements
     // buttons 
     mainGroup = lv_group_create();
-    lv_indev_set_group(encoderIndev, mainGroup);
 
     lv_style_init(&labelHeadingStyle);
     lv_style_set_text_font(&labelHeadingStyle, &lv_font_montserrat_26);
@@ -91,8 +90,9 @@ void record_screen_create(lv_indev_t *encoderIndev) {
     lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
 }
 
-void record_screen_load() {
+void record_screen_load(lv_indev_t *encoderIndev) {
     lv_scr_load(recordScreen);
+    lv_indev_set_group(encoderIndev, mainGroup);
 }
 
 void record_screen_receive_message(String command, String subject, String payload) {

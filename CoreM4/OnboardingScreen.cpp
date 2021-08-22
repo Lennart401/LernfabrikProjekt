@@ -36,12 +36,11 @@ static lv_obj_t *btnSettingsPage;
 static lv_obj_t *btnSettingsPageLabel;
 
 // ---------------------------------------------------------
-void onboarding_screen_create(lv_indev_t *encoderIndev) {
+void onboarding_screen_create() {
     // init the screen
     onboardingScreen = lv_obj_create(NULL);
 
     mainGroup = lv_group_create();
-    lv_indev_set_group(encoderIndev, mainGroup);
 
     // init heading
     lv_style_init(&transparentObjectStyle);
@@ -103,6 +102,7 @@ void onboarding_screen_create(lv_indev_t *encoderIndev) {
     lv_obj_center(btnSettingsPageLabel);
 }
 
-void onboarding_screen_load() {
+void onboarding_screen_load(lv_indev_t *encoderIndev) {
     lv_scr_load(onboardingScreen);
+    lv_indev_set_group(encoderIndev, mainGroup);
 }
