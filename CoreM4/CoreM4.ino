@@ -57,8 +57,12 @@ static lv_color_t buf_2[COLOR_BUFFER_SIZE];
 
 // ---------------------------------------------------------
 // Top layer UI variables
+static lv_obj_t *topLayerLine;
+static lv_style_t topLayerLineStyle;
+static lv_point_t topLayerLinePoints[] = { {0, 16}, {320, 16} };
+
 static lv_obj_t *labelWiFi;
-static lv_style_t labelWiFiStyle;
+
 static lv_obj_t *labelWiFiStatus;
 static lv_style_t labelWiFiStatusStyle;
 
@@ -215,25 +219,29 @@ void setup() {
 
     // top layer ui initialization
     // status labels
-    lv_style_init(&labelWiFiStyle);
-    lv_style_set_bg_color(&labelWiFiStyle, lv_palette_main(LV_PALETTE_GREY));
-    lv_style_set_bg_opa(&labelWiFiStyle, LV_OPA_50);
-
     labelWiFi = lv_label_create(lv_layer_top());
     lv_obj_align(labelWiFi, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_label_set_text(labelWiFi, "WiFi:");
-    lv_obj_add_style(labelWiFi, &labelWiFiStyle, 0);
 
     lv_style_init(&labelWiFiStatusStyle);
-    lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_lighten(LV_PALETTE_GREY, 128));
     lv_style_set_bg_opa(&labelWiFiStatusStyle, LV_OPA_50);
 
     labelWiFiStatus = lv_label_create(lv_layer_top());
-    lv_obj_align(labelWiFiStatus, LV_ALIGN_TOP_LEFT, 36, 0);
+    lv_obj_align(labelWiFiStatus, LV_ALIGN_TOP_LEFT, 39, 0);
     lv_obj_add_style(labelWiFiStatus, &labelWiFiStatusStyle, 0);
     //lv_label_set_recolor(labelWiFiStatus, true);
     //lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
     lv_label_set_text(labelWiFiStatus, "unknown");
+
+    // line
+    lv_style_init(&topLayerLineStyle);
+    lv_style_set_line_width(&topLayerLineStyle, 1);
+    lv_style_set_line_color(&topLayerLineStyle, lv_palette_main(LV_PALETTE_GREY));
+
+    topLayerLine = lv_line_create(lv_layer_top());
+    lv_line_set_points(topLayerLine, topLayerLinePoints, 2);
+    lv_obj_add_style(topLayerLine, &topLayerLineStyle, 0);
 
     // RPC comm
     m4RPCReceiverThread.start(runM4RPCReceiver);
