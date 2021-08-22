@@ -22,7 +22,7 @@ All these components will be mounted on a stackable box for better handling and 
 Since both cores on the portenta H7 need to be programmed seperately, each core-specific code is in their respective subprojects `CoreM7` and `CoreM4` with their .ino-files. The cores communicate soly via a custom text-based protocol layered on top of the RPC message-based communication mechanism (see [custom RPC protocol](#Internal-RPC-communication-protocol)).
 
 ### Core M4
-The M4's job is to control the user interface using [Little VGL](https://lvgl.io/), display information received from the M7 core and dispatch input events (e. g. mode change) to the M7 core.
+The M4's job is to control the user interface using [LVGL](https://lvgl.io/), display information received from the M7 core and dispatch input events (e. g. mode change) to the M7 core.
 
 ### Core M7
 The M7 is responsible for multiple different tasks and is therefore split into multiple units:
@@ -84,5 +84,5 @@ There are four types of commands, only some of them contain a payload:
 
 The subject string shall be formatted like a MQTT subject string, e.g. `wifi/status`.
 
-### WiFi Webserver communication protocol
-To minimize the data that required to be sent over wifi, I have develop a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikWebserver](https://github.com/Lennart401/LernfabrikWebserver/#communication-protocol)-Repository.
+### WiFi Dataserver communication protocol
+To minimize the data that required to be sent over wifi, I have developed a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver/#communication-protocol)-Repository.
