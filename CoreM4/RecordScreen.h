@@ -6,8 +6,8 @@
 
 extern "C" {
 
-void record_screen_create();
-void record_screen_load(lv_indev_t *encoderIndev);
+void record_screen_create(lv_indev_t *encoderIndev);
+void record_screen_load();
 
 void record_screen_receive_message(String command, String subject, String payload);
 

@@ -4,6 +4,7 @@
 
 static lv_obj_t *recordScreen;
 
+static lv_indev_t *encoderIndev;
 static lv_group_t *mainGroup;
 
 static lv_obj_t *labelHeading;
@@ -36,16 +37,17 @@ static void handleButtonClick(lv_event_t *event) {
     }
 }
 
-void record_screen_create() {
+void record_screen_create(lv_indev_t *_encoderIndev) {
     // init screen
     recordScreen = lv_obj_create(NULL);
+
+    mainGroup = lv_group_create();
+    encoderIndev = _encoderIndev;
 
     // init heading
 
     // init other ui elements
     // buttons 
-    mainGroup = lv_group_create();
-
     lv_style_init(&labelHeadingStyle);
     lv_style_set_text_font(&labelHeadingStyle, &lv_font_montserrat_26);
 
@@ -90,7 +92,7 @@ void record_screen_create() {
     lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
 }
 
-void record_screen_load(lv_indev_t *encoderIndev) {
+void record_screen_load() {
     lv_scr_load(recordScreen);
     lv_indev_set_group(encoderIndev, mainGroup);
 }

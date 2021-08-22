@@ -239,11 +239,11 @@ void setup() {
     m4RPCReceiverThread.start(runM4RPCReceiver);
 
     // init screens
-    onboarding_screen_create();
-    record_screen_create();
+    onboarding_screen_create(encoderIndev);
+    record_screen_create(encoderIndev);
 
     // start onboarding/record screen
-    onboarding_screen_load(encoderIndev);
+    onboarding_screen_load();
 
     lvTickThread.start(runLvTickThread);
 }

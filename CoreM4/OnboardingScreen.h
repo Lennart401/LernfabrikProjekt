@@ -5,8 +5,8 @@
 
 extern "C" {
 
-void onboarding_screen_create();
-void onboarding_screen_load(lv_indev_t *encoderIndev);
+void onboarding_screen_create(lv_indev_t *encoderIndev);
+void onboarding_screen_load();
 
 }
 

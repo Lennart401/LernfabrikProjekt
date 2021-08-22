@@ -1,5 +1,7 @@
 #include "OnboardingScreen.h"
 
+#include "RecordScreen.h"
+
 #define BTN_WIDTH 120
 #define BTN_HEIGHT 35
 
@@ -10,6 +12,7 @@ LV_IMG_DECLARE(leuphana_logo);
 static lv_obj_t *onboardingScreen;
 static lv_style_t transparentObjectStyle;
 
+static lv_indev_t *encoderIndev;
 static lv_group_t *mainGroup;
 
 // ---------------------------------------------------------
@@ -35,11 +38,23 @@ static lv_obj_t *btnSamplesPageLabel;
 static lv_obj_t *btnSettingsPage;
 static lv_obj_t *btnSettingsPageLabel;
 
+static void handleButtonClick(lv_event_t *event) {
+    lv_event_code_t code = lv_event_get_code(event);
+    lv_obj_t *obj = lv_event_get_target(event);
+
+    if (code == LV_EVENT_CLICKED) {
+        if (obj == btnRecordPage) {
+            record_screen_load();
+        }
+    }
+}
+
 // ---------------------------------------------------------
-void onboarding_screen_create() {
+void onboarding_screen_create(lv_indev_t *_encoderIndev) {
     // init the screen
     onboardingScreen = lv_obj_create(NULL);
 
+    encoderIndev = _encoderIndev;
     mainGroup = lv_group_create();
 
     // init heading
@@ -76,6 +91,7 @@ void onboarding_screen_create() {
     btnRecordPage = lv_btn_create(flexBoxButtons);
     lv_group_add_obj(mainGroup, btnRecordPage);
     lv_obj_set_size(btnRecordPage, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_add_event_cb(btnRecordPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
     btnRecordPageLabel = lv_label_create(btnRecordPage);
     lv_label_set_text(btnRecordPageLabel, LV_SYMBOL_STOP " Record");
     lv_obj_center(btnRecordPageLabel);
@@ -83,6 +99,7 @@ void onboarding_screen_create() {
     btnProductionPage = lv_btn_create(flexBoxButtons);
     lv_group_add_obj(mainGroup, btnProductionPage);
     lv_obj_set_size(btnProductionPage, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_add_event_cb(btnProductionPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
     btnProductionPageLabel = lv_label_create(btnProductionPage);
     lv_label_set_text(btnProductionPageLabel, LV_SYMBOL_POWER " Production");
     lv_obj_center(btnProductionPageLabel);
@@ -90,6 +107,7 @@ void onboarding_screen_create() {
     btnSamplesPage = lv_btn_create(flexBoxButtons);
     lv_group_add_obj(mainGroup, btnSamplesPage);
     lv_obj_set_size(btnSamplesPage, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_add_event_cb(btnSamplesPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
     btnSamplesPageLabel = lv_label_create(btnSamplesPage);
     lv_label_set_text(btnSamplesPageLabel, LV_SYMBOL_UPLOAD " Samples");
     lv_obj_center(btnSamplesPageLabel);
@@ -97,12 +115,13 @@ void onboarding_screen_create() {
     btnSettingsPage = lv_btn_create(flexBoxButtons);
     lv_group_add_obj(mainGroup, btnSettingsPage);
     lv_obj_set_size(btnSettingsPage, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_add_event_cb(btnSettingsPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
     btnSettingsPageLabel = lv_label_create(btnSettingsPage);
     lv_label_set_text(btnSettingsPageLabel, LV_SYMBOL_SETTINGS " Settings");
     lv_obj_center(btnSettingsPageLabel);
 }
 
-void onboarding_screen_load(lv_indev_t *encoderIndev) {
+void onboarding_screen_load() {
     lv_scr_load(onboardingScreen);
     lv_indev_set_group(encoderIndev, mainGroup);
 }
