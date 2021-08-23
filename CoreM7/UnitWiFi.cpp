@@ -84,6 +84,13 @@ void UnitWiFi::connectWiFi() {
     char ssid[] = SECRET_SSID;
     char pass[] = SECRET_PASS;
 
+    static bool firstConnect = true;
+    if (firstConnect) {
+        firstConnect = false;
+        Serial.println("Making first WiFi connection, waiting 1.3 seconds for UI to initialize");
+        rtos::ThisThread::sleep_for(1300);
+    }
+
     Serial.println("Connecting to network " + String(SECRET_SSID) + "...");
     RPC1.println("POST wifi/status connecting");
     digitalWrite(MYLED, LOW);
