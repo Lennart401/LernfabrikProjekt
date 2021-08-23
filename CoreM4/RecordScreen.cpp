@@ -33,6 +33,8 @@ static lv_obj_t *btnCalibrateLabel;
 static lv_obj_t *labelBufferSize;
 static lv_obj_t *arcBufferSize;
 
+// ---------------------------------------------------------
+// callbacks
 static void handleButtonClick(lv_event_t *event) {
     lv_event_code_t code = lv_event_get_code(event);
     lv_obj_t *obj = lv_event_get_target(event);
@@ -56,6 +58,8 @@ static void handleButtonClick(lv_event_t *event) {
     }
 }
 
+// ---------------------------------------------------------
+// header function implementations
 void record_screen_create(lv_indev_t *_encoderIndev) {
     // init screen
     recordScreen = lv_obj_create(NULL);
