@@ -1,15 +1,27 @@
 #include "RecordScreen.h"
 
 #include <RPC_internal.h>
+#include "ScreenHeading.h"
+#include "OnboardingScreen.h"
 
+// ---------------------------------------------------------
+// screen stuff
 static lv_obj_t *recordScreen;
 
 static lv_indev_t *encoderIndev;
 static lv_group_t *mainGroup;
 
+// ---------------------------------------------------------
+// heading
+static lv_obj_t *btnBack;
+static lv_obj_t *btnBackLabel;
+// static lv_style_t btnBackStyle;
+
 static lv_obj_t *labelHeading;
 static lv_style_t labelHeadingStyle;
 
+// ---------------------------------------------------------
+// main elements
 static lv_obj_t *btnStart;
 static lv_obj_t *btnStartLabel;
 
@@ -33,6 +45,8 @@ static void handleButtonClick(lv_event_t *event) {
             RPC1.println("SET mode/running 0");
         } else if (obj == btnCalibrate) {
             RPC1.println("DO sensors/calibrate");
+        } else if (obj == btnBack) {
+            onboarding_screen_load();
         }
     }
 }
@@ -44,18 +58,36 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     mainGroup = lv_group_create();
     encoderIndev = _encoderIndev;
 
-    // init heading
+    // init back button
+    // lv_style_init(&btnBackStyle);
+    // lv_style_set_bg_opa(&btnBackStyle, LV_OPA_TRANSP);
+    // lv_style_set_border_opa(&btnBackStyle, LV_OPA_TRANSP);
+    // lv_style_set_shadow_opa(&btnBackStyle, LV_OPA_TRANSP);
 
-    // init other ui elements
-    // buttons 
+    static lv_style_t btnBackStyle = screen_heading_get();
+    
+    btnBack = lv_btn_create(recordScreen);
+    lv_obj_add_style(btnBack, &btnBackStyle, 0);
+    lv_obj_align(btnBack, LV_ALIGN_TOP_LEFT, SCREEN_HEADING_BUTTON_X, SCREEN_HEADING_BUTTON_Y);
+    lv_obj_set_size(btnBack, SCREEN_HEADING_BUTTON_W, SCREEN_HEADING_BUTTON_H);
+    lv_obj_add_event_cb(btnBack, handleButtonClick, LV_EVENT_CLICKED, NULL);
+
+    btnBackLabel = lv_label_create(btnBack);
+    lv_label_set_recolor(btnBackLabel, true);
+    lv_label_set_text(btnBackLabel, "#121212 " LV_SYMBOL_LEFT);
+    lv_obj_center(btnBackLabel);
+
+    // init heading
     lv_style_init(&labelHeadingStyle);
     lv_style_set_text_font(&labelHeadingStyle, &lv_font_montserrat_26);
 
     labelHeading = lv_label_create(recordScreen);
     lv_label_set_text(labelHeading, "Record");
-    lv_obj_align(labelHeading, LV_ALIGN_TOP_LEFT, 10, 30);
+    lv_obj_align(labelHeading, LV_ALIGN_TOP_LEFT, SCREEN_HEADING_LABEL_X, SCREEN_HEADING_LABEL_Y);
     lv_obj_add_style(labelHeading, &labelHeadingStyle, 0);
     
+    // init other ui elements
+    // buttons 
     btnStart = lv_btn_create(recordScreen);
     lv_obj_add_event_cb(btnStart, handleButtonClick, LV_EVENT_CLICKED, NULL);
     lv_obj_align(btnStart, LV_ALIGN_RIGHT_MID, -10, -55);
@@ -90,6 +122,9 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     lv_obj_align(barBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -10);
     //lv_bar_set_anim_time(barBufferSize, 1000);
     lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
+
+    // lastly, add the back button to the group
+    lv_group_add_obj(mainGroup, btnBack);
 }
 
 void record_screen_load() {

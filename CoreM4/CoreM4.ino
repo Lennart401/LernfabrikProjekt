@@ -9,6 +9,7 @@
 #include <Mutex.h>
 #include <rtos.h>
 
+#include "ScreenHeading.h"
 #include "OnboardingScreen.h"
 #include "RecordScreen.h"
 
@@ -245,6 +246,9 @@ void setup() {
 
     // RPC comm
     m4RPCReceiverThread.start(runM4RPCReceiver);
+
+    // init screen heading
+    screen_heading_init();
 
     // init screens
     onboarding_screen_create(encoderIndev);
