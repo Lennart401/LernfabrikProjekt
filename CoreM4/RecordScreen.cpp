@@ -4,6 +4,9 @@
 #include "ScreenHeading.h"
 #include "OnboardingScreen.h"
 
+#define BTN_WIDTH 120
+#define BTN_HEIGHT 35
+
 // ---------------------------------------------------------
 // screen stuff
 static lv_obj_t *recordScreen;
@@ -15,38 +18,40 @@ static lv_group_t *mainGroup;
 // heading
 static lv_obj_t *btnBack;
 static lv_obj_t *btnBackLabel;
-// static lv_style_t btnBackStyle;
 
 static lv_obj_t *labelHeading;
 static lv_style_t labelHeadingStyle;
 
 // ---------------------------------------------------------
 // main elements
-static lv_obj_t *btnStart;
-static lv_obj_t *btnStartLabel;
-
-static lv_obj_t *btnStop;
-static lv_obj_t *btnStopLabel;
+static lv_obj_t *btnStartStop;
+static lv_obj_t *btnStartStopLabel;
 
 static lv_obj_t *btnCalibrate;
 static lv_obj_t *btnCalibrateLabel;
 
 static lv_obj_t *labelBufferSize;
-static lv_obj_t *barBufferSize;
+static lv_obj_t *arcBufferSize;
 
 static void handleButtonClick(lv_event_t *event) {
     lv_event_code_t code = lv_event_get_code(event);
     lv_obj_t *obj = lv_event_get_target(event);
 
     if (code == LV_EVENT_CLICKED) {
-        if (obj == btnStart) {
-            RPC1.println("SET mode/running 1");
-        } else if (obj == btnStop) {
-            RPC1.println("SET mode/running 0");
-        } else if (obj == btnCalibrate) {
+        if (obj == btnCalibrate) {
             RPC1.println("DO sensors/calibrate");
         } else if (obj == btnBack) {
             onboarding_screen_load();
+        }
+    } else if (code == LV_EVENT_VALUE_CHANGED) {
+        if (obj == btnStartStop) {
+            if ((lv_obj_get_state(btnStartStop) & LV_STATE_CHECKED) != 0) {
+                lv_label_set_text(btnStartStopLabel, LV_SYMBOL_PAUSE);
+                RPC1.println("SET mode/running 1");
+            } else {
+                lv_label_set_text(btnStartStopLabel, LV_SYMBOL_PLAY);
+                RPC1.println("SET mode/running 0");
+            }
         }
     }
 }
@@ -59,11 +64,6 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     encoderIndev = _encoderIndev;
 
     // init back button
-    // lv_style_init(&btnBackStyle);
-    // lv_style_set_bg_opa(&btnBackStyle, LV_OPA_TRANSP);
-    // lv_style_set_border_opa(&btnBackStyle, LV_OPA_TRANSP);
-    // lv_style_set_shadow_opa(&btnBackStyle, LV_OPA_TRANSP);
-
     static lv_style_t btnBackStyle = screen_heading_get();
     
     btnBack = lv_btn_create(recordScreen);
@@ -88,40 +88,39 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     
     // init other ui elements
     // buttons 
-    btnStart = lv_btn_create(recordScreen);
-    lv_obj_add_event_cb(btnStart, handleButtonClick, LV_EVENT_CLICKED, NULL);
-    lv_obj_align(btnStart, LV_ALIGN_RIGHT_MID, -10, -55);
-    lv_group_add_obj(mainGroup, btnStart);
+    btnStartStop = lv_btn_create(recordScreen);
+    lv_obj_add_event_cb(btnStartStop, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_flag(btnStartStop, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_size(btnStartStop, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_align(btnStartStop, LV_ALIGN_TOP_RIGHT, -10, 105);
+    lv_group_add_obj(mainGroup, btnStartStop);
 
-    btnStartLabel = lv_label_create(btnStart);    
-    lv_label_set_text(btnStartLabel, "Start");
-
-    btnStop = lv_btn_create(recordScreen);
-    lv_obj_add_event_cb(btnStop, handleButtonClick, LV_EVENT_CLICKED, NULL);
-    lv_obj_align(btnStop, LV_ALIGN_RIGHT_MID, -10, 0);
-    lv_group_add_obj(mainGroup, btnStop);
-
-    btnStopLabel = lv_label_create(btnStop);
-    lv_label_set_text(btnStopLabel, "Stop");
+    btnStartStopLabel = lv_label_create(btnStartStop);
+    lv_label_set_text(btnStartStopLabel, LV_SYMBOL_PLAY);
+    lv_obj_center(btnStartStopLabel);
 
     btnCalibrate = lv_btn_create(recordScreen);
     lv_obj_add_event_cb(btnCalibrate, handleButtonClick, LV_EVENT_CLICKED, NULL);
-    lv_obj_align(btnCalibrate, LV_ALIGN_RIGHT_MID, -10, 55);
+    lv_obj_set_size(btnCalibrate, BTN_WIDTH, BTN_HEIGHT);
+    lv_obj_align(btnCalibrate, LV_ALIGN_TOP_RIGHT, -10, 155);
     lv_group_add_obj(mainGroup, btnCalibrate);
 
     btnCalibrateLabel = lv_label_create(btnCalibrate);
     lv_label_set_text(btnCalibrateLabel, "Calibrate");
+    lv_obj_center(btnCalibrateLabel);
 
-    // buffer bar
+    // buffer arc
     labelBufferSize = lv_label_create(recordScreen);
-    lv_obj_align(labelBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -45);
+    lv_obj_align(labelBufferSize, LV_ALIGN_TOP_LEFT, 10, 105);
     lv_label_set_text(labelBufferSize, "Buffer fill:");
 
-    barBufferSize = lv_bar_create(recordScreen);
-    lv_obj_set_size(barBufferSize, 150, 30);
-    lv_obj_align(barBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -10);
-    //lv_bar_set_anim_time(barBufferSize, 1000);
-    lv_bar_set_value(barBufferSize, 0, LV_ANIM_ON);
+    arcBufferSize = lv_arc_create(recordScreen);
+    lv_obj_align(arcBufferSize, LV_ALIGN_BOTTOM_LEFT, 10, -25);
+    lv_obj_set_size(arcBufferSize, 80, 80);
+    lv_arc_set_rotation(arcBufferSize, 270);
+    lv_arc_set_bg_angles(arcBufferSize, 0, 360);
+    lv_obj_remove_style(arcBufferSize, NULL, LV_PART_KNOB);
+    lv_obj_clear_flag(arcBufferSize, LV_OBJ_FLAG_CLICKABLE);
 
     // lastly, add the back button to the group
     lv_group_add_obj(mainGroup, btnBack);
@@ -135,7 +134,12 @@ void record_screen_load() {
 void record_screen_receive_message(String command, String subject, String payload) {
     if (command == "POST") {
         if (subject == "buffer/fill") {
-            lv_bar_set_value(barBufferSize, payload.toInt(), LV_ANIM_ON);
+            lv_arc_set_value(arcBufferSize, payload.toInt());
+        } else if (subject == "buffer/levels") {
+            long levels = payload.toInt();
+            long startValue = levels / 1000;
+            long endValue = levels % 1000;
+            lv_arc_set_angles(arcBufferSize, static_cast<uint16_t>(startValue * 3.6), static_cast<uint16_t>(endValue * 3.6));
         }
     }
 }
