@@ -1,6 +1,7 @@
 #include "OnboardingScreen.h"
 
 #include "RecordScreen.h"
+#include "SamplesScreen.h"
 
 #define BTN_WIDTH 120
 #define BTN_HEIGHT 35
@@ -45,6 +46,8 @@ static void handleButtonClick(lv_event_t *event) {
     if (code == LV_EVENT_CLICKED) {
         if (obj == btnRecordPage) {
             record_screen_load();
+        } else if (obj == btnSamplesPage) {
+            samples_screen_load();
         }
     }
 }
