@@ -96,7 +96,7 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     lv_obj_add_event_cb(btnStartStop, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_add_flag(btnStartStop, LV_OBJ_FLAG_CHECKABLE);
     lv_obj_set_size(btnStartStop, BTN_WIDTH, BTN_HEIGHT);
-    lv_obj_align(btnStartStop, LV_ALIGN_TOP_RIGHT, -10, 105);
+    lv_obj_align(btnStartStop, LV_ALIGN_TOP_RIGHT, -SCREEN_CONTENT_START_X, SCREEN_CONTENT_START_Y);
     lv_group_add_obj(mainGroup, btnStartStop);
 
     btnStartStopLabel = lv_label_create(btnStartStop);
@@ -106,7 +106,7 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
     btnCalibrate = lv_btn_create(recordScreen);
     lv_obj_add_event_cb(btnCalibrate, handleButtonClick, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(btnCalibrate, BTN_WIDTH, BTN_HEIGHT);
-    lv_obj_align(btnCalibrate, LV_ALIGN_TOP_RIGHT, -10, 155);
+    lv_obj_align(btnCalibrate, LV_ALIGN_TOP_RIGHT, -SCREEN_CONTENT_START_X, SCREEN_CONTENT_START_Y + 45);
     lv_group_add_obj(mainGroup, btnCalibrate);
 
     btnCalibrateLabel = lv_label_create(btnCalibrate);
@@ -115,7 +115,7 @@ void record_screen_create(lv_indev_t *_encoderIndev) {
 
     // buffer arc
     labelBufferSize = lv_label_create(recordScreen);
-    lv_obj_align(labelBufferSize, LV_ALIGN_TOP_LEFT, 10, 105);
+    lv_obj_align(labelBufferSize, LV_ALIGN_TOP_LEFT, SCREEN_CONTENT_START_X, SCREEN_CONTENT_START_Y);
     lv_label_set_text(labelBufferSize, "Buffer fill:");
 
     arcBufferSize = lv_arc_create(recordScreen);
