@@ -137,7 +137,7 @@ static void runM4RPCReceiver() {
                         lvglMutex.lock();
                         if (payload == "connecting") {
                             //lv_label_set_text(labelWiFiStatus, "#ffc830 Connecting...");
-                            lv_label_set_text(labelWiFiStatus, "Connecting...");
+                            lv_label_set_text(labelWiFiStatus, LV_SYMBOL_REFRESH);
                             lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_YELLOW));
                         } else if (payload == "OK") {
                             //lv_label_set_text(labelWiFiStatus, "#16a616 OK");
@@ -145,7 +145,7 @@ static void runM4RPCReceiver() {
                             lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_GREEN));
                         } else if (payload == "error") {
                             //lv_label_set_text(labelWiFiStatus, "#ff0000 Error");
-                            lv_label_set_text(labelWiFiStatus, "Error");
+                            lv_label_set_text(labelWiFiStatus, "ERR");
                             lv_style_set_bg_color(&labelWiFiStatusStyle, lv_palette_main(LV_PALETTE_RED));
                         } else {
                             lv_label_set_text(labelWiFiStatus, payload.c_str());
@@ -235,7 +235,7 @@ void setup() {
     lv_obj_add_style(labelWiFiStatus, &labelWiFiStatusStyle, 0);
     //lv_label_set_recolor(labelWiFiStatus, true);
     //lv_label_set_text(labelWiFiStatus, "#4d4d4d unknown");
-    lv_label_set_text(labelWiFiStatus, "unknown");
+    lv_label_set_text(labelWiFiStatus, "---");
 
     // line
     lv_style_init(&topLayerLineStyle);
