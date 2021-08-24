@@ -2,6 +2,7 @@
 
 #include "RecordScreen.h"
 #include "SamplesScreen.h"
+#include "SettingsScreen.h"
 
 #define BTN_WIDTH 120
 #define BTN_HEIGHT 35
@@ -48,6 +49,8 @@ static void handleButtonClick(lv_event_t *event) {
             record_screen_load();
         } else if (obj == btnSamplesPage) {
             samples_screen_load();
+        } else if (obj == btnSettingsPage) {
+            settings_screen_load();
         }
     }
 }

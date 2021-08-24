@@ -13,6 +13,7 @@
 #include "OnboardingScreen.h"
 #include "RecordScreen.h"
 #include "SamplesScreen.h"
+#include "SettingsScreen.h"
 
 // ---------------------------------------------------------
 // defines
@@ -156,6 +157,7 @@ static void runM4RPCReceiver() {
 
                 record_screen_receive_message(command, subject, payload);
                 samples_screen_receive_message(command, subject, payload);
+                settings_screen_receive_message(command, subject, payload);
 
                 bufferString = "";
             }
@@ -256,6 +258,7 @@ void setup() {
     onboarding_screen_create(encoderIndev);
     record_screen_create(encoderIndev);
     samples_screen_create(encoderIndev);
+    settings_screen_create(encoderIndev);
 
     // start onboarding/record screen
     onboarding_screen_load();
