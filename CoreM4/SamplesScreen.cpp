@@ -160,6 +160,8 @@ void samples_screen_create(lv_indev_t *_encoderIndev) {
 void samples_screen_load() {
     lv_scr_load(samplesScreen);
     lv_indev_set_group(encoderIndev, mainGroup);
+
+    RPC1.println("GET samples/movement-type");
 }
 
 void samples_screen_receive_message(String command, String subject, String payload) {
@@ -171,6 +173,8 @@ void samples_screen_receive_message(String command, String subject, String paylo
                 lv_obj_remove_style(btnStartRecording, &btnStartRecordingActiveStyle, 0);
                 lv_label_set_text(btnStartRecordingLabel, BTN_START_RECORDING_DEFAULT_TEXT);
             }
+        } else if (subject == "samples/movement-type") {
+            lv_roller_set_selected(rollerSelectSample, payload.toInt() - 1, LV_ANIM_OFF);
         }
     }
 }
