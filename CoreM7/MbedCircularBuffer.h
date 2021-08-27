@@ -312,6 +312,30 @@ public:
         return elements;
     }
 
+    /**
+     * Method added in post:
+     * return the head of the buffer as a percentage of its size.
+     */
+    CounterType headInPercent() const
+    {
+        core_util_critical_section_enter();
+        CounterType headPercent = (_head * 100) / BufferSize;
+        core_util_critical_section_exit();
+        return headPercent;
+    }
+
+    /**
+     * Method added in post:
+     * return the tail of the buffer as a percentage of its size.
+     */
+    CounterType tailInPercent() const
+    {
+        core_util_critical_section_enter();
+        CounterType tailPercent = (_tail * 100) / BufferSize;
+        core_util_critical_section_exit();
+        return tailPercent;
+    }
+
     /** Peek into circular buffer without popping.
      *
      * @param data Data to be peeked from the buffer.

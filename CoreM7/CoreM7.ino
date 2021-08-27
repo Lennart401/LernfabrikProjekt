@@ -119,8 +119,12 @@ void setup() {
 }
 
 void loop() {
-    //Serial.println("crcBuffer size: " + String(crcBuffer->size()));
-    rtos::ThisThread::sleep_for((uint32_t) 500);
-    RPC1.println("POST buffer/fill " + String((crcBuffer->size() * 100) / BUF_ROWS));
+    uint32_t bufferHead = crcBuffer->headInPercent();
+    uint32_t bufferTail = crcBuffer->tailInPercent();
+    char printBuffer[50];
+    sprintf(printBuffer, "POST buffer/levels %3u%03u", bufferTail, bufferHead);
+    RPC1.println(printBuffer);
+
+    rtos::ThisThread::sleep_for((uint32_t) 100);
 }
 
