@@ -151,6 +151,8 @@ void settings_screen_load() {
 }
 
 void settings_screen_receive_message(String command, String subject, String payload) {
+    if (lv_scr_act() != settingsScreen) return;
+
     if (command == "POST") {
         if (subject == "settings/frequency") {
             lv_dropdown_set_selected(dropdownFrequency, payload.toInt());

@@ -165,6 +165,8 @@ void samples_screen_load() {
 }
 
 void samples_screen_receive_message(String command, String subject, String payload) {
+    if (lv_scr_act() != samplesScreen) return;
+
     if (command == "POST") {
         if (subject == "samples/record/state") {
             if (payload == "DONE") {

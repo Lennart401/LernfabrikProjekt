@@ -136,6 +136,8 @@ void record_screen_load() {
 }
 
 void record_screen_receive_message(String command, String subject, String payload) {
+    if (lv_scr_act() != recordScreen) return;
+
     if (command == "POST") {
         if (subject == "buffer/fill") {
             lv_arc_set_value(arcBufferSize, payload.toInt());
