@@ -6,9 +6,7 @@ The data server uses a custom data format to save as much space as possible and 
 
 The content consists of a header describing how to parse the payload, and a payload itself. The current version of the protocol is 2.
 
-## Protocol Version 2 rev 1
-Revision 1 - 16.08.2021
-
+## Protocol Version 2
 Protocol Version 2 delivers much more metadata than its predecessor protocol version 1, with both a device and packet id as well as information about the recording frequency and the movement type (e.g. for a data-sample of one of the types).
 
 ### Header structure
@@ -46,7 +44,7 @@ The movement-type is encoded as a key to a lookup table. This table is as follow
 | 0x6 |                      | 0xE |                    |
 | 0x7 |                      | 0xF |                    |
 
-
+The empty field (0x5 to 0xF) are left intentionally blank as they have no defintion yet and may be filled by later revisions of the protocol.
 
 #### Sensors
 There are 6 bytes per sensor, so this field of the header is `Number of Sensors` * 6 bytes long. The first byte of each sensor specifies its type (see protocol version 1) and the last 5 bytes specify the name as an ANSI string.
