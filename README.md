@@ -10,9 +10,11 @@ The content consists of a header describing how to parse the payload, and a payl
 Protocol Version 2 delivers much more metadata than its predecessor protocol version 1, with both a device and packet id as well as information about the recording frequency and the movement type (e.g. for a data-sample of one of the types).
 
 ### Header structure
-| Version | Device-ID | Packet ID | Frequency | Movement-Type | Number of Sensors | Sensors                           |
+| Version | Device ID | Packet ID | Frequency | Movement-Type | Number of Sensors | Sensors                           |
 | ------- | --------- | --------- | --------- | ------------- | ----------------- | --------------------------------- |
 | 1 byte  | 1 byte    | 2 bytes   | 4 bits    | 4 bits        | 1 byte            | 1 byte for type, 5 bytes for name |
+
+Version, Device ID and Number of Sensors shall be unsigned 8 bit integers. Packet ID shall be an unsigned 16 bit integer in little endian encoding. Frequency and Movement-Types are keys to a lookup tables explained below.
 
 The header does not specify a length of the content since this can be deducted from the `Content-Length`-Attribute set in the HTTP header.
 
