@@ -5,6 +5,7 @@
 #include <WiFi.h>
 #include "MbedCircularBuffer.h"
 #include "Row.h"
+#include "BoxSettings.h"
 
 class UnitWiFi {
 
@@ -15,7 +16,7 @@ public:
         IDLE
     };
 
-    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
+    UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings);
     ~UnitWiFi();
     void runWiFi(WiFiClient &client);
     void stopWiFi();
@@ -42,6 +43,8 @@ private:
 
     Row readRow;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
+    uint16_t packetCounter = 0;
+    BoxSettings *mBoxSettings;
 
     volatile bool running = true;
     volatile bool flushBuffer = false;

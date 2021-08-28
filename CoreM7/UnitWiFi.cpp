@@ -16,11 +16,20 @@
 // been entered/changed through the touch screen user interface
 #include "arduino_secrets.h"
 
+#define BYTES_PER_SENSOR 6
 #define MIN_ROWS_PER_PACKET 2000
 #define MYLED LEDB
 
-UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
+#define TYPE_UINT8  0x00
+#define TYPE_UINT16 0x01
+#define TYPE_UINT32 0x02
+#define TYPE_UINT64 0x03
+#define TYPE_FLOAT  0x04
+#define TYPE_DOUBLE 0x05
+
+UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings)
     : crcBuffer(buffer)
+    , mBoxSettings(boxSettings)
     , dataServerHost(new IPAddress(192, 168, 100, 22))
     , dataServerPort(5000)
     , currentMode(WiFiMode::SEND_TO_DATASERVER) {
@@ -136,24 +145,22 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 }
 
 void UnitWiFi::sendBuffer(WiFiClient &client) {
-    uint8_t num_sensors = 7;
+    uint8_t numberOfSensors = 7;
+    int headerLength = 6 + numberOfSensors * BYTES_PER_SENSOR;
 
-    char header[] = {
-        0x01, 0x02, 0x00, num_sensors, // version, device id, num sensors
-        0x03, 0x74, 0x69, 0x6d, 0x65, // uint64_t, "time"
-        0x04, 0x61, 0x63, 0x63, 0x78, // float32, "accx"
-        0x04, 0x61, 0x63, 0x63, 0x79, // float32, "accy"
-        0x04, 0x61, 0x63, 0x63, 0x7a, // float32, "accz"
-        0x04, 0x72, 0x61, 0x63, 0x78, // float32, "racx"
-        0x04, 0x72, 0x61, 0x63, 0x79, // float32, "racy"
-        0x04, 0x72, 0x61, 0x63, 0x7a // float32, "racz"
-        //0x04, 0x67, 0x79, 0x72, 0x78, // float32, "gyrx"
-        //0x04, 0x67, 0x79, 0x72, 0x79, // float32, "gyry"
-        //0x04, 0x67, 0x79, 0x72, 0x7a // float32, "gyrz"
-        //0x04, 0x74, 0x65, 0x6d, 0x70, // float32, "temp"
-        //0x04, 0x64, 0x69, 0x73, 0x74  // float32, "dist"
+    uint8_t freqMoveType = (mBoxSettings->getFrequencyLUTKey() & 0xF) << 4 | (mBoxSettings->getModeDependendMovementTypeLUTKey() & 0xF);
+
+    char header[headerLength] = {
+        0x02, 0x01, (packetCounter & 0xFF), (packetCounter & 0xFF00) >> 8, freqMoveType, numberOfSensors, // version, device id, packet id, freq/movement-type!!!, # sensors
+        TYPE_UINT64, 't', 'i', 'm', 'e', ' ', // uint64_t, "time"
+        TYPE_FLOAT,  'a', 'c', 'c', '_', 'x', // float32, "accx"
+        TYPE_FLOAT,  'a', 'c', 'c', '_', 'y', // float32, "accy"
+        TYPE_FLOAT,  'a', 'c', 'c', '_', 'z', // float32, "accz"
+        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'x', // float32, "racx"
+        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'y', // float32, "racy"
+        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'z' // float32, "racz"
     };
-    int headerLength = 4 + num_sensors * 5;
+
     int numRows = MIN(crcBuffer->size(), MIN_ROWS_PER_PACKET);
 
     uint32_t ipAddress = *dataServerHost;
@@ -190,6 +197,9 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
         //buf =       (char*) &readRow.distance;    client.write(buf, sizeof(readRow.distance));
     }
     client.println();
+
+    // increase packet counter to assign each packet its own id
+    packetCounter++;
 }
 
 void UnitWiFi::displayConnectError() {
