@@ -120,7 +120,8 @@ void setup() {
     //while (!Serial);
 
     SDRAM.begin();
-    buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
+    // buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
+    buffer_space = (Row*) malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
 
     boxSettings = new BoxSettings();
