@@ -1,4 +1,5 @@
-# Lernfabrik Webserver
+# Lernfabrik Dataserver
+The Dataserver one of the server-components for my Lernfabrik project at Leuphana University of Lüneburg. This server receives any data recorded by the boxes, decodes it and saves it into a folder structure as csv files.
 
 
 ## Communication Protocol
