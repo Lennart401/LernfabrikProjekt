@@ -44,7 +44,11 @@ def send():
     # ------------------------------------------------------------------------------------------------------------------
     # with version 1, just save the contents
     if header_version == 1:
-        df.to_csv(datetime.now().strftime(f"./saved2/dev_{device_id}_%Y-%m-%d_%H-%M-%S.csv"), index=False)
+        path = f"./saved4/"
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        df.to_csv(datetime.now().strftime(f"{path}dev_{device_id}_%Y-%m-%d_%H-%M-%S.csv"), index=False)
 
     # with version 2, save the contents with packet id, time and frequency in the corresponding movement folder
     elif header_version == 2:
