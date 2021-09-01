@@ -46,6 +46,7 @@ static void runCountdownTimer(lv_timer_t *timer) {
         lv_label_set_text(btnStartRecordingLabel, String(state).c_str());
         state--;
     } else {
+        state = 3;
         lv_label_set_text(btnStartRecordingLabel, LV_SYMBOL_LOOP);
         lv_obj_remove_style(btnStartRecording, &btnStartRecordingWaitStyle, 0);
         lv_obj_add_style(btnStartRecording, &btnStartRecordingActiveStyle, 0);
