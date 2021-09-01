@@ -76,8 +76,8 @@ void UnitSensors::setMode(SensorsMode mode) {
 }
 
 void UnitSensors::setFrequencyLUTKey(uint8_t frequencyKey) {
-    uint8_t baseKey = frequencyKey & 0x3; // 0x3 == 0011
-    uint8_t multiplier = (frequencyKey & 0xC) >> 2; // 0xC == 1100
+    uint8_t baseKey = frequencyKey & 0x3; // 0x3 == 0011, the lower to bits
+    uint8_t multiplier = (frequencyKey & 0xC) >> 2; // 0xC == 1100, the upper to bits
     int frequencyMapped = 0;
 
     // the lower two bits (base) define what the frequency is
