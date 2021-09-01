@@ -21,7 +21,7 @@ public:
     void stopSensors();
     void calibrate();
 
-    void setMode(SensorsMode mode);
+    void setMode(SensorsMode mode, bool setupSampleRecording = false);
     void setFrequencyLUTKey(uint8_t frequencyKey);
 
 private:
@@ -31,6 +31,7 @@ private:
 
     volatile bool running = true;
     volatile SensorsMode currentMode;
+    int64_t runsLeft;
 
     Row insertRow;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;

@@ -85,7 +85,7 @@ static void runM7RPCReceiver() {
                         } else if (payload == "0") {
                             Serial.println("Disabling data record and send mode");
                             //if (unitWifi) unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
-                            if (unitWiFi) unitWiFi->flush();                            
+                            if (unitWiFi) unitWiFi->flush();
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
                         }
                     }
@@ -97,7 +97,7 @@ static void runM7RPCReceiver() {
                     } else if (subject == "samples/record/start") {
                         Serial.println("Start recording of sample");
                         boxSettings->setUseMovementTypes(true);
-                        // TODO
+                        if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING, true);
                     }
                 }
 

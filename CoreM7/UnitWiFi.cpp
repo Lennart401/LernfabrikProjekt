@@ -119,7 +119,6 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
         if (crcBuffer->size() <= MIN_ROWS_PER_PACKET) flushBuffer = false;
 
         digitalWrite(LEDG, LOW);
-        // pop all rows from the buffer and send them
 
         Serial.println("\nStarting connection to data server...");
         if (client.connect(*dataServerHost, dataServerPort)) {
@@ -134,9 +133,13 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
 
         client.stop();
         digitalWrite(LEDG, HIGH);
-        //rtos::ThisThread::sleep_for(1000);
     } else {
-        rtos::ThisThread::sleep_for(200);
+        if (mBoxSettings->hasSampleRecordingFinished()) {
+            mBoxSettings->resetSampleRecordingFinished();
+            flush();
+        } else {
+            rtos::ThisThread::sleep_for(200);
+        }
     }
 }
 
@@ -183,6 +186,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
 
     for (int i = 0; i < numRows; i++) {
         crcBuffer->pop(readRow);
+        Serial.println(readRow.timestamp);
         char *buf = (char*) &readRow.timestamp;   client.write(buf, sizeof(readRow.timestamp)); // static_cast<char*>(static_cast<void*>(&readRow.timestamp))
         buf =       (char*) &readRow.acc_x;       client.write(buf, sizeof(readRow.acc_x));
         buf =       (char*) &readRow.acc_y;       client.write(buf, sizeof(readRow.acc_y));

@@ -2,6 +2,7 @@
 
 #include <mbed.h>
 #include <rtos.h>
+#include <RPC_internal.h>
 #include "Accelerometer.h"
 #include "Ultrasonic.h"
 
@@ -14,7 +15,8 @@ UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSet
     , mHz(hz)
     , mBoxSettings(boxSettings)
     , mUltrasonic(4, 5)
-    , currentMode(SensorsMode::IDLE) {
+    , currentMode(SensorsMode::IDLE)
+    , runsLeft(0) {
 }
 
 void UnitSensors::runSensors() {
@@ -29,24 +31,35 @@ void UnitSensors::runSensors() {
             currentTime = rtos::Kernel::get_ms_count();
             nextFetch = currentTime + FETCH_TIME(mHz);
 
-            accelerometer::readValues(temp);
-            //mUltrasonic.readValue(&temp[7]);
+            // calculate number of runs left
+            if (!mBoxSettings->getUseMovementTypes() || runsLeft > 0) {
+                if (mBoxSettings->getUseMovementTypes()) runsLeft--;
 
-            insertRow.timestamp = currentTime;
-            insertRow.acc_x = temp[0];
-            insertRow.acc_y = temp[1];
-            insertRow.acc_z = temp[2];
-            insertRow.realacc_x = temp[3];
-            insertRow.realacc_y = temp[4];
-            insertRow.realacc_z = temp[5];
-            //insertRow.gyro_x = temp[6];
-            //insertRow.gyro_y = temp[7];
-            //insertRow.gyro_z = temp[8];
-            //insertRow.temperature = temp[6];
-            //insertRow.distance = temp[7];
-            crcBuffer->push(insertRow);
+                accelerometer::readValues(temp);
+                //mUltrasonic.readValue(&temp[7]);
+
+                insertRow.timestamp = currentTime;
+                insertRow.acc_x = temp[0];
+                insertRow.acc_y = temp[1];
+                insertRow.acc_z = temp[2];
+                insertRow.realacc_x = temp[3];
+                insertRow.realacc_y = temp[4];
+                insertRow.realacc_z = temp[5];
+                //insertRow.gyro_x = temp[6];
+                //insertRow.gyro_y = temp[7];
+                //insertRow.gyro_z = temp[8];
+                //insertRow.temperature = temp[6];
+                //insertRow.distance = temp[7];
+                Serial.println(insertRow.timestamp);
+                crcBuffer->push(insertRow);
+            } else {
+                setMode(IDLE);
+                mBoxSettings->setSampleRecordingFinished();
+                RPC1.println("POST samples/record/state DONE");
+            }
 
             rtos::ThisThread::sleep_until(nextFetch);
+            
             break;
 
         case IDLE:
@@ -54,8 +67,6 @@ void UnitSensors::runSensors() {
             break;
 
         }
-
-        
     }
 }
 
@@ -67,9 +78,13 @@ void UnitSensors::calibrate() {
     accelerometer::calibrate();
 }
 
-void UnitSensors::setMode(SensorsMode mode) {
+void UnitSensors::setMode(SensorsMode mode, bool setupSampleRecording) {
     if (currentMode == IDLE && mode == RECORDING) {
         setFrequencyLUTKey(mBoxSettings->getFrequencyLUTKey());
+
+        if (setupSampleRecording) {
+            runsLeft = mHz * (mBoxSettings->getSampleLength() / 1000);
+        }
     }
 
     currentMode = mode;
