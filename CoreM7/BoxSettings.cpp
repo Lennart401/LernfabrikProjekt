@@ -5,7 +5,7 @@
 BoxSettings::BoxSettings()
     : _sampleLength(1000)
     , _frequencyKey(0x08)
-    , _movementTypeKey(0x02)
+    , _movementTypeKey(0x01)
     , _useMovementTypes(false)
     , _sampleRecordingFinished(false) {
 } 
