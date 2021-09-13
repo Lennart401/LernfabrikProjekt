@@ -11,6 +11,9 @@
 #define acc_range 8 // unit: g
 #define acc_scale (0x4000 / acc_range) * 9.81
 
+#define gyro_range 500 // unit: deg / sec
+#define gyro_scale (0x4000 / gyro_range)
+
 // internal stuff
 static MPU6050 mpu;
 
@@ -67,6 +70,13 @@ void accelerometer::initialize() {
     case 16: mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_16); break;
     }
 
+    switch (gyro_range) {
+    case  250: mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  break;
+    case  500: mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_500);  break;
+    case 1000: mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_1000); break;
+    case 2000: mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_2000); break;
+    }
+
     Serial.println(mpu.getFullScaleAccelRange());
     Serial.println(mpu.getFullScaleGyroRange());
 }
@@ -82,15 +92,23 @@ void accelerometer::readValues(float *temp) {
         mpu.dmpGetGyro(&gyro);
         temperature = mpu.getTemperature() / 340.0 + 36.53;
 
-        temp[0] = (float) realAcceleration.x / acc_scale;
-        temp[1] = (float) realAcceleration.y / acc_scale;
-        temp[2] = (float) realAcceleration.z / acc_scale;
-        temp[3] = (float) realAccelerationInWorld.x / acc_scale;
-        temp[4] = (float) realAccelerationInWorld.y / acc_scale;
-        temp[5] = (float) realAccelerationInWorld.z / acc_scale;
-        temp[6] = (float) gyro.x;
-        temp[7] = (float) gyro.y;
-        temp[8] = (float) gyro.z;
+        temp[0] = (float) acceleration.x / acc_scale;
+        temp[1] = (float) acceleration.y / acc_scale;
+        temp[2] = (float) acceleration.z / acc_scale;
+        // temp[0] = (float) realAcceleration.x / acc_scale;
+        // temp[1] = (float) realAcceleration.y / acc_scale;
+        // temp[2] = (float) realAcceleration.z / acc_scale;
+        // temp[3] = (float) realAccelerationInWorld.x / acc_scale;
+        // temp[4] = (float) realAccelerationInWorld.y / acc_scale;
+        // temp[5] = (float) realAccelerationInWorld.z / acc_scale;
+        temp[6] = (float) gyro.x / gyro_range;
+        temp[7] = (float) gyro.y / gyro_range;
+        temp[8] = (float) gyro.z / gyro_range;
+
+        temp[10] = q.w;
+        temp[11] = q.x;
+        temp[12] = q.y;
+        temp[13] = q.z;
 
         //temp[6] = ypr[0] * 180/M_PI;
         //temp[7] = ypr[1] * 180/M_PI;

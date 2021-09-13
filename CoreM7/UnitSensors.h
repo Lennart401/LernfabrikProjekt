@@ -25,7 +25,6 @@ public:
     void setFrequencyLUTKey(uint8_t frequencyKey);
 
 private:
-    float temp[9];
     uint64_t currentTime;
     uint64_t nextFetch;
 

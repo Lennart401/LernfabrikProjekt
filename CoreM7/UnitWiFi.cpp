@@ -148,20 +148,24 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 }
 
 void UnitWiFi::sendBuffer(WiFiClient &client) {
-    uint8_t numberOfSensors = 7;
+    uint8_t numberOfSensors = 11;//7;
     int headerLength = 6 + numberOfSensors * BYTES_PER_SENSOR;
 
     uint8_t freqMoveType = (mBoxSettings->getFrequencyLUTKey() & 0xF) << 4 | (mBoxSettings->getModeDependendMovementTypeLUTKey() & 0xF);
 
     char header[headerLength] = {
         0x02, 0x01, (packetCounter & 0xFF), (packetCounter & 0xFF00) >> 8, freqMoveType, numberOfSensors, // version, device id, packet id, freq/movement-type!!!, # sensors
-        TYPE_UINT64, 't', 'i', 'm', 'e', ' ', // uint64_t, "time"
-        TYPE_FLOAT,  'a', 'c', 'c', '_', 'x', // float32, "accx"
-        TYPE_FLOAT,  'a', 'c', 'c', '_', 'y', // float32, "accy"
-        TYPE_FLOAT,  'a', 'c', 'c', '_', 'z', // float32, "accz"
-        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'x', // float32, "racx"
-        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'y', // float32, "racy"
-        TYPE_FLOAT,  'r', 'e', 'a', 'l', 'z' // float32, "racz"
+        TYPE_UINT64, 't', 'i', 'm', 'e', ' ', // uint64_t, "time "
+        TYPE_FLOAT,  'a', 'c', 'c', 'x', ' ', // float32,  "accx "
+        TYPE_FLOAT,  'a', 'c', 'c', 'y', ' ', // float32,  "accy "
+        TYPE_FLOAT,  'a', 'c', 'c', 'z', ' ', // float32,  "accz "
+        TYPE_FLOAT,  'g', 'y', 'r', 'o', 'x', // float32,  "gyrox"
+        TYPE_FLOAT,  'g', 'y', 'r', 'o', 'y', // float32,  "gyroy"
+        TYPE_FLOAT,  'g', 'y', 'r', 'o', 'z', // float32,  "gyroz"
+        TYPE_FLOAT,  'q', 'u', 'a', 't', 'w', // float32,  "quatw"
+        TYPE_FLOAT,  'q', 'u', 'a', 't', 'x', // float32,  "quatx"
+        TYPE_FLOAT,  'q', 'u', 'a', 't', 'y', // float32,  "quaty"
+        TYPE_FLOAT,  'q', 'u', 'a', 't', 'z'  // float32,  "quatz"
     };
 
     int numRows = MIN(crcBuffer->size(), MIN_ROWS_PER_PACKET);
@@ -186,19 +190,23 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
 
     for (int i = 0; i < numRows; i++) {
         crcBuffer->pop(readRow);
-        Serial.println(readRow.timestamp);
-        char *buf = (char*) &readRow.timestamp;   client.write(buf, sizeof(readRow.timestamp)); // static_cast<char*>(static_cast<void*>(&readRow.timestamp))
-        buf =       (char*) &readRow.acc_x;       client.write(buf, sizeof(readRow.acc_x));
-        buf =       (char*) &readRow.acc_y;       client.write(buf, sizeof(readRow.acc_y));
-        buf =       (char*) &readRow.acc_z;       client.write(buf, sizeof(readRow.acc_z));
-        buf =       (char*) &readRow.realacc_x;   client.write(buf, sizeof(readRow.realacc_x));
-        buf =       (char*) &readRow.realacc_y;   client.write(buf, sizeof(readRow.realacc_y));
-        buf =       (char*) &readRow.realacc_z;   client.write(buf, sizeof(readRow.realacc_z));
-        //buf =       (char*) &readRow.gyro_x;      client.write(buf, sizeof(readRow.gyro_x));
-        //buf =       (char*) &readRow.gyro_y;      client.write(buf, sizeof(readRow.gyro_y));
-        //buf =       (char*) &readRow.gyro_z;      client.write(buf, sizeof(readRow.gyro_z));
-        //buf =       (char*) &readRow.temperature; client.write(buf, sizeof(readRow.temperature));
-        //buf =       (char*) &readRow.distance;    client.write(buf, sizeof(readRow.distance));
+        //Serial.println(readRow.timestamp);
+        char *buf = (char*) &readRow.timestamp;    client.write(buf, sizeof(readRow.timestamp)); // static_cast<char*>(static_cast<void*>(&readRow.timestamp))
+        buf =       (char*) &readRow.acc_x;        client.write(buf, sizeof(readRow.acc_x));
+        buf =       (char*) &readRow.acc_y;        client.write(buf, sizeof(readRow.acc_y));
+        buf =       (char*) &readRow.acc_z;        client.write(buf, sizeof(readRow.acc_z));
+        //buf =       (char*) &readRow.realacc_x;    client.write(buf, sizeof(readRow.realacc_x));
+        //buf =       (char*) &readRow.realacc_y;    client.write(buf, sizeof(readRow.realacc_y));
+        //buf =       (char*) &readRow.realacc_z;    client.write(buf, sizeof(readRow.realacc_z));
+        buf =       (char*) &readRow.gyro_x;       client.write(buf, sizeof(readRow.gyro_x));
+        buf =       (char*) &readRow.gyro_y;       client.write(buf, sizeof(readRow.gyro_y));
+        buf =       (char*) &readRow.gyro_z;       client.write(buf, sizeof(readRow.gyro_z));
+        //buf =       (char*) &readRow.temperature;  client.write(buf, sizeof(readRow.temperature));
+        //buf =       (char*) &readRow.distance;     client.write(buf, sizeof(readRow.distance));
+        buf =       (char*) &readRow.quaternion_w; client.write(buf, sizeof(readRow.quaternion_w));
+        buf =       (char*) &readRow.quaternion_x; client.write(buf, sizeof(readRow.quaternion_x));
+        buf =       (char*) &readRow.quaternion_y; client.write(buf, sizeof(readRow.quaternion_y));
+        buf =       (char*) &readRow.quaternion_z; client.write(buf, sizeof(readRow.quaternion_z));
     }
     client.println();
 

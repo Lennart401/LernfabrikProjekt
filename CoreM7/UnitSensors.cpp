@@ -23,6 +23,8 @@ void UnitSensors::runSensors() {
     accelerometer::initialize();
     //mUltrasonic.initialize();
 
+    float temp[20];
+
     while (running) {
         switch(currentMode) {
 
@@ -42,15 +44,20 @@ void UnitSensors::runSensors() {
                 insertRow.acc_x = temp[0];
                 insertRow.acc_y = temp[1];
                 insertRow.acc_z = temp[2];
-                insertRow.realacc_x = temp[3];
-                insertRow.realacc_y = temp[4];
-                insertRow.realacc_z = temp[5];
-                //insertRow.gyro_x = temp[6];
-                //insertRow.gyro_y = temp[7];
-                //insertRow.gyro_z = temp[8];
+                //insertRow.realacc_x = temp[3];
+                //insertRow.realacc_y = temp[4];
+                //insertRow.realacc_z = temp[5];
+                insertRow.gyro_x = temp[6];
+                insertRow.gyro_y = temp[7];
+                insertRow.gyro_z = temp[8];
                 //insertRow.temperature = temp[6];
                 //insertRow.distance = temp[7];
-                Serial.println(insertRow.timestamp);
+                insertRow.quaternion_w = temp[10];
+                insertRow.quaternion_x = temp[11];
+                insertRow.quaternion_y = temp[12];
+                insertRow.quaternion_z = temp[13];
+
+                //Serial.println(insertRow.timestamp);
                 crcBuffer->push(insertRow);
             } else {
                 setMode(IDLE);
