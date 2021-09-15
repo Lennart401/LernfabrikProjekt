@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, AnyStr
+from typing import List, Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -23,7 +23,7 @@ mid_color_lut = {
 }
 
 
-def load_all_movements(parent_folder: AnyStr) -> Dict[int, List[pd.DataFrame]]:
+def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
     movement_folders: List[Any] = glob.glob(f"{parent_folder}\\[1-4]")
     # movement_folders: List[Any] = glob.glob(f"{parent_folder}\\1")
     movement_dict = {}
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     movements_path = r"C:\Users\User\Documents\Lernfabrik\LernfabrikDataserver\movements"
     all_movements = load_all_movements(movements_path)
     preprocess_samples(all_movements)
-    # plot_movements_xyz_raw(all_movements)
+    plot_movements_xyz_raw(all_movements)
     # print(generate_features(all_movements))
     all_features = generate_features(all_movements)
     plot_feature_3d(all_features, "mean")
