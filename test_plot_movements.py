@@ -111,7 +111,7 @@ def plot_feature_3d(features: Dict[int, List[Dict[str, float]]], feature_name: s
 
 
 if __name__ == "__main__":
-    movements_path = r"C:\Users\User\Documents\Lernfabrik\LernfabrikDataserver\movements"
+    movements_path = r"N:\GoogleDrive\Programmieren\LernfabrikML_data\movements"
     all_movements = load_all_movements(movements_path)
     preprocess_samples(all_movements)
     plot_movements_xyz_raw(all_movements)
