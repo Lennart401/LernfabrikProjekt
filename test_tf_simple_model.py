@@ -8,13 +8,14 @@ import test_plot_movements as loader
 import matplotlib.pyplot as plt
 
 
-def convert_and_split_for_tf(features: Dict[int, List[Dict]], train_size=0.7) -> Tuple[np.array, np.array, np.array, np.array]:
+def convert_and_split_for_tf(features: Dict[int, List[Dict]], train_size=0.7) -> Tuple[np.array, np.array, np.array,
+                                                                                       np.array]:
     x_all = []
     y_all = []
     for movement_id in features:
         for sample in features[movement_id]:
-            x_all.append([sample["y_mean"], sample["z_mean"], sample["z_std"]])
-            # x_all.append(list(sample.values()))
+            # x_all.append([sample["y_mean"], sample["z_mean"], sample["z_std"]])
+            x_all.append(list(sample.values()))
             y_all.append(movement_id)
 
     return train_test_split(np.array(x_all), np.array(y_all) - 1, train_size=train_size, random_state=42)
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     # loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     # print(loss_fn(y_train[:1], predictions).numpy())
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(0.05),
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.07),
                   loss=tf.keras.losses.CategoricalCrossentropy(),
                   metrics=["accuracy"])
 
@@ -92,3 +93,6 @@ if __name__ == "__main__":
     ax[1].set(title='Loss', xlim=(0, EPOCHS))
     ax[1].legend()
     plt.show()
+
+    if input("save model?") == "y":
+        tf.saved_model.save(model, "./tmp/final_model")
