@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal as signal
 from scipy import integrate
-from tools import preprocess
+from deprecated.tools import preprocess
 
 # read csv and convert time/index to datetime
 # df = pd.read_csv("data/accel_test/dev_2_2021-07-15_15-21-54.csv", index_col="time", parse_dates=True, header=0)[1:]
@@ -13,7 +13,7 @@ from tools import preprocess
 # end = df.index[-1]
 # new_index = pd.date_range(start=start, end=end, freq="10ms")
 # df = df.reindex(new_index)
-df = preprocess.read_and_reindex("data/accel_test/dev_2_2021-07-15_15-21-54.csv", use_reindex=False)
+df = preprocess.read_and_reindex("../data/accel_test/dev_2_2021-07-15_15-21-54.csv", use_reindex=False)
 print(df)
 
 # create rolling averages

@@ -1,10 +1,8 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-from tools import preprocess
+from deprecated.tools import preprocess
 import scipy.signal as signal
 
-df = preprocess.read_and_reindex("data/materialkiste-test-1.csv", use_reindex=False)
+df = preprocess.read_and_reindex("../data/materialkiste-test-1.csv", use_reindex=False)
 
 acc_x = "accx"
 acc_y = "accy"

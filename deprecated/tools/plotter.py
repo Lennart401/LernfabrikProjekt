@@ -4,7 +4,7 @@ from scipy import integrate
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("../data/materialkiste-test-1.csv.bck")
+    df = pd.read_csv("../../data/materialkiste-test-1.csv.bck")
 
     df["velx"] = integrate.cumtrapz(df["accx"], df["time"], initial=0)
 
