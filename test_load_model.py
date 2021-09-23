@@ -4,12 +4,14 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from numpy import ndarray
+
 import test_plot_movements as loader
 import matplotlib.pyplot as plt
 import seaborn as sn
 
 
-def convert_for_tf(features: Dict[int, List[Dict]]) -> Tuple[np.array, np.array]:
+def convert_for_tf(features: Dict[int, List[Dict]]) -> Tuple[List, ndarray]:
     x_all = []
     y_all = []
     for movement_id in features:

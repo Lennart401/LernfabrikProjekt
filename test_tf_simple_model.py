@@ -1,5 +1,6 @@
 from typing import Dict, List, Tuple
 
+from numpy import ndarray
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
@@ -8,8 +9,8 @@ import test_plot_movements as loader
 import matplotlib.pyplot as plt
 
 
-def convert_and_split_for_tf(features: Dict[int, List[Dict]], train_size=0.7) -> Tuple[np.array, np.array, np.array,
-                                                                                       np.array]:
+def convert_and_split_for_tf(features: Dict[int, List[Dict]], train_size=0.7) -> Tuple[ndarray, ndarray, ndarray,
+                                                                                       ndarray]:
     x_all = []
     y_all = []
     for movement_id in features:
