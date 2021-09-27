@@ -73,3 +73,6 @@ def convert_save_model_to_tflite(model_directory: str, tflite_file: str) -> None
 
     with open(tflite_file, "wb") as f:
         f.write(tflite_model)
+    # to convert a saved tflite model from .tflite to a C array, use the command
+    # xxd -i converted_model.tflite > model_data.cc
+    # in a git bash command shell
