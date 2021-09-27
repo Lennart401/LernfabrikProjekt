@@ -2,7 +2,7 @@ from typing import Dict, List
 import pandas as pd
 
 
-def generate_basic_features(movements: Dict[int, List[pd.DataFrame]]) -> Dict[int, List[Dict]]:
+def generate_basic_features(movements: Dict[int, List[pd.DataFrame]]) -> Dict[int, List[Dict[str, float]]]:
     """
     Generate basic features from the given dict of lists of DataFrames.
 

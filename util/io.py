@@ -2,6 +2,7 @@ from typing import Dict, List, Any
 import glob
 import os
 import pandas as pd
+import tensorflow as tf
 
 
 def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
@@ -48,3 +49,27 @@ def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
         movement_dict[movement_id] = samples
 
     return movement_dict
+
+
+def load_model(directory: str) -> tf.keras.Model:
+    return tf.saved_model.load(directory)
+
+
+def save_model(model: tf.keras.Model, directory: str) -> None:
+    tf.saved_model.save(model, directory)
+
+
+def save_model_as_tflite(model: tf.keras.Model, tflite_file: str) -> None:
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    tflite_model = converter.convert()
+
+    with open(tflite_file, "wb") as f:
+        f.write(tflite_model)
+
+
+def convert_save_model_to_tflite(model_directory: str, tflite_file: str) -> None:
+    converter = tf.lite.TFLiteConverter.from_saved_model(model_directory)
+    tflite_model = converter.convert()
+
+    with open(tflite_file, "wb") as f:
+        f.write(tflite_model)

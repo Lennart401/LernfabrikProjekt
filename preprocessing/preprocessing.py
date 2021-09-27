@@ -17,6 +17,7 @@ def normalize_time(movements: Dict[int, List[pd.DataFrame]]) -> Dict[int, List[p
     For each DataFrame, the time of the first row will be subtracted from all rows, resulting in the first row being
     time "0" and all other times being relative to the first one. The original dictionary will not be changed by the
     function, but a new dictionary with the normalized time will be returned.
+
     :param movements: Dictionary of lists of DataFrames. Will not be changed by the function.
     :return: A new dictionary with normalized time of each DataFrame of the movement-type.
     """
@@ -57,6 +58,7 @@ def one_hot_encode_labels(labels: ndarray) -> ndarray:
     The input is a ndarray containing the classes of each observations, like this: ``array([0, 1, 2])``. The
     output is an array of arrays, each row containing the labels in a one-hot-encoded state:
     ``[[1. 0. 0.] [0. 1. 0.] [0. 0. 1.]]``
+
     :param labels: the classes-array to be one-hot-encoded
     :return: an ndarray where every entry is a one-hot-encoded labels (also an ndarray)
     """

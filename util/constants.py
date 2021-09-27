@@ -7,3 +7,10 @@ LUT_MOVEMENT_ID_TO_NAME = {
 LUT_INDEX_TO_NAME = { key-1: value for key, value in LUT_MOVEMENT_ID_TO_NAME.items() }
 
 LUT_MOVEMENT_ID_TO_INDEX = { key: key-1 for key in LUT_MOVEMENT_ID_TO_NAME }
+
+LUT_MOVEMENT_ID_TO_COLOR = {
+    1: "red",
+    2: "green",
+    3: "blue",
+    4: "black",
+}
