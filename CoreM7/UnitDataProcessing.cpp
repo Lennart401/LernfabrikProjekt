@@ -4,6 +4,7 @@
 #include <mbed.h>
 #include <rtos.h>
 #include <RPC_internal.h>
+#include <algorithm>
 #include "model.h"
 
 UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings)
@@ -23,10 +24,9 @@ UnitDataProcessing::~UnitDataProcessing() {
 
 void UnitDataProcessing::runDataProcessing() {
     // init
-    //static tflite::MicroErrorReporter microErrorReporter;
-    //errorReporter = &microErrorReporter;
     errorReporter = new tflite::MicroErrorReporter();
 
+    // this is where the model gets loaded
     model = tflite::GetModel(model_protocol_v2_1_tflite);
     if (model->version() != TFLITE_SCHEMA_VERSION) {
         TF_LITE_REPORT_ERROR(errorReporter, "Model provided is schema version %d not equal to supported version %d.", 
@@ -35,12 +35,11 @@ void UnitDataProcessing::runDataProcessing() {
         return;
     }
 
-    //static tflite::AllOpsResolver resolver;
-    //static tflite::MicroInterpreter static_interpreter(model, resolver, tensorArena, tensorArenaSize, errorReporter);
-    //interpreter = &static_interpreter;
-    resolver = new tflite::AllOpsResolver();
+    // this is what will "run" the model
+    resolver = new tflite::AllOpsResolver(); // just load all layer types for simplicity, the memory saved by this is not that important
     interpreter = new tflite::MicroInterpreter(model, *resolver, tensorArena, tensorArenaSize, errorReporter);
 
+    // allocate memory for the tensors (internally in the tensorArena; the tensorArena just needs to be big enough)
     TfLiteStatus allocateStatus = interpreter->AllocateTensors();
     if (allocateStatus != kTfLiteOk) {
         TF_LITE_REPORT_ERROR(errorReporter, "AllocateTensors() failed!");
@@ -48,38 +47,29 @@ void UnitDataProcessing::runDataProcessing() {
         return;
     }
 
+    // quick references to the input and output tensors
     inputTensor = interpreter->input(0);
     outputTensor = interpreter->output(0);
 
-    //Row data[nrows];
+    // this is where we will load the raw data from the buffer and the features for the sample in
+    Row *rawData = new Row[nrows];
+    float *sample = new float[INPUT_TENSOR_SIZE];
 
     // loop
     while (running) {
         switch (currentMode)
         {
         case RUNNING:
+            // when there are enough rows, start processing
             if (crcBuffer->size() >= nrows) {
-                //Serial.println("1: collected enough rows");
-                Row *rawData = (Row*) malloc(sizeof(Row) * nrows);
-                //Row rawData[nrows];
+                // get nrows and build the features into the sample variable
                 crcBuffer->pop(rawData, nrows);
-                //Serial.println("2: popped rows into buffer");
-
-                float *sample = (float*) malloc(sizeof(float) * 6);
-                //Serial.println("Creating sample...");
                 computeFeatures(sample, rawData);
-                //Serial.println("3: computed features");
+                // make a prediction on the sample
                 lastPrediction = predict(sample);
-                //Serial.println("4: made prediction");
                 
-                //Serial.println("Prediction: " + String(lastPrediction));
-                //Serial.println(crcBuffer->size());
                 RPC1.println("POST data-processing/last-prediction " + String(lastPrediction));
-                Serial.println("POST data-processing/last-prediction " + String(lastPrediction));
-                rtos::ThisThread::sleep_for(100);
-
-                free(rawData);
-                free(sample);
+                Serial.println("Prediction: " + String(lastPrediction));
             } else {
                 rtos::ThisThread::sleep_for(100);
             }
@@ -90,6 +80,9 @@ void UnitDataProcessing::runDataProcessing() {
             break;
         }
     }
+
+    delete rawData;
+    delete sample;
 }
 
 void UnitDataProcessing::stopDataProcessing() {
@@ -103,9 +96,10 @@ void UnitDataProcessing::setMode(DPMode newMode) {
 void UnitDataProcessing::computeFeatures(float *sample, Row *rows) {
     Serial.println("Starting to compute features...");
 
+    // computing the mean:
+    // start by adding all values together, then at the end, divide by the number of values added
     float x_mean = 0.0f, y_mean = 0.0f, z_mean = 0.0f;
     for (int i = 0; i < nrows; ++i) {
-        //Serial.print(i + " ");
         x_mean += rows[i].acc_x;
         y_mean += rows[i].acc_y;
         z_mean += rows[i].acc_z;
@@ -115,6 +109,9 @@ void UnitDataProcessing::computeFeatures(float *sample, Row *rows) {
     z_mean /= nrows;
     Serial.println("Computed mean: " + String(x_mean) + " " + String(y_mean) + " " + String(z_mean));
 
+    // computing the standard deviation:
+    // formula =  sqrt( 1/n * sum( i=1->n, (x(i) - mean)² ) )
+    // first, add the squares of all deviation from the mean, then divide by number of values and get the square root of that
     float x_std = 0.0f, y_std = 0.0f, z_std = 0.0f;
     for (int i = 0; i < nrows; ++i) {
         x_std += (rows[i].acc_x - x_mean) * (rows[i].acc_x - x_mean);
@@ -131,13 +128,16 @@ void UnitDataProcessing::computeFeatures(float *sample, Row *rows) {
 }
 
 uint8_t UnitDataProcessing::predict(float *sample) {
-    // inputTensor->data.f = sample;
-    memcpy(inputTensor->data.f, sample, sizeof(float) * 6);
+    // copy sample data into the inputTensors data (float) array and start the interpreter (run the model)
+    memcpy(inputTensor->data.f, sample, sizeof(float) * INPUT_TENSOR_SIZE);
     TfLiteStatus invokeStatus = interpreter->Invoke();
 
-    if (outputTensor->data.f[0] > 0.5) return 1;
-    else if (outputTensor->data.f[1] > 0.5) return 2;
-    else if (outputTensor->data.f[2] > 0.5) return 3;
-    else if (outputTensor->data.f[3] > 0.5) return 4;
-    else return 0;
+    // find the argmax from the data (float) of the output and return that +1 (0 = no movement, 1 = first movement type)
+    float *outputArray = outputTensor->data.f;
+    // std::max_element returns the maximum element from the outputArray 
+    // (i. e. in the area of outputArray[0] -> outputArray[last])
+    // 
+    // std::distance computes the distance between the start of the array and the element, which is its position in the array
+    int element = std::distance(outputArray, std::max_element(outputArray, outputArray + OUTPUT_TENSOR_SIZE));
+    return element + 1;
 }
