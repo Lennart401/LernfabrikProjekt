@@ -70,7 +70,10 @@ static void runM7RPCReceiver() {
                 String subject;
                 String payload;
 
-                if (command == "GET" || command == "DO") {
+                if (command == "PRINT") {
+                    subject = "PRINT";
+                    payload = bufferString.substring(firstDelimiter+1, bufferString.length() - 1);
+                } else if (command == "GET" || command == "DO") {
                     subject = bufferString.substring(firstDelimiter+1, bufferString.length() - 1);
                 } else if (command == "SET") {
                     int secondDelimiter = bufferString.indexOf(' ', firstDelimiter + 1);
@@ -113,7 +116,7 @@ static void runM7RPCReceiver() {
                     }
                 }
 
-                if (command == "DO") {
+                else if (command == "DO") {
                     if (subject == "sensors/calibrate") {
                         if (unitSensors) unitSensors->calibrate();
                     } else if (subject == "samples/record/start") {
@@ -121,6 +124,10 @@ static void runM7RPCReceiver() {
                         boxSettings->setUseMovementTypes(true);
                         if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING, true);
                     }
+                }
+
+                else if (command == "PRINT") {
+                    Serial.println("M4: " + payload);
                 }
 
                 boxSettings->processRPCCommand(command, subject, payload);

@@ -71,16 +71,17 @@ Futhermore, the definition of `BUFFER_LENGTH` from `I2Cdev.cpp` does not make it
 ### Internal RPC communication protocol
 This protocol is a text based protocol layered on top of the RPC message-based communication mechanism. Each transmitted line is handled as a single message (i.e. each message terminates with a line feed (`\n`) character). The protocol has been inspired by HTTP and MQTT.
 
-Each message consists of three parts: `<command> <subject> [payload] \n`
+Each message consists of the three parts `<command> <subject> [(optional) payload]` with the exception of the `PRINT`-command, which does not contain a subject.
 
-There are four types of commands, only some of them contain a payload:
+There are five types of commands in total, with only some of them making use of all three message parts.
 
-| Command                       | Usage                                                                                     |
-| ----------------------------- | ----------------------------------------------------------------------------------------- |
-| `GET <subject> \n`            | Request information. Sent from M4 -> M7, M7 will respond with `POST` on the same subject. |
-| `POST <subject> <payload> \n` | Send information (e.g. to be displayed). Sent from M7 -> M4, no response.                 |
-| `SET <subject> <payload> \n`  | Change mode/settings/etc. Sent from M4 -> M7, no response.                                |
-| `DO <subject> \n`             | Run an action without any payload. Sent from M4 -> M7, no response.                       |
+| Command                    | Usage                                                                                     |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| `GET <subject>`            | Request information. Sent from M4 -> M7, M7 will respond with `POST` on the same subject. |
+| `POST <subject> <payload>` | Send information (e.g. to be displayed). Sent from M7 -> M4, no response.                 |
+| `SET <subject> <payload>`  | Change mode/settings/etc. Sent from M4 -> M7, no response.                                |
+| `DO <subject>`             | Run an action without any payload. Sent from M4 -> M7, no response.                       |
+| `PRINT <payload>`          | Print the payload to the Serial output. Sent from M4 -> M7, no response.                  |
 
 The subject string shall be formatted like a MQTT subject string, e.g. `wifi/status`.
 
