@@ -7,6 +7,7 @@
 #include "MbedCircularBuffer.h"
 #include "UnitSensors.h"
 #include "UnitWiFi.h"
+#include "UnitDataProcessing.h"
 #include "BoxSettings.h"
 
 // wifi client workaround -- it will only work when created as a global variable
@@ -23,9 +24,11 @@ static BoxSettings *boxSettings;
 
 static UnitWiFi *unitWiFi = nullptr;
 static UnitSensors *unitSensors = nullptr;
+static UnitDataProcessing *unitDataProcessing = nullptr;
 
 static rtos::Thread unitSensorsThread(osPriorityRealtime, OS_STACK_SIZE, nullptr, "sensors-thread");
 static rtos::Thread unitWiFiThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "wifi-thread");
+static rtos::Thread unitDataProcessingThread(osPriorityBelowNormal, OS_STACK_SIZE, nullptr, "data-processing-thread");
 static rtos::Thread m7RPCReceiverThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "rpc-recv-thread");
 
 static void runUnitSensors() {
@@ -44,6 +47,12 @@ static void runUnitWiFi() {
     unitWiFi = new UnitWiFi(crcBuffer, boxSettings);
     unitWiFi->runWiFi(globClient);
     delete unitWiFi;
+}
+
+static void runUnitDataProcessing() {
+    unitDataProcessing = new UnitDataProcessing(crcBuffer, boxSettings);
+    unitDataProcessing->runDataProcessing();
+    delete unitDataProcessing;
 }
 
 static void runM7RPCReceiver() {
@@ -80,13 +89,26 @@ static void runM7RPCReceiver() {
                         if (payload == "1") {
                             Serial.println("Enabling data record and send mode");
                             boxSettings->setUseMovementTypes(false);
-                            //if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
+                            if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING);
                         } else if (payload == "0") {
                             Serial.println("Disabling data record and send mode");
                             //if (unitWifi) unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
                             if (unitWiFi) unitWiFi->flush();
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
+                        }
+                    } else if (subject == "mode/predicting") {
+                        if (payload == "1") {
+                            Serial.println("Staring predicting mode");
+                            boxSettings->setUseMovementTypes(false);
+                            if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::REPORT_TO_BROKER);
+                            if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING);
+                            if (unitDataProcessing) unitDataProcessing->setMode(UnitDataProcessing::DPMode::RUNNING);
+                        } else if (payload == "0") {
+                            Serial.println("Stopping prediction mode and resetting buffer");
+                            if (unitDataProcessing) unitDataProcessing->setMode(UnitDataProcessing::DPMode::IDLE);
+                            if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
+                            crcBuffer->reset();
                         }
                     }
                 }
@@ -129,6 +151,7 @@ void setup() {
     unitWiFiThread.start(runUnitWiFi);
     m7RPCReceiverThread.start(runM7RPCReceiver);
     unitSensorsThread.start(runUnitSensors);
+    unitDataProcessingThread.start(runUnitDataProcessing);
 }
 
 void loop() {
@@ -140,4 +163,3 @@ void loop() {
 
     rtos::ThisThread::sleep_for((uint32_t) 100);
 }
-

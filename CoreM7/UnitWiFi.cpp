@@ -65,7 +65,7 @@ void UnitWiFi::runWiFi(WiFiClient &client) {
 
         case REPORT_TO_BROKER:
             //loopReportToBroker(client);
-            Serial.println("--REPORTING TO BROKER........--");
+            //Serial.println("--REPORTING TO BROKER........--");
             rtos::ThisThread::sleep_for(200);
             break;
 
