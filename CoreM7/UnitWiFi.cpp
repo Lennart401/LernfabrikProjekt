@@ -224,6 +224,7 @@ void UnitWiFi::displayConnectError() {
     // }
 
     // TODO send message over RPC to display on screen!
+    RPC1.println("POST wifi/status error");
 }
 
 void UnitWiFi::printWifiStatus() {
