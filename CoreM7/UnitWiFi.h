@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <PubSubClient.h>
 #include "MbedCircularBuffer.h"
 #include "Row.h"
 #include "BoxSettings.h"
@@ -35,11 +36,18 @@ private:
     void displayConnectError();
     void printWifiStatus();
 
+    // void receiveMQTTMessage(char *topic, uint8_t *payload, uint32_t length) {}
+
     volatile WiFiMode currentMode;
 
     IPAddress *dataServerHost;
     uint16_t dataServerPort;
     int status = WL_IDLE_STATUS;
+
+    PubSubClient *mqttClient = nullptr;
+    IPAddress *mqttBrokerHost;
+    uint16_t mqttBrokerPort;
+    uint8_t lastPublishedPrediction = 0;
 
     Row readRow;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;

@@ -8,7 +8,7 @@
 #include "model.h"
 
 UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings)
-    : settings(boxSettings)
+    : mBoxSettings(boxSettings)
     , crcBuffer(buffer)
     , currentMode(DPMode::IDLE)
     , tensorArena(new uint8_t[tensorArenaSize])
@@ -68,6 +68,7 @@ void UnitDataProcessing::runDataProcessing() {
                 // make a prediction on the sample
                 lastPrediction = predict(sample);
                 
+                mBoxSettings->setLastPrediction(lastPrediction);
                 RPC1.println("POST data-processing/last-prediction " + String(lastPrediction));
                 Serial.println("Prediction: " + String(lastPrediction));
             } else {

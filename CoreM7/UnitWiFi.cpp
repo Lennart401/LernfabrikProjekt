@@ -32,6 +32,8 @@ UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings 
     , mBoxSettings(boxSettings)
     , dataServerHost(new IPAddress(192, 168, 100, 22))
     , dataServerPort(5000)
+    , mqttBrokerHost(new IPAddress(192, 168, 100, 22))
+    , mqttBrokerPort(1883)
     , currentMode(WiFiMode::SEND_TO_DATASERVER) {
     Serial.println("Port: " + String(dataServerPort));
     Serial.println("SSID: " + String(SECRET_SSID));
@@ -41,16 +43,24 @@ UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings 
 
 UnitWiFi::~UnitWiFi() {
     delete dataServerHost;
+    delete mqttClient;
 }
 
 void UnitWiFi::runWiFi(WiFiClient &client) {
     // Setup
-    Serial.println("Setting up, connecting...");
+    Serial.println("Setting up wifi, connecting...");
+
+    // MQTT setup
+    mqttClient = new PubSubClient(client);
+    mqttClient->setServer(*mqttBrokerHost, mqttBrokerPort);
+    // mqttClient->setCallback(receiveMQTTMessage);
+
+    // setup blue led for output and turn it off
     pinMode(MYLED, OUTPUT);
     digitalWrite(MYLED, HIGH);
 
+    // connect to wifi
     connectWiFi();
-    //Serial.println("Dummy connected");
 
     Serial.println("Entering WiFi loop...");
     // Loop
@@ -64,9 +74,9 @@ void UnitWiFi::runWiFi(WiFiClient &client) {
             break;
 
         case REPORT_TO_BROKER:
-            //loopReportToBroker(client);
+            loopReportToBroker(client);
             //Serial.println("--REPORTING TO BROKER........--");
-            rtos::ThisThread::sleep_for(200);
+            //rtos::ThisThread::sleep_for(200);
             break;
 
         case IDLE:
@@ -86,6 +96,11 @@ void UnitWiFi::flush() {
 }
 
 void UnitWiFi::setMode(WiFiMode mode) {
+    if (currentMode == REPORT_TO_BROKER && mode != REPORT_TO_BROKER) {
+        mqttClient->disconnect();
+        Serial.println("Disconnecting mqttClient");
+    }
+
     currentMode = mode;
 }
 
@@ -144,7 +159,31 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
 }
 
 void UnitWiFi::loopReportToBroker(WiFiClient &client) {
+    while (!mqttClient->connected()) {
+        Serial.println("Connecting MQTT...");
+        mqttClient->connect("lernfabrikbox");
+    }
 
+    Serial.println("Starting broker report loop");
+
+    uint8_t settingsLastPrediction = mBoxSettings->getLastPrediction();
+
+    if (settingsLastPrediction != lastPublishedPrediction) {
+        lastPublishedPrediction = settingsLastPrediction;
+
+        //String buffer = String(lastPublishedPrediction);
+        char buffer[5];
+        int arg = lastPublishedPrediction;
+        int n = sprintf(buffer, "%d", arg);
+
+        const uint8_t *messageBuffer = reinterpret_cast<const uint8_t*>(buffer);
+
+        Serial.println("Publishing over MQTT");
+        mqttClient->publish("lf/dev_1/movement", messageBuffer, n, true);
+    } else {
+        mqttClient->loop();
+        rtos::ThisThread::sleep_for(200);
+    }
 }
 
 void UnitWiFi::sendBuffer(WiFiClient &client) {

@@ -46,7 +46,7 @@ private:
 
     uint32_t nrows;
     mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
-    BoxSettings *settings;
+    BoxSettings *mBoxSettings;
 
     volatile bool running = true;
     volatile DPMode currentMode;

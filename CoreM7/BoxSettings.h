@@ -13,6 +13,7 @@ public:
     uint8_t getMovementTypeLUTKey() const { return _movementTypeKey; }
     bool getUseMovementTypes() const { return _useMovementTypes; }
     bool hasSampleRecordingFinished() const { return _sampleRecordingFinished; }
+    uint8_t getLastPrediction() const { return _lastPrediction; }
 
     uint8_t getModeDependendMovementTypeLUTKey();
     void processRPCCommand(String command, String subject, String payload);
@@ -23,6 +24,7 @@ public:
     void setUseMovementTypes(bool useMovementTypes) { _useMovementTypes = useMovementTypes; }
     void setSampleRecordingFinished() { _sampleRecordingFinished = true; }
     void resetSampleRecordingFinished() { _sampleRecordingFinished = false; }
+    void setLastPrediction(uint8_t lastPrediction) { _lastPrediction = lastPrediction; }
 
 private:
     // -----------------------------------------------------
@@ -41,6 +43,9 @@ private:
     // a value to communicate between UnitSensors and UnitWiFi
     // UnitSensors will set this value to true and UnitWiFi will reset it to false once it has processed it
     bool _sampleRecordingFinished;
+    // for communication from UnitDataProcessing to the rest of the arduino: the lastest prediction that
+    // UnitDataProcessing has made
+    uint8_t _lastPrediction;
 
 };
 
