@@ -6,10 +6,10 @@
 #include <RPC_internal.h>
 #include <algorithm>
 #include "model.h"
+#include "InternalComm.h"
 
-UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings)
-    : mBoxSettings(boxSettings)
-    , crcBuffer(buffer)
+UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
+    : crcBuffer(buffer)
     , currentMode(DPMode::IDLE)
     , tensorArena(new uint8_t[tensorArenaSize])
     , nrows(100) {
@@ -68,7 +68,8 @@ void UnitDataProcessing::runDataProcessing() {
                 // make a prediction on the sample
                 lastPrediction = predict(sample);
                 
-                mBoxSettings->setLastPrediction(lastPrediction);
+                // mBoxSettings->setLastPrediction(lastPrediction);
+                InternalComm.lastPrediction = lastPrediction;
                 RPC1.println("POST data-processing/last-prediction " + String(lastPrediction));
                 Serial.println("Prediction: " + String(lastPrediction));
             } else {

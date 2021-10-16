@@ -5,15 +5,16 @@
 #include <RPC_internal.h>
 #include "Accelerometer.h"
 #include "Ultrasonic.h"
+#include "InternalComm.h"
+#include "BoxSettings.h"
 
 //#define SENSORS_HZ 10 // would be 200 or 400 or whatever
 #define UNITS_PER_SECOND 1000 // 1000000 for µs
 #define FETCH_TIME(_hz) (UNITS_PER_SECOND/_hz)
 
-UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings, uint32_t hz)
+UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
     : crcBuffer(buffer)
     , mHz(hz)
-    , mBoxSettings(boxSettings)
     , mUltrasonic(4, 5)
     , currentMode(SensorsMode::IDLE)
     , runsLeft(0) {
@@ -34,8 +35,8 @@ void UnitSensors::runSensors() {
             nextFetch = currentTime + FETCH_TIME(mHz);
 
             // calculate number of runs left
-            if (!mBoxSettings->getUseMovementTypes() || runsLeft > 0) {
-                if (mBoxSettings->getUseMovementTypes()) runsLeft--;
+            if (!InternalComm.useMovementTypes || runsLeft > 0) {
+                if (InternalComm.useMovementTypes) runsLeft--;
 
                 accelerometer::readValues(temp);
                 //mUltrasonic.readValue(&temp[7]);
@@ -61,7 +62,8 @@ void UnitSensors::runSensors() {
                 crcBuffer->push(insertRow);
             } else {
                 setMode(IDLE);
-                mBoxSettings->setSampleRecordingFinished();
+                // mBoxSettings->setSampleRecordingFinished();
+                InternalComm.sampleRecordFlush = true;
                 RPC1.println("POST samples/record/state DONE");
             }
 
@@ -87,10 +89,10 @@ void UnitSensors::calibrate() {
 
 void UnitSensors::setMode(SensorsMode mode, bool setupSampleRecording) {
     if (currentMode == IDLE && mode == RECORDING) {
-        setFrequencyLUTKey(mBoxSettings->getFrequencyLUTKey());
+        setFrequencyLUTKey(BoxSettings.getFrequencyLUTKey());
 
         if (setupSampleRecording) {
-            runsLeft = mHz * (mBoxSettings->getSampleLength() / 1000);
+            runsLeft = mHz * (BoxSettings.getSampleLength() / 1000);
         }
     }
 

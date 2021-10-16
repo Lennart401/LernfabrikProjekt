@@ -1,25 +1,23 @@
 #include "BoxSettings.h"
 
 #include <RPC_internal.h>
+#include "InternalComm.h"
 
-BoxSettings::BoxSettings()
+BoxSettingsClass::BoxSettingsClass()
     : _sampleLength(1000)
     , _frequencyKey(0x08)
-    , _movementTypeKey(0x01)
-    , _useMovementTypes(false)
-    , _sampleRecordingFinished(false)
-    , _lastPrediction(0) {
+    , _movementTypeKey(0x01) {
 } 
 
-uint8_t BoxSettings::getModeDependendMovementTypeLUTKey() {
-    if (_useMovementTypes) {
+uint8_t BoxSettingsClass::getModeDependendMovementTypeLUTKey() {
+    if (InternalComm.useMovementTypes) {
         return _movementTypeKey;
     } else {
         return 0x0;
     }
 }
 
-void BoxSettings::processRPCCommand(String command, String subject, String payload) {
+void BoxSettingsClass::processRPCCommand(String command, String subject, String payload) {
     // GET responses
     if (command == "GET") {
         if (subject == "settings/sample-length") {
@@ -48,3 +46,5 @@ void BoxSettings::processRPCCommand(String command, String subject, String paylo
         }
     }
 }
+
+BoxSettingsClass BoxSettings;

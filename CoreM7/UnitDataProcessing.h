@@ -5,7 +5,6 @@
 #include <TensorFlowLite.h>
 #include "Row.h"
 #include "MbedCircularBuffer.h"
-#include "BoxSettings.h"
 
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -22,7 +21,7 @@ public:
         IDLE
     };
 
-    UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings);
+    UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer);
     ~UnitDataProcessing();
     void runDataProcessing();
     void stopDataProcessing();
@@ -46,7 +45,6 @@ private:
 
     uint32_t nrows;
     mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
-    BoxSettings *mBoxSettings;
 
     volatile bool running = true;
     volatile DPMode currentMode;

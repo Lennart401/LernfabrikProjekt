@@ -6,7 +6,6 @@
 #include "MbedCircularBuffer.h"
 #include "Accelerometer.h"
 #include "Ultrasonic.h"
-#include "BoxSettings.h"
 
 class UnitSensors {
 
@@ -16,7 +15,7 @@ public:
         IDLE
     };
 
-    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings, uint32_t hz = 100);
+    UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz = 100);
     void runSensors();
     void stopSensors();
     void calibrate();
@@ -35,7 +34,6 @@ private:
     Row insertRow;
     mbed::MbedCircularBuffer<Row, BUF_ROWS>* crcBuffer;
 
-    BoxSettings *mBoxSettings;
     uint32_t mHz;
 
     Ultrasonic mUltrasonic;

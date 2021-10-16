@@ -9,6 +9,7 @@
 #include "UnitWiFi.h"
 #include "UnitDataProcessing.h"
 #include "BoxSettings.h"
+#include "InternalComm.h"
 
 // wifi client workaround -- it will only work when created as a global variable
 WiFiClient globClient;
@@ -19,8 +20,6 @@ WiFiClient globClient;
 
 static Row *buffer_space;
 static mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
-
-static BoxSettings *boxSettings;
 
 static UnitWiFi *unitWiFi = nullptr;
 static UnitSensors *unitSensors = nullptr;
@@ -36,7 +35,7 @@ static void runUnitSensors() {
     //Serial.println("Starting sensors...");
     //UnitSensors sensors(crcBuffer);
     //sensors.runSensors();
-    unitSensors = new UnitSensors(crcBuffer, boxSettings, 200);
+    unitSensors = new UnitSensors(crcBuffer, 200);
     unitSensors->runSensors();
     delete unitSensors;
 }
@@ -44,13 +43,13 @@ static void runUnitSensors() {
 static void runUnitWiFi() {
     //UnitWiFi wifi(crcBuffer);
     //wifi.runWiFi(globClient);
-    unitWiFi = new UnitWiFi(crcBuffer, boxSettings);
+    unitWiFi = new UnitWiFi(crcBuffer);
     unitWiFi->runWiFi(globClient);
     delete unitWiFi;
 }
 
 static void runUnitDataProcessing() {
-    unitDataProcessing = new UnitDataProcessing(crcBuffer, boxSettings);
+    unitDataProcessing = new UnitDataProcessing(crcBuffer);
     unitDataProcessing->runDataProcessing();
     delete unitDataProcessing;
 }
@@ -91,7 +90,8 @@ static void runM7RPCReceiver() {
                     if (subject == "mode/running") {
                         if (payload == "1") {
                             Serial.println("Enabling data record and send mode");
-                            boxSettings->setUseMovementTypes(false);
+                            // boxSettings->setUseMovementTypes(false);
+                            InternalComm.useMovementTypes = false;
                             if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::SEND_TO_DATASERVER);
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING);
                         } else if (payload == "0") {
@@ -103,7 +103,8 @@ static void runM7RPCReceiver() {
                     } else if (subject == "mode/predicting") {
                         if (payload == "1") {
                             Serial.println("Staring predicting mode");
-                            boxSettings->setUseMovementTypes(false);
+                            // boxSettings->setUseMovementTypes(false);
+                            InternalComm.useMovementTypes = false;
                             if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::REPORT_TO_BROKER);
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING);
                             if (unitDataProcessing) unitDataProcessing->setMode(UnitDataProcessing::DPMode::RUNNING);
@@ -122,7 +123,8 @@ static void runM7RPCReceiver() {
                         if (unitSensors) unitSensors->calibrate();
                     } else if (subject == "samples/record/start") {
                         Serial.println("Start recording of sample");
-                        boxSettings->setUseMovementTypes(true);
+                        // boxSettings->setUseMovementTypes(true);
+                        InternalComm.useMovementTypes = true;
                         if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::RECORDING, true);
                     }
                 }
@@ -131,7 +133,8 @@ static void runM7RPCReceiver() {
                     Serial.println("M4: " + payload);
                 }
 
-                boxSettings->processRPCCommand(command, subject, payload);
+                // boxSettings->processRPCCommand(command, subject, payload);
+                BoxSettings.processRPCCommand(command, subject, payload);
 
                 bufferString = "";
             }
@@ -153,8 +156,6 @@ void setup() {
     // buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     buffer_space = (Row*) malloc(sizeof(Row) * BUF_ROWS);
     crcBuffer = new mbed::MbedCircularBuffer<Row, BUF_ROWS>(*buffer_space);
-
-    boxSettings = new BoxSettings();
 
     unitWiFiThread.start(runUnitWiFi);
     m7RPCReceiverThread.start(runM7RPCReceiver);

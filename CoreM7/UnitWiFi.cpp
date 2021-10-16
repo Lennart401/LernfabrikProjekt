@@ -4,6 +4,8 @@
 #include <rtos.h>
 #include <SPI.h>
 #include <RPC_internal.h>
+#include "InternalComm.h"
+#include "BoxSettings.h"
 
 #define MIN(a,b) \
    ({ __typeof__ (a) _a = (a); \
@@ -27,9 +29,8 @@
 #define TYPE_FLOAT  0x04
 #define TYPE_DOUBLE 0x05
 
-UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, BoxSettings *boxSettings)
+UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
-    , mBoxSettings(boxSettings)
     , dataServerHost(new IPAddress(192, 168, 100, 22))
     , dataServerPort(5000)
     , mqttBrokerHost(new IPAddress(192, 168, 100, 22))
@@ -149,8 +150,10 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
         client.stop();
         digitalWrite(LEDG, HIGH);
     } else {
-        if (mBoxSettings->hasSampleRecordingFinished()) {
-            mBoxSettings->resetSampleRecordingFinished();
+        // if (mBoxSettings->hasSampleRecordingFinished()) {
+        if (InternalComm.sampleRecordFlush) {
+            // mBoxSettings->resetSampleRecordingFinished();
+            InternalComm.sampleRecordFlush = false;
             flush();
         } else {
             rtos::ThisThread::sleep_for(200);
@@ -164,7 +167,7 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
         mqttClient->connect("lernfabrik/dev_1");
     }
 
-    uint8_t settingsLastPrediction = mBoxSettings->getLastPrediction();
+    uint8_t settingsLastPrediction = InternalComm.lastPrediction; // mBoxSettings->getLastPrediction();
 
     if (settingsLastPrediction != lastPublishedPrediction) {
         lastPublishedPrediction = settingsLastPrediction;
@@ -188,7 +191,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
     uint8_t numberOfSensors = 11;//7;
     int headerLength = 6 + numberOfSensors * BYTES_PER_SENSOR;
 
-    uint8_t freqMoveType = (mBoxSettings->getFrequencyLUTKey() & 0xF) << 4 | (mBoxSettings->getModeDependendMovementTypeLUTKey() & 0xF);
+    uint8_t freqMoveType = (BoxSettings.getFrequencyLUTKey() & 0xF) << 4 | (BoxSettings.getModeDependendMovementTypeLUTKey() & 0xF);
 
     char header[headerLength] = {
         0x02, 0x01, (packetCounter & 0xFF), (packetCounter & 0xFF00) >> 8, freqMoveType, numberOfSensors, // version, device id, packet id, freq/movement-type!!!, # sensors
