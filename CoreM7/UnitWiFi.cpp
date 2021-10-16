@@ -97,8 +97,8 @@ void UnitWiFi::flush() {
 
 void UnitWiFi::setMode(WiFiMode mode) {
     if (currentMode == REPORT_TO_BROKER && mode != REPORT_TO_BROKER) {
+        Serial.println("Disconnecting MQTT...");
         mqttClient->disconnect();
-        Serial.println("Disconnecting mqttClient");
     }
 
     currentMode = mode;
@@ -161,10 +161,8 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
 void UnitWiFi::loopReportToBroker(WiFiClient &client) {
     while (!mqttClient->connected()) {
         Serial.println("Connecting MQTT...");
-        mqttClient->connect("lernfabrikbox");
+        mqttClient->connect("lernfabrik/dev_1");
     }
-
-    Serial.println("Starting broker report loop");
 
     uint8_t settingsLastPrediction = mBoxSettings->getLastPrediction();
 
@@ -178,7 +176,7 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 
         const uint8_t *messageBuffer = reinterpret_cast<const uint8_t*>(buffer);
 
-        Serial.println("Publishing over MQTT");
+        Serial.println("Publishing over MQTT: lf/dev_1/movement " + String(lastPublishedPrediction));
         mqttClient->publish("lf/dev_1/movement", messageBuffer, n, true);
     } else {
         mqttClient->loop();

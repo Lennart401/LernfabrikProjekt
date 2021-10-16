@@ -7,7 +7,8 @@ BoxSettings::BoxSettings()
     , _frequencyKey(0x08)
     , _movementTypeKey(0x01)
     , _useMovementTypes(false)
-    , _sampleRecordingFinished(false) {
+    , _sampleRecordingFinished(false)
+    , _lastPrediction(0) {
 } 
 
 uint8_t BoxSettings::getModeDependendMovementTypeLUTKey() {

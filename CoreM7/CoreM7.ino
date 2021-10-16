@@ -28,7 +28,7 @@ static UnitDataProcessing *unitDataProcessing = nullptr;
 
 static rtos::Thread unitSensorsThread(osPriorityRealtime, OS_STACK_SIZE, nullptr, "sensors-thread");
 static rtos::Thread unitWiFiThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "wifi-thread");
-static rtos::Thread unitDataProcessingThread(osPriorityBelowNormal, OS_STACK_SIZE, nullptr, "data-processing-thread");
+static rtos::Thread unitDataProcessingThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "data-processing-thread");
 static rtos::Thread m7RPCReceiverThread(osPriorityNormal, OS_STACK_SIZE, nullptr, "rpc-recv-thread");
 
 static void runUnitSensors() {
@@ -109,6 +109,7 @@ static void runM7RPCReceiver() {
                             if (unitDataProcessing) unitDataProcessing->setMode(UnitDataProcessing::DPMode::RUNNING);
                         } else if (payload == "0") {
                             Serial.println("Stopping prediction mode and resetting buffer");
+                            if (unitWiFi) unitWiFi->setMode(UnitWiFi::WiFiMode::IDLE);
                             if (unitDataProcessing) unitDataProcessing->setMode(UnitDataProcessing::DPMode::IDLE);
                             if (unitSensors) unitSensors->setMode(UnitSensors::SensorsMode::IDLE);
                             crcBuffer->reset();

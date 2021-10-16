@@ -72,7 +72,7 @@ void UnitDataProcessing::runDataProcessing() {
                 RPC1.println("POST data-processing/last-prediction " + String(lastPrediction));
                 Serial.println("Prediction: " + String(lastPrediction));
             } else {
-                rtos::ThisThread::sleep_for(100);
+                rtos::ThisThread::sleep_for(200);
             }
             break;
         
