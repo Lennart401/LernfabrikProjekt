@@ -5,7 +5,21 @@ The Dataserver one of the server-components for my Lernfabrik project at Leuphan
 ## Communication Protocol
 The data server uses a custom data format to save as much space as possible and keep the size of the data as small as possible while still being very simple and easy to parse. The protocol builds on the Hypertext Transfer Protocol (HTTP) and sets a standard for the contents of the request. 
 
-The content consists of a header describing how to parse the payload, and a payload itself. The current version of the protocol is 2.
+The content consists of a header describing how to parse the payload, and a payload itself. The current version of the protocol is 2 with revision 2.
+
+## Protocol Version 2 rev 2
+The only thing that changes for revision 2 is the table of movement types, with keys 0x1 to 0x4 being altered, and four new keys added.
+| Key | Movement                     | Key | Movement              |
+| --- | ---------------------------- | --- | --------------------- |
+| 0x0 | (unchanged) None (just data) | 0x8 | (new) Pick the box up |
+| 0x1 | (renamed) On ramp            | 0x9 |                       |
+| 0x2 | (renamed) Ready for pickup   | 0xA |                       |
+| 0x3 | (renamed) On moving wagon    | 0xB |                       |
+| 0x4 | No movement                  | 0xC |                       |
+| 0x5 | (new) General movement       | 0xD |                       |
+| 0x6 | (new) Throw items into box   | 0xE |                       |
+| 0x7 | (new) Put the box down       | 0xF |                       |
+
 
 ## Protocol Version 2
 Protocol Version 2 delivers much more metadata than its predecessor protocol version 1, with both a device and packet id as well as information about the recording frequency and the movement type (e.g. for a data-sample of one of the types).
