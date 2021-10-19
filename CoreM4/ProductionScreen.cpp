@@ -123,12 +123,16 @@ void production_screen_receive_message(String command, String subject, String pa
     // static char *readyForPickup = "Ready for pickup";
     // static char *onMovingWagon = "On moving wagon";
     // static char *noMovement = "No movement";
-    static char *LUT[5] = {
+    static char *LUT[9] = {
         "(No detection)",
         "On ramp",
         "Ready for pickup",
         "On moving wagon",
-        "No movement"
+        "No movement",
+        "General movement",
+        "Throw items into box",
+        "Put the box down",
+        "Pick the box up"
     };
 
     if (command == "POST") {

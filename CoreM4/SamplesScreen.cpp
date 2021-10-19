@@ -74,8 +74,11 @@ static void handleButtonClick(lv_event_t *event) {
     } else if (code == LV_EVENT_VALUE_CHANGED) {
         if (obj == rollerSelectSample) {
             // the movement-key is specified in protocol v2. since the roller is just displaying all movement types 
-            // expect for the first one (which is "none") in the protocol v2 specified order, we can just add 1 to the 
-            // index from the roller and have the correct movement type key.
+            // except for the first one (which is "none") in the order that is specified in protocol v2, we can just 
+            // add 1 to the index from the roller and have the correct movement type key.
+            // 
+            // another advantage this has is that this bit of code is independent from the actual movement types used
+            // (their names etc.) since it is just dealing with and integer value.
             int movementKey = lv_roller_get_selected(rollerSelectSample) + 1;
             RPC1.println("SET samples/movement-type " + String(movementKey));
         }
@@ -143,12 +146,16 @@ void samples_screen_create(lv_indev_t *_encoderIndev) {
 
     // samples roller
     rollerSelectSample = lv_roller_create(samplesScreen);
-    // the options are set according the protocol v2 rev 1 standard (leaving out the first option)
+    // the options are set according the protocol v2 rev 2 standard (leaving out the first option)
     lv_roller_set_options(rollerSelectSample, 
             "On ramp\n"
             "Ready for pickup\n"
             "On moving wagon\n"
-            "No movement", LV_ROLLER_MODE_NORMAL);
+            "No movement\n"
+            "General movement\n"
+            "Throw items in box\n"
+            "Put the box down\n"
+            "Pick the box up", LV_ROLLER_MODE_NORMAL);
     lv_obj_add_event_cb(rollerSelectSample, handleButtonClick, LV_EVENT_ALL, NULL);
     lv_obj_align(rollerSelectSample, LV_ALIGN_TOP_RIGHT, -SCREEN_CONTENT_START_X, SCREEN_HEADING_LABEL_Y);
     lv_obj_set_size(rollerSelectSample, 145, 190);
