@@ -52,14 +52,36 @@ def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
 
 
 def load_model(directory: str) -> tf.keras.Model:
+    """
+    Wrapper for loading a keras pb-Model.
+
+    :param directory: the model directory
+    :return: the tf.keras.Model loaded from the directory
+    """
     return tf.saved_model.load(directory)
 
 
 def save_model(model: tf.keras.Model, directory: str) -> None:
+    """
+    Wrapper for saving a keras model as a pb-file/directory.
+
+    :param model: the tf.keras.Model to be saved
+    :param directory: where to save the model
+    """
     tf.saved_model.save(model, directory)
 
 
 def save_model_as_tflite(model: tf.keras.Model, tflite_file: str) -> None:
+    """
+    Convert a tf.keras.Model to a tflite model and save it to a file.
+
+    The tflite model will be saved as raw binary data to the file, the file should have an ending of `.tflite`. To
+    convert the tflite file to a c array, open a bash shell (normal terminal on Unix-based systems or Git Bash on
+    Windows) and execute the following command. `xxd -i model_file.tflite > c_file.h`.
+
+    :param model: the model that should be converted
+    :param tflite_file: the filename or file which the tflite-model should be saved to
+    """
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     tflite_model = converter.convert()
 
@@ -68,11 +90,21 @@ def save_model_as_tflite(model: tf.keras.Model, tflite_file: str) -> None:
 
 
 def convert_save_model_to_tflite(model_directory: str, tflite_file: str) -> None:
+    """
+    Convert a saved keras pb-Model to a tflite model and save that model to a file.
+
+    The tflite model will be saved as raw binary data to the file, the file should have an ending of `.tflite`. To
+    convert the tflite file to a c array, open a bash shell (normal terminal on Unix-based systems or Git Bash on
+    Windows) and execute the following command. `xxd -i model_file.tflite > c_file.h`.
+
+    :param model_directory: model directory of the keras pb-Model file
+    :param tflite_file: the filename or file which the tflite-model should be saved to
+    """
     converter = tf.lite.TFLiteConverter.from_saved_model(model_directory)
     tflite_model = converter.convert()
 
     with open(tflite_file, "wb") as f:
         f.write(tflite_model)
     # to convert a saved tflite model from .tflite to a C array, use the command
-    # xxd -i converted_model.tflite > model_data.cc
+    # xxd -i converted_model.tflite > model_data.c
     # in a git bash command shell
