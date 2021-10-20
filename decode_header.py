@@ -60,7 +60,7 @@ def decode_header_v2(content, length):
     # get metadata: packet id, frequency, movement-type
     packet_id = int.from_bytes(content[2:4], byteorder='little', signed=False)
     frequency = content[4] >> 4
-    movement_type = content[4] & 0x7
+    movement_type = content[4] & 0xF
 
     # deocde sensors list
     num_sensors = content[5]
