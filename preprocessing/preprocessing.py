@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple, Any, Union
 import numpy as np
 import pandas as pd
 from numpy import ndarray
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 
 from util import constants
@@ -68,3 +69,15 @@ def one_hot_encode_labels(labels: ndarray, categories: Union[str, List] = 'auto'
     encoder.fit(reshaped_labels)
     return encoder.transform(reshaped_labels).toarray()
 
+
+def split_train_test(x: ndarray, y: ndarray, train_size: float = 0.7, random_state=None) -> Any:
+    """
+    Wrapper for sklearn.model_selection.train_test_split. Just calls that method.
+
+    :param x: the samples array
+    :param y: the label array, can be, but does not necessarily need to be one-hot-encoded
+    :param train_size: percentage of observations to use for training
+    :param random_state: an integer or RandomState instance to produce reproducable results
+    :return: the result from sklearn.model_selection.train_test_split
+    """
+    return train_test_split(x, y, train_size=train_size, random_state=random_state)
