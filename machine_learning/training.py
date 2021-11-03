@@ -57,7 +57,7 @@ def train_stable_model(model: tf.keras.Model,
         # get the scores for the set optimize parameter and overwrite the best model if the accuracy is better than the
         # one from the previous best model
         scores = temp_model.evaluate(x_train, y_train_enc) if optimize == "train" \
-            else model.evaluate(x_test, y_test_enc)
+            else temp_model.evaluate(x_test, y_test_enc)
         if scores[1] > best_score:
             stable_model = temp_model
             stable_history = temp_history
