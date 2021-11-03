@@ -1,9 +1,8 @@
-from typing import Dict, List, Tuple
+import copy
+from typing import Dict, List, Tuple, Any, Union
 
 import numpy as np
 import pandas as pd
-import copy
-
 from numpy import ndarray
 from sklearn.preprocessing import OneHotEncoder
 
@@ -51,7 +50,7 @@ def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, 
     return np.array(x_all), np.array(y_all)
 
 
-def one_hot_encode_labels(labels: ndarray) -> ndarray:
+def one_hot_encode_labels(labels: ndarray, categories: Union[str, List] = 'auto') -> ndarray:
     """
     Transforms labels into a one-hot-encoded state for training.
 
@@ -60,11 +59,12 @@ def one_hot_encode_labels(labels: ndarray) -> ndarray:
     ``[[1. 0. 0.] [0. 1. 0.] [0. 0. 1.]]``
 
     :param labels: the classes-array to be one-hot-encoded
+    :param categories: the categories to use, or 'auto', to determine the categories automatically
     :return: an ndarray where every entry is a one-hot-encoded labels (also an ndarray)
     """
     reshaped_labels = labels.reshape(-1, 1)
 
-    encoder = OneHotEncoder()
+    encoder = OneHotEncoder(categories=categories)
     encoder.fit(reshaped_labels)
     return encoder.transform(reshaped_labels).toarray()
 
