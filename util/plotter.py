@@ -108,7 +108,7 @@ def plot_model_history(history, num_epochs: int, use_validation_values=True) -> 
     :param use_validation_values: true if validation values should be plotted too else false
     """
     # turn off usage of validation values if there are no validations values in the history object
-    if history.history["val_loss"] is None:
+    if 'val_loss' not in history.history:
         use_validation_values = False
 
     # get the losses and accuracies for training
@@ -125,13 +125,13 @@ def plot_model_history(history, num_epochs: int, use_validation_values=True) -> 
     # upper plot is the accuracy
     axs[0].plot(epochs, accuracies[0], label="Training")
     if use_validation_values: axs[0].plot(epochs, accuracies[1], label="Validation")
-    axs[0].set(title="Accuracy", xlim=(0, epochs))
+    axs[0].set(title="Accuracy", xlim=(0, num_epochs))
     axs[0].legend()
 
     # lower plot is the loss
     axs[1].plot(epochs, losses[0], label="Training")
     if use_validation_values: axs[1].plot(epochs, losses[1], label="Validation")
-    axs[1].set(title="Accuracy", xlim=(0, epochs))
+    axs[1].set(title="Loss", xlim=(0, num_epochs))
     axs[1].legend()
 
     plt.show()
