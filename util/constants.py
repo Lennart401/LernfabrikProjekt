@@ -8,9 +8,9 @@ LUT_MOVEMENT_ID_TO_NAME = {
     7: "Put the box down",
     8: "Pick the box up",
 }
-LUT_INDEX_TO_NAME = { key-1: value for key, value in LUT_MOVEMENT_ID_TO_NAME.items() }
+LUT_INDEX_TO_NAME = {key - 1: value for key, value in LUT_MOVEMENT_ID_TO_NAME.items()}
 
-LUT_MOVEMENT_ID_TO_INDEX = { key: key-1 for key in LUT_MOVEMENT_ID_TO_NAME }
+LUT_MOVEMENT_ID_TO_INDEX = {key: key - 1 for key in LUT_MOVEMENT_ID_TO_NAME}
 
 LUT_MOVEMENT_ID_TO_COLOR = {
     1: "red",
