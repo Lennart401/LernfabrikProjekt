@@ -31,7 +31,7 @@ print(y)
 
 # Next, the split the data into a training set and into a test set for model evaluation. We use a train size of 70%
 # and a random state for reproducable results. Feel free to change these values to whatever you need.
-x_train, x_test, y_train, y_test = preprocessing.split_train_test(x, y, train_size=0.7, random_state=10)
+x_train, x_test, y_train, y_test = preprocessing.split_train_test(x, y, train_size=0.7, random_state=10, stratify=y)
 print(x_test)
 
 # Each element in the y-arrays is the movement type as an integer. However, we don't want our labels in this form.
