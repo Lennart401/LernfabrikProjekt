@@ -80,3 +80,33 @@ def train_stable_model(model: tf.keras.Model,
     return stable_model, stable_history
 
 
+def optimize_learning_rate(model: tf.keras.Model,
+                           optimizer: Union[str, tf.keras.optimizers.Optimizer],
+                           loss: Union[str, tf.keras.losses.Loss],
+                           metrics: Any,
+                           x_train: ndarray,
+                           y_train_enc: ndarray,
+                           epochs: int,
+                           minimum_lr: int = 1e-8) -> tf.keras.callbacks.History:
+    """
+    Optimizes the learning rate using a LearningRateScheduler, which gradually increases the learning rate.
+
+    This function creates a model history containing the learning rate vs loss. Use a plotting function like
+    plotter.plot_learning_rate to find the optimal minimum and what learning rate to use.
+
+    :param model: the model to train. should not be compiled yet. a copy will be made with is then compiled.
+    :param optimizer: the optimizer to use. if specifying the learning rate, use minimum_lr as default
+    :param loss: the loss function to use.
+    :param metrics: the metric to use.
+    :param x_train: Training data (x)
+    :param y_train_enc: Training labels, one-hot-encoded (y)
+    :param epochs: number of epochs to train the model for
+    :param minimum_lr: the learning rate where to start. will be increased by a factor of 10 every 10 epochs
+    :return: the history of the trained model.
+    """
+    temp_model = tf.keras.models.clone_model(model)
+    temp_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+
+    lr_scheduler = tf.keras.callbacks.LearningRateScheduler(schedule=lambda epoch: minimum_lr * 10 ** (epoch / 10))
+    temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs, callbacks=[lr_scheduler])
+    return temp_history

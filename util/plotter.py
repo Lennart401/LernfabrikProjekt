@@ -137,6 +137,25 @@ def plot_model_history(history, num_epochs: int, use_validation_values=True) -> 
     plt.show()
 
 
+def plot_learning_rate(history, plot_metric: bool = False, metric: str = ''):
+    # Create figure and subplots
+    if plot_metric:
+        fig, axs = plt.subplots(nrows=2)
+    else:
+        fig, axs = plt.subplots()
+        axs = np.array([axs])
+    fig.suptitle('Learning Rate Optimization', fontsize=16)
+    # Plot the results
+    axs[0].semilogx(history.history['lr'], history.history['loss'])
+    axs[0].set(title='Loss depending on Learning Rate', xlabel='Learning Rate', ylabel='Loss',
+               xlim=(min(history.history['lr']), max(history.history['lr'])), ylim=(0, max(history.history['loss'])))
+    if plot_metric:
+        axs[1].semilogx(history.history['lr'], history.history[metric])
+        axs[1].set(title='Accuracy depending on Learning Rate', xlabel='Learning Rate', ylabel='Accuracy',
+                   xlim=(min(history.history['lr']), max(history.history['lr'])), ylim=(0, 1))
+    plt.show()
+
+
 def plot_confusion_matrix(cm: tf.Tensor, classes: List[str] = None) -> None:
     """
     Plot a confusion matrix as a seaborn.heatmap
