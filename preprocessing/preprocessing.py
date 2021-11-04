@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Any, Union
 
 import numpy as np
 import pandas as pd
+from imblearn.over_sampling import SMOTE
 from numpy import ndarray
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -83,3 +84,19 @@ def split_train_test(x: ndarray, y: ndarray, train_size: float = 0.7, random_sta
     :return: the result from sklearn.model_selection.train_test_split
     """
     return train_test_split(x, y, train_size=train_size, random_state=random_state, stratify=stratify)
+
+
+def oversample_dataset(x: ndarray, y: ndarray) -> Tuple[ndarray, ndarray]:
+    """
+    Wrapper for SMOTE oversample.
+
+    This method oversamples the given data so that all classes have as many samples as the class with the most samples.
+
+    :param x: the samples array
+    :param y: the label array. only tested to work when NOT one-hot-encoded
+    :return: the x and y array with oversampled classes
+    """
+    classes, counts = np.unique(y, return_counts=True)
+    oversample = SMOTE(k_neighbors=counts.min() - 1)
+    x_oversampled, y_oversampled = oversample.fit_resample(x, y)
+    return x_oversampled, y_oversampled

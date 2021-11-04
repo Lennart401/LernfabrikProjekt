@@ -13,6 +13,8 @@ def train_stable_model(model: tf.keras.Model,
                        epochs: int,
                        x_test: ndarray = None,
                        y_test_enc: ndarray = None,
+                       x_val: ndarray = None,
+                       y_val_enc: ndarray = None,
                        optimize: str = "train",
                        n: int = 3) \
         -> Tuple[tf.keras.Model, tf.keras.callbacks.History]:
@@ -28,6 +30,8 @@ def train_stable_model(model: tf.keras.Model,
     :param epochs: number of epochs to train the model for
     :param x_test: (optional) Test data (x)
     :param y_test_enc: (optional) Test labels, one-hot-encoded (y)
+    :param x_val: (optional) Validation data (x). Will be used if provided
+    :param y_val_enc: (optional) Validation data, one-hot-encoded (y). Will be used if provided
     :param optimize: 'train' to use the training score or 'test' to use the test score. x_test and y_test_enc have to
      be provided when using 'test'. the first metric of the model will be used (e.g. accuracy)
     :param n: how many models to train
@@ -42,6 +46,10 @@ def train_stable_model(model: tf.keras.Model,
     if optimize == "test" and (x_test is None or y_test_enc is None):
         raise ValueError("When using optimize='test', both x_test and y_test_enc must be provided (not None)")
 
+    # verify that x_val and y_val_enc are provided if optimize='val'
+    if optimize == 'val' and (x_val is None or y_val_enc is None):
+        raise ValueError('When using optimize=\'val\', both x_val and y_val_enc must be provided (not None)')
+
     stable_model = None
     stable_history = None
     best_score = 0.0
@@ -52,12 +60,18 @@ def train_stable_model(model: tf.keras.Model,
         temp_model = tf.keras.models.clone_model(model)
         temp_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-        temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs)
+        temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs) if x_val is None \
+            else temp_model.fit(x_train, y_train_enc, epochs=epochs, validation_data=(x_val, y_val_enc))
 
         # get the scores for the set optimize parameter and overwrite the best model if the accuracy is better than the
         # one from the previous best model
-        scores = temp_model.evaluate(x_train, y_train_enc) if optimize == "train" \
-            else temp_model.evaluate(x_test, y_test_enc)
+        if optimize == 'train':
+            scores = temp_model.evaluate(x_train, y_train_enc)
+        elif optimize == 'val':
+            scores = temp_model.evaluate(x_val, y_val_enc)
+        else:  # optimize == 'test'
+            scores = temp_model.evaluate(x_test, y_test_enc)
+
         if scores[1] > best_score:
             stable_model = temp_model
             stable_history = temp_history
