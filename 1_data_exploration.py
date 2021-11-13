@@ -34,6 +34,7 @@ print(all_features[1][0])
 # read, we can colorcode each movement type by using the following lookup table:
 print(constants.LUT_MOVEMENT_ID_TO_COLOR)
 plotter.plot_3_axis_feature(all_features, feature_name='mean', color_lookup_table=constants.LUT_MOVEMENT_ID_TO_COLOR)
+plotter.plot_3_axis_feature(all_features, feature_name='std', color_lookup_table=constants.LUT_MOVEMENT_ID_TO_COLOR)
 
 # As for now, this is all we can do in terms of data exploration. In notebook number 3, we will look at training a model
 # on the samples we have and exporting the model as a tflite file.
