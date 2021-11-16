@@ -1,6 +1,7 @@
 # LernfabrikArduino
 
-__ATTENTION!!!__ If the code does not compile for weird reasons, see [Library Source Adjustments](#Library-Source-Adjustments) down below!
+| :warning: If the code does not compile for weird reasons, see [Library Source Adjustments](#Library-Source-Adjustments) down below! |
+| -- |
 
 This is the Arduino code for my "intelligent boxes" project for the Lernfabrik at Leuphana University. These boxes will host the Arduino Portenta H7, so the code is written for that platform. The job of these boxes is to demonstrate machine learning/IoT/industry 4.0 in factories. The Lernfabrik will be the host factory for these boxes.
 
@@ -47,24 +48,29 @@ Depeding on its mode of operation, the M7 will...
 In order for the WiFi library to work as intended, the wifi firmware might need to be updated. This is done using the example sketch "PortentaWiFiFirmwareUpdater". With some version incompatibilities, this update might fail (the updater cannot find any files). To solve this, see my reply in the Arduino Portenta forum [here](https://forum.arduino.cc/index.php?topic=712615.msg4862415#msg4862415).
 
 ## Library Source Adjustments
+:warning: This section has not been checked for being up-to-date with the newest Arduino SDK. While the code compiles at the moment, some of these adjustment might not be required anymore.
+
 With the Arduino mbed libraries still being developed, some library source code edits are required to compile this code. There might be more adjustments needed depending on libray versions.
 
 ### MPU6050 Library
 At the very end of `MPU6050.cpp` there is a macro `printfloatx` defined, which uses the `char *dtostrf` function, that, at the point of writing, is not yet included in the Arduino mbed library. To fix the issue, the following code has to be pasted above the macro:
 
-    char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
-	    char fmt[20];
-	    sprintf(fmt, "%%%d.%df", width, prec);
-	    sprintf(sout, fmt, val);
-	    return sout;
-    }
+```c++
+char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
+    char fmt[20];
+    sprintf(fmt, "%%%d.%df", width, prec);
+    sprintf(sout, fmt, val);
+    return sout;
+}
+```
 
 Futhermore, the definition of `BUFFER_LENGTH` from `I2Cdev.cpp` does not make it to `MPU6050.cpp` for some reason and the file fails to compile. To fix it, simple add the guarded definition of BUFFER_LENGTH to the file just above the method where it is needed, `int8_t MPU6050::GetCurrentFIFOPacket(uint8_t*, uint8_t)`:
 
-    #ifndef BUFFER_LENGTH
-    // band-aid fix for platforms without Wire-defined BUFFER_LENGTH (removed from some official implementations)
-    #define BUFFER_LENGTH 32
-    #endif
+```c++
+#ifndef BUFFER_LENGTH
+#define BUFFER_LENGTH 32
+#endif
+```
 
 ## Protocols and definitions
 
@@ -87,3 +93,6 @@ The subject string shall be formatted like a MQTT subject string, e.g. `wifi/sta
 
 ### WiFi Dataserver communication protocol
 To minimize the data that required to be sent over wifi, I have developed a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver/#communication-protocol)-Repository.
+
+## Using the Code/a Box in a production enviroment
+Operative procedures and other information on productivly using the box is described in the user manual. See [MANUAL.md](https://github.com/Lennart401/LernfabrikArduino/MANUAL.md).
