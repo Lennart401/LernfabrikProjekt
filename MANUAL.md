@@ -1,6 +1,8 @@
 # Production manual for Lernfabrik KI Kisten
 This manual describes the operative procedures needed for the finished box and also contains more instructions on certain topics that might be needed after the project has finished.
 
+---
+
 ## Table of Contents
 1. Operative procedures<br/>
     1.1 Prerequisites<br/>
@@ -10,6 +12,9 @@ This manual describes the operative procedures needed for the finished box and a
     2.1 Compiling and uploading the code<br/>
     2.2 Exchanging the model<br/>
 
+
+---
+
 ## 1. Operative procedures
 TBD
 
@@ -18,6 +23,7 @@ TBD
 ### 1.2 Settings up an environment for productive use
 
 
+---
 
 ## 2. Technical instructions
 This section contains technical instruction that anyone who wants to modify contents on the box without full code knowledge might need.
