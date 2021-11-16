@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Usage:
+# arduino-util <m4/m7> <compile/upload> <port>
+
+# TODO: add usage parameter
+
+# Replace this with named args at some point
+core="$1"        # what core to use, "m7" or "m4"
+action="${2,,}"  # what action to perform, "compile" or "upload"
+port="$3"        # port for upload, e.g. "/dev/ttypACM0"
+
+# Set our variables
+fqbn_string="arduino:mbed_portenta:envie_${core,}"  # fqbn (fully qualified board name) string
+core_name="Core${core^}"
+build_path="./build-${core,}"
+
+if [ $action = "compile" ]; then
+    /home/linuxbrew/.linuxbrew/bin/arduino-cli compile -v --fqbn $fqbn_string $core_name --build-path $build_path
+fi
+
+if [ $action = "upload" ]; then
+    /home/linuxbrew/.linuxbrew/bin/arduino-cli upload -v -p $port --fqbn $fqbn_string $core_name --input-dir $build_path
+fi
