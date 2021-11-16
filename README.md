@@ -95,4 +95,4 @@ The subject string shall be formatted like a MQTT subject string, e.g. `wifi/sta
 To minimize the data that required to be sent over wifi, I have developed a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver/#communication-protocol)-Repository.
 
 ## Using the Code/a Box in a production enviroment
-Operative procedures and other information on productivly using the box is described in the user manual. See [MANUAL.md](https://github.com/Lennart401/LernfabrikArduino/MANUAL.md).
+Operative procedures and other information on productivly using the box is described in the user manual. See [MANUAL.md](https://github.com/Lennart401/LernfabrikArduino/blob/main/MANUAL.md).
