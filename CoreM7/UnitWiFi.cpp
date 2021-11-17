@@ -162,9 +162,13 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
 }
 
 void UnitWiFi::loopReportToBroker(WiFiClient &client) {
+    uint8_t deviceID = BoxSettings.getDeviceID();
+    char deviceName[18];
+    int deviceNameLength = sprintf(deviceName, "lernfabrik/box_%d", deviceID);
+
     while (!mqttClient->connected()) {
         Serial.println("Connecting MQTT...");
-        mqttClient->connect("lernfabrik/dev_1");
+        mqttClient->connect(deviceName);
     }
 
     uint8_t settingsLastPrediction = InternalComm.lastPrediction; // mBoxSettings->getLastPrediction();
@@ -179,8 +183,11 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 
         const uint8_t *messageBuffer = reinterpret_cast<const uint8_t*>(buffer);
 
-        Serial.println("Publishing over MQTT: lf/dev_1/movement " + String(lastPublishedPrediction));
-        mqttClient->publish("lf/dev_1/movement", messageBuffer, n, true);
+        char topic[deviceNameLength + 9];
+        sprintf(topic, "%.*s/movement", deviceNameLength, deviceName);
+
+        Serial.println("Publishing over MQTT: " + String(lastPublishedPrediction));
+        mqttClient->publish(topic, messageBuffer, n, true);
     } else {
         mqttClient->loop();
         rtos::ThisThread::sleep_for(200);
@@ -191,10 +198,11 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
     uint8_t numberOfSensors = 11;//7;
     int headerLength = 6 + numberOfSensors * BYTES_PER_SENSOR;
 
+    uint8_t deviceID = BoxSettings.getDeviceID();
     uint8_t freqMoveType = (BoxSettings.getFrequencyLUTKey() & 0xF) << 4 | (BoxSettings.getModeDependendMovementTypeLUTKey() & 0xF);
 
     char header[headerLength] = {
-        0x02, 0x01, (packetCounter & 0xFF), (packetCounter & 0xFF00) >> 8, freqMoveType, numberOfSensors, // version, device id, packet id, freq/movement-type!!!, # sensors
+        0x02, deviceID, (packetCounter & 0xFF), (packetCounter & 0xFF00) >> 8, freqMoveType, numberOfSensors, // version, device id, packet id, freq/movement-type!!!, # sensors
         TYPE_UINT64, 't', 'i', 'm', 'e', ' ', // uint64_t, "time "
         TYPE_FLOAT,  'a', 'c', 'c', 'x', ' ', // float32,  "accx "
         TYPE_FLOAT,  'a', 'c', 'c', 'y', ' ', // float32,  "accy "

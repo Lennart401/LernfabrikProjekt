@@ -27,6 +27,7 @@ public:
     // cached internal stuff
     uint32_t getSampleLength() const { return _sampleLength; }
     uint8_t getFrequencyLUTKey() const { return _frequencyKey; }
+    uint8_t getDeviceID() const { return _deviceID; }
     uint8_t getMovementTypeLUTKey() const { return _movementTypeKey; }
 
     uint8_t getModeDependendMovementTypeLUTKey();
@@ -34,6 +35,7 @@ public:
 
     void setSampleLength(uint32_t ms) { hasChanges = hasChanges || _sampleLength != ms; _sampleLength = ms; }
     void setFrequencyLUTKey(uint8_t frequencyKey) { hasChanges = hasChanges || _frequencyKey != frequencyKey; _frequencyKey = frequencyKey; }
+    void setDeviceID(uint8_t deviceID) { hasChanges = hasChanges || _deviceID != deviceID; _deviceID = deviceID; }
     void setMovementTypeLUTKey(uint8_t typeKey) { _movementTypeKey = typeKey; };
 
     // -----------------------------------------------------
@@ -47,6 +49,7 @@ private:
     // just for now, they should really only be stored on the flash
     uint32_t _sampleLength;
     uint8_t _frequencyKey;
+    uint8_t _deviceID;
     
     // -----------------------------------------------------
     // (to be) maybe persistent settings
@@ -57,6 +60,7 @@ private:
     struct SavedBoxSettings {
         uint32_t savedSampleLength;
         uint8_t savedFrequencyKey;
+        uint8_t savedDeviceID;
     };
 
     bool hasChanges;

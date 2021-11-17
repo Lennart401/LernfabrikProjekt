@@ -36,6 +36,7 @@
 BoxSettingsClass::BoxSettingsClass()
     : _sampleLength(1000)
     , _frequencyKey(0x08)
+    , _deviceID(0x01)
     , _movementTypeKey(0x01)
     , hasChanges(false)
     , storeOK(false)
@@ -67,11 +68,18 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             char buffer[38];
             sprintf(buffer, "POST settings/sample-length %u", _sampleLength);
             RPC1.println(buffer);
-        } else if (subject == "settings/frequency") {
+        } 
+        else if (subject == "settings/frequency") {
             char buffer[26];
             sprintf(buffer, "POST settings/frequency %2u", _frequencyKey);
             RPC1.println(buffer);
-        } else if (subject == "samples/movement-type") {
+        } 
+        else if (subject == "samples/device-id") {
+            char buffer[26];
+            sprintf(buffer, "POST settings/device-id %2u", _deviceID);
+            RPC1.println(buffer);
+        }
+        else if (subject == "samples/movement-type") {
             char buffer[29];
             sprintf(buffer, "POST samples/movement-type %2u", _movementTypeKey);
             RPC1.println(buffer);
@@ -82,9 +90,14 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
     else if (command == "SET") {
         if (subject == "settings/sample-length") {
             setSampleLength(payload.toInt());
-        } else if (subject == "settings/frequency") {
+        } 
+        else if (subject == "settings/frequency") {
             setFrequencyLUTKey(static_cast<uint8_t>(payload.toInt() & 0xFF));
-        } else if (subject == "samples/movement-type") {
+        } 
+        else if (subject == "settings/device-id") {
+            setDeviceID(static_cast<uint8_t>(payload.toInt() & 0xFF));
+        }
+        else if (subject == "samples/movement-type") {
             setMovementTypeLUTKey(static_cast<uint8_t>(payload.toInt() & 0xFF));
         }
     }
@@ -105,6 +118,8 @@ void BoxSettingsClass::saveChanges() {
         SavedBoxSettings newSettings;
         newSettings.savedSampleLength = _sampleLength;
         newSettings.savedFrequencyKey = _frequencyKey;
+        newSettings.savedDeviceID = _deviceID;
+
         auto result = setSavedBoxSettings(&newSettings);
         if (result == MBED_SUCCESS) {
             Serial.println("Successfully wrote settings to flash!");
@@ -165,10 +180,9 @@ void BoxSettingsClass::setupFlashStorage() {
 
         if (result == MBED_SUCCESS) {
             Serial.println("Successfully loaded settings from flash, updating internal cache...");
-            Serial.println("|   Sample Length: " + String(previousSettings.savedSampleLength));
-            Serial.println("|   Frequency Key: " + String(previousSettings.savedFrequencyKey));
             _sampleLength = previousSettings.savedSampleLength;
             _frequencyKey = previousSettings.savedFrequencyKey;
+            _deviceID = previousSettings.savedDeviceID;
         } else {
             Serial.println("Failed to load settings from flash: " + String(result));
         }
