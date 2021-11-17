@@ -24,7 +24,7 @@ public:
     ~BoxSettingsClass();
 
     // -----------------------------------------------------
-    // cached internal settings
+    // cached internal stuff
     uint32_t getSampleLength() const { return _sampleLength; }
     uint8_t getFrequencyLUTKey() const { return _frequencyKey; }
     uint8_t getMovementTypeLUTKey() const { return _movementTypeKey; }
@@ -32,8 +32,8 @@ public:
     uint8_t getModeDependendMovementTypeLUTKey();
     void processRPCCommand(String command, String subject, String payload);
 
-    void setSampleLength(uint32_t ms) { _sampleLength = ms; hasChanges = true; }
-    void setFrequencyLUTKey(uint8_t frequencyKey) { _frequencyKey = frequencyKey; hasChanges = true; }
+    void setSampleLength(uint32_t ms) { hasChanges = hasChanges || _sampleLength != ms; _sampleLength = ms; }
+    void setFrequencyLUTKey(uint8_t frequencyKey) { hasChanges = hasChanges || _frequencyKey != frequencyKey; _frequencyKey = frequencyKey; }
     void setMovementTypeLUTKey(uint8_t typeKey) { _movementTypeKey = typeKey; };
 
     // -----------------------------------------------------
