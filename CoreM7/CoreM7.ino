@@ -152,6 +152,8 @@ void setup() {
     Serial.begin(115200);
     //while (!Serial);
 
+    BoxSettings.setupFlashStorage();
+
     SDRAM.begin();
     // buffer_space = (Row*) SDRAM.malloc(sizeof(Row) * BUF_ROWS);
     buffer_space = (Row*) malloc(sizeof(Row) * BUF_ROWS);

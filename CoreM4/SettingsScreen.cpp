@@ -38,6 +38,7 @@ static void handleButtonClick(lv_event_t *event) {
 
     if (code == LV_EVENT_CLICKED) {
         if (obj == btnBack) {
+            RPC1.println("DO settings/save");
             onboarding_screen_load();
         }
     } else if (code == LV_EVENT_VALUE_CHANGED) {
