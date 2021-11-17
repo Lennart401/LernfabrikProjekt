@@ -30,6 +30,9 @@ static lv_obj_t *dropdownFrequency;
 static lv_obj_t *labelSampleLength;
 static lv_obj_t *spinboxSampleLength;
 
+static lv_obj_t *labelDeviceID;
+static lv_obj_t *spinboxDeviceID;
+
 // ---------------------------------------------------------
 // callbacks
 static void handleButtonClick(lv_event_t *event) {
@@ -45,9 +48,14 @@ static void handleButtonClick(lv_event_t *event) {
         if (obj == dropdownFrequency) {
             int frequencySelect = lv_dropdown_get_selected(dropdownFrequency);
             RPC1.println("SET settings/frequency " + String(frequencySelect));
-        } else if (obj == spinboxSampleLength) {
+        } 
+        else if (obj == spinboxSampleLength) {
             int sampleLength = lv_spinbox_get_value(spinboxSampleLength);
             RPC1.println("SET settings/sample-length " + String(sampleLength));
+        }
+        else if (obj == spinboxDeviceID) {
+            int deviceID = lv_spinbox_get_value(spinboxDeviceID);
+            RPC1.println("SET settings/device-id " + String(deviceID));
         }
     }
 }
@@ -91,7 +99,7 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_style_set_pad_all(&gridLayoutStyle, 10);
 
     static lv_coord_t col_dsc[] = { 100, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-    static lv_coord_t row_dsc[] = { 40, 40, LV_GRID_TEMPLATE_LAST };
+    static lv_coord_t row_dsc[] = { 40, 40, 40, LV_GRID_TEMPLATE_LAST }; // 3 rows (3 x 40 px)
 
     gridLayout = lv_obj_create(settingsScreen);
     lv_obj_set_grid_dsc_array(gridLayout, col_dsc, row_dsc);
@@ -99,11 +107,11 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_obj_add_style(gridLayout, &gridLayoutStyle, 0);
     lv_obj_align(gridLayout, LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
-    // frequency part
+    // frequency part / row 0
     labelFrequency = lv_label_create(gridLayout);
     lv_label_set_text(labelFrequency, "Frequency:");
-    lv_obj_set_grid_cell(labelFrequency, LV_GRID_ALIGN_START, 0, 1, // col
-                                         LV_GRID_ALIGN_CENTER, 0, 1); // row
+    lv_obj_set_grid_cell(labelFrequency, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                         LV_GRID_ALIGN_CENTER, 0, 1); // row 0, spans 1 row
 
     dropdownFrequency = lv_dropdown_create(gridLayout);
     lv_dropdown_set_options(dropdownFrequency, "1 Hz\n"
@@ -118,26 +126,41 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
                                                "200 Hz\n"
                                                "400 Hz\n"
                                                "500 Hz\n");
-    lv_obj_set_grid_cell(dropdownFrequency, LV_GRID_ALIGN_END, 1, 1, // col
-                                            LV_GRID_ALIGN_CENTER, 0, 1); // row
+    lv_obj_set_grid_cell(dropdownFrequency, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 col
+                                            LV_GRID_ALIGN_CENTER, 0, 1); // row 0, spans 1 row
     lv_dropdown_set_selected(dropdownFrequency, 8);
     lv_obj_add_event_cb(dropdownFrequency, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
     lv_group_add_obj(mainGroup, dropdownFrequency);
 
-    // sample-length part
+    // sample-length part / row 1
     labelSampleLength = lv_label_create(gridLayout);
     lv_label_set_text(labelSampleLength, "Sample length (ms):");
-    lv_obj_set_grid_cell(labelSampleLength, LV_GRID_ALIGN_START, 0, 1, // col
-                                            LV_GRID_ALIGN_CENTER, 1, 1); // row
+    lv_obj_set_grid_cell(labelSampleLength, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                            LV_GRID_ALIGN_CENTER, 1, 1); // row 1, spans 1 row
 
     spinboxSampleLength = lv_spinbox_create(gridLayout);
     lv_spinbox_set_digit_format(spinboxSampleLength, 5, 0);
     lv_spinbox_set_range(spinboxSampleLength, 0, 99999);
     lv_spinbox_set_value(spinboxSampleLength, 1000);
-    lv_obj_set_grid_cell(spinboxSampleLength, LV_GRID_ALIGN_END, 1, 1, // col
-                                              LV_GRID_ALIGN_CENTER, 1, 1); // row
+    lv_obj_set_grid_cell(spinboxSampleLength, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 col
+                                              LV_GRID_ALIGN_CENTER, 1, 1); // row 1, spans 1 row
     lv_obj_add_event_cb(spinboxSampleLength, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
     lv_group_add_obj(mainGroup, spinboxSampleLength);
+
+    // device id part / row 2
+    labelDeviceID = lv_label_create(gridLayout);
+    lv_label_set_text(labelDeviceID, "Device ID:");
+    lv_obj_set_grid_cell(labelDeviceID, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                        LV_GRID_ALIGN_CENTER, 2, 1); // row 2, spans 1 row
+    
+    spinboxDeviceID = lv_spinbox_create(gridLayout);
+    lv_spinbox_set_digit_format(spinboxDeviceID, 3, 0);
+    lv_spinbox_set_range(spinboxDeviceID, 0, 255);
+    lv_spinbox_set_value(spinboxDeviceID, 1);
+    lv_obj_set_grid_cell(spinboxDeviceID, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
+                                          LV_GRID_ALIGN_CENTER, 2, 1); // row 2, spans 1 row
+    lv_obj_add_event_cb(spinboxDeviceID, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_group_add_obj(mainGroup, spinboxDeviceID);
     
     // lastly, add the back button to the group
     lv_group_add_obj(mainGroup, btnBack);
