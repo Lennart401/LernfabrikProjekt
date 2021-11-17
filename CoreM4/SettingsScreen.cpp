@@ -172,6 +172,7 @@ void settings_screen_load() {
 
     RPC1.println("GET settings/frequency");
     RPC1.println("GET settings/sample-length");
+    RPC1.println("GET settings/device-id");
 }
 
 void settings_screen_receive_message(String command, String subject, String payload) {
@@ -180,8 +181,12 @@ void settings_screen_receive_message(String command, String subject, String payl
     if (command == "POST") {
         if (subject == "settings/frequency") {
             lv_dropdown_set_selected(dropdownFrequency, payload.toInt());
-        } else if (subject == "settings/sample-length") {
+        } 
+        else if (subject == "settings/sample-length") {
             lv_spinbox_set_value(spinboxSampleLength, payload.toInt());
+        }
+        else if (subject == "settings/device-id") {
+            lv_spinbox_set_value(spinboxDeviceID, payload.toInt() & 0xFF);
         }
     }
 }

@@ -74,7 +74,7 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             sprintf(buffer, "POST settings/frequency %2u", _frequencyKey);
             RPC1.println(buffer);
         } 
-        else if (subject == "samples/device-id") {
+        else if (subject == "settings/device-id") {
             char buffer[26];
             sprintf(buffer, "POST settings/device-id %2u", _deviceID);
             RPC1.println(buffer);
