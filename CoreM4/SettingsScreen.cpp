@@ -33,6 +33,14 @@ static lv_obj_t *spinboxSampleLength;
 static lv_obj_t *labelDeviceID;
 static lv_obj_t *spinboxDeviceID;
 
+static lv_obj_t *labelDataServerAddress;
+static lv_obj_t *buttonDataServerAddress;
+static lv_obj_t *buttonDataServerAddressLabel;
+
+static lv_obj_t *labelBrokerAddress;
+static lv_obj_t *buttonBrokerAddress;
+static lv_obj_t *buttonBrokerAddressLabel;
+
 // ---------------------------------------------------------
 // callbacks
 static void handleButtonClick(lv_event_t *event) {
@@ -99,7 +107,7 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_style_set_pad_all(&gridLayoutStyle, 10);
 
     static lv_coord_t col_dsc[] = { 100, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-    static lv_coord_t row_dsc[] = { 40, 40, 40, LV_GRID_TEMPLATE_LAST }; // 3 rows (3 x 40 px)
+    static lv_coord_t row_dsc[] = { 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST }; // 5 rows (5 x 40 px)
 
     gridLayout = lv_obj_create(settingsScreen);
     lv_obj_set_grid_dsc_array(gridLayout, col_dsc, row_dsc);
@@ -162,6 +170,38 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_obj_add_event_cb(spinboxDeviceID, handleButtonClick, LV_EVENT_VALUE_CHANGED, NULL);
     lv_group_add_obj(mainGroup, spinboxDeviceID);
     
+    // data server address edit button / row 3
+    labelDataServerAddress = lv_label_create(gridLayout);
+    lv_label_set_text(labelDataServerAddress, "Data Server:");
+    lv_obj_set_grid_cell(labelDataServerAddress, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                                 LV_GRID_ALIGN_CENTER, 3, 1); // row 3, spans 1 row
+
+    buttonDataServerAddress = lv_btn_create(gridLayout);
+    lv_group_add_obj(mainGroup, buttonDataServerAddress);
+    lv_obj_set_size(buttonDataServerAddress, lv_obj_get_width(spinboxDeviceID), lv_obj_get_height(spinboxDeviceID));
+    //lv_obj_add_event_cb(btnRecordPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_grid_cell(buttonDataServerAddress, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
+                                                  LV_GRID_ALIGN_CENTER, 3, 1); // row 3, spans 1 row
+    buttonDataServerAddressLabel = lv_label_create(buttonDataServerAddress);
+    lv_label_set_text(buttonDataServerAddressLabel, "Edit IP/Port");
+    lv_obj_center(buttonDataServerAddressLabel);
+
+    // broker address edit button / row 4
+    labelBrokerAddress = lv_label_create(gridLayout);
+    lv_label_set_text(labelBrokerAddress, "MQTT Broker:");
+    lv_obj_set_grid_cell(labelBrokerAddress, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                             LV_GRID_ALIGN_CENTER, 4, 1); // row 4, spans 1 row
+
+    buttonBrokerAddress = lv_btn_create(gridLayout);
+    lv_group_add_obj(mainGroup, buttonBrokerAddress);
+    lv_obj_set_size(buttonBrokerAddress, lv_obj_get_width(spinboxDeviceID), lv_obj_get_height(spinboxDeviceID));
+    //lv_obj_add_event_cb(btnRecordPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_grid_cell(buttonBrokerAddress, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
+                                              LV_GRID_ALIGN_CENTER, 4, 1); // row 4, spans 1 row
+    buttonBrokerAddressLabel = lv_label_create(buttonBrokerAddress);
+    lv_label_set_text(buttonBrokerAddressLabel, "Edit IP/Port");
+    lv_obj_center(buttonBrokerAddressLabel);
+
     // lastly, add the back button to the group
     lv_group_add_obj(mainGroup, btnBack);
 }
