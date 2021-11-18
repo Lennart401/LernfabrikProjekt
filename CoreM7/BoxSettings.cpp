@@ -38,6 +38,10 @@ BoxSettingsClass::BoxSettingsClass()
     , _frequencyKey(0x08)
     , _deviceID(0x01)
     , _movementTypeKey(0x01)
+    , _dataServerAddress(0x1664A8C0) // 192.168.100.22, stored [0] = 192 (C0), [1] = 128 (A8), [2] = 100 (64), [3] = 22 (16)
+    , _dataServerPort(5000)
+    , _brokerAddress(0x1664A8C0) // 192.168.100.22, stored [0] = 192 (C0), [1] = 128 (A8), [2] = 100 (64), [3] = 22 (16)
+    , _brokerPort(1883)
     , hasChanges(false)
     , storeOK(false)
     , tdbStoreKey("lfbox") {
@@ -79,6 +83,24 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             sprintf(buffer, "POST settings/device-id %2u", _deviceID);
             RPC1.println(buffer);
         }
+        else if (subject == "settings/data-server-address") {
+            char buffer[44];
+            sprintf(buffer, "POST settings/data-server-address %u", _dataServerAddress);
+            RPC1.println(buffer);
+        }
+        else if (subject == "setings/data-server-port") {
+            char buffer[36];
+            sprintf(buffer, "POST settings/data-server-port %u", _dataServerPort);
+        }
+        else if (subject == "settings/broker-address") {
+            char buffer[39];
+            sprintf(buffer, "POST settings/broker-address %u", _brokerAddress);
+            RPC1.println(buffer);
+        }
+        else if (subject == "setings/broker-port") {
+            char buffer[31];
+            sprintf(buffer, "POST settings/broker-port %u", _brokerPort);
+        }
         else if (subject == "samples/movement-type") {
             char buffer[29];
             sprintf(buffer, "POST samples/movement-type %2u", _movementTypeKey);
@@ -96,6 +118,18 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
         } 
         else if (subject == "settings/device-id") {
             setDeviceID(static_cast<uint8_t>(payload.toInt() & 0xFF));
+        }
+        else if (subject == "settings/data-server-address") {
+            setDataServerAddress(static_cast<uint32_t>(payload.toInt() & 0xFFFFFFFF));
+        }
+        else if (subject == "settings/data-server-port") {
+            setDataServerPort(static_cast<uint16_t>(payload.toInt() & 0xFFFF));
+        }
+        else if (subject == "settings/broker-address") {
+            setBrokerAddress(static_cast<uint32_t>(payload.toInt() & 0xFFFFFFFF));
+        }
+        else if (subject == "settings/broker-port") {
+            setBrokerPort(static_cast<uint16_t>(payload.toInt() & 0xFFFF));
         }
         else if (subject == "samples/movement-type") {
             setMovementTypeLUTKey(static_cast<uint8_t>(payload.toInt() & 0xFF));
@@ -119,6 +153,10 @@ void BoxSettingsClass::saveChanges() {
         newSettings.savedSampleLength = _sampleLength;
         newSettings.savedFrequencyKey = _frequencyKey;
         newSettings.savedDeviceID = _deviceID;
+        newSettings.savedDataServerAddress = _dataServerAddress;
+        newSettings.savedDataServerPort = _dataServerPort;
+        newSettings.savedBrokerAddress = _brokerAddress;
+        newSettings.savedBrokerPort = _brokerPort;
 
         auto result = setSavedBoxSettings(&newSettings);
         if (result == MBED_SUCCESS) {
@@ -183,6 +221,10 @@ void BoxSettingsClass::setupFlashStorage() {
             _sampleLength = previousSettings.savedSampleLength;
             _frequencyKey = previousSettings.savedFrequencyKey;
             _deviceID = previousSettings.savedDeviceID;
+            _dataServerAddress = previousSettings.savedDataServerAddress;
+            _dataServerPort = previousSettings.savedDataServerPort;
+            _brokerAddress = previousSettings.savedBrokerAddress;
+            _brokerPort = previousSettings.savedBrokerPort;
         } else {
             Serial.println("Failed to load settings from flash: " + String(result));
         }

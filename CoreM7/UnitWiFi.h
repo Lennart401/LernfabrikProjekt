@@ -39,13 +39,8 @@ private:
 
     volatile WiFiMode currentMode;
 
-    IPAddress *dataServerHost;
-    uint16_t dataServerPort;
     int status = WL_IDLE_STATUS;
-
     PubSubClient *mqttClient = nullptr;
-    IPAddress *mqttBrokerHost;
-    uint16_t mqttBrokerPort;
     uint8_t lastPublishedPrediction = 0;
 
     Row readRow;

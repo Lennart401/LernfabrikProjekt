@@ -31,19 +31,13 @@
 
 UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
-    , dataServerHost(new IPAddress(192, 168, 100, 22))
-    , dataServerPort(5000)
-    , mqttBrokerHost(new IPAddress(192, 168, 100, 22))
-    , mqttBrokerPort(1883)
     , currentMode(WiFiMode::SEND_TO_DATASERVER) {
-    Serial.println("Port: " + String(dataServerPort));
     Serial.println("SSID: " + String(SECRET_SSID));
     Serial.println("Pass: " + String(SECRET_PASS));
     Serial.println("Mode: " + String(currentMode));
 }
 
 UnitWiFi::~UnitWiFi() {
-    delete dataServerHost;
     delete mqttClient;
 }
 
@@ -53,7 +47,7 @@ void UnitWiFi::runWiFi(WiFiClient &client) {
 
     // MQTT setup
     mqttClient = new PubSubClient(client);
-    mqttClient->setServer(*mqttBrokerHost, mqttBrokerPort);
+    mqttClient->setServer(IPAddress(BoxSettings.getBrokerAddress()), BoxSettings.getBrokerPort());
     // mqttClient->setCallback(receiveMQTTMessage);
 
     // setup blue led for output and turn it off
@@ -137,7 +131,7 @@ void UnitWiFi::loopSendToDataServer(WiFiClient &client) {
         digitalWrite(LEDG, LOW);
 
         Serial.println("\nStarting connection to data server...");
-        if (client.connect(*dataServerHost, dataServerPort)) {
+        if (client.connect(IPAddress(BoxSettings.getDataServerAddress()), BoxSettings.getDataServerPort())) {
             Serial.println("Sending data to data server");
             sendBuffer(client);
 
@@ -168,6 +162,7 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 
     while (!mqttClient->connected()) {
         Serial.println("Connecting MQTT...");
+        mqttClient->setServer(IPAddress(BoxSettings.getBrokerAddress()), BoxSettings.getBrokerPort());
         mqttClient->connect(deviceName);
     }
 
@@ -218,7 +213,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
 
     int numRows = MIN(crcBuffer->size(), MIN_ROWS_PER_PACKET);
 
-    uint32_t ipAddress = *dataServerHost;
+    uint32_t ipAddress = BoxSettings.getDataServerAddress();
 
     client.println("POST /send HTTP/1.1");
     client.print("Host: "); //client.print("192.168.4.1"); 
@@ -227,7 +222,7 @@ void UnitWiFi::sendBuffer(WiFiClient &client) {
             client.print((ipAddress & 0xFF00) >> 8); client.print(".");
             client.print((ipAddress & 0xFF0000) >> 16); client.print(".");
             client.print(ipAddress >> 24);
-            client.print(":"); client.println(dataServerPort);
+            client.print(":"); client.println(BoxSettings.getDataServerPort());
     client.println("Accept: */*");
     client.println("Connection: close");
     client.println("Content-Length: " + String(headerLength + numRows * sizeof(Row)));

@@ -25,18 +25,26 @@ public:
 
     // -----------------------------------------------------
     // cached internal stuff
-    uint32_t getSampleLength() const { return _sampleLength; }
-    uint8_t getFrequencyLUTKey() const { return _frequencyKey; }
-    uint8_t getDeviceID() const { return _deviceID; }
+    uint32_t getSampleLength()      const { return _sampleLength; }
+    uint8_t getFrequencyLUTKey()    const { return _frequencyKey; }
+    uint8_t getDeviceID()           const { return _deviceID; }
+    uint32_t getDataServerAddress() const { return _dataServerAddress; }
+    uint16_t getDataServerPort()    const { return _dataServerPort; }
+    uint32_t getBrokerAddress()     const { return _brokerAddress; }
+    uint16_t getBrokerPort()        const { return _brokerPort; }
     uint8_t getMovementTypeLUTKey() const { return _movementTypeKey; }
 
     uint8_t getModeDependendMovementTypeLUTKey();
     void processRPCCommand(String command, String subject, String payload);
 
-    void setSampleLength(uint32_t ms) { hasChanges = hasChanges || _sampleLength != ms; _sampleLength = ms; }
-    void setFrequencyLUTKey(uint8_t frequencyKey) { hasChanges = hasChanges || _frequencyKey != frequencyKey; _frequencyKey = frequencyKey; }
-    void setDeviceID(uint8_t deviceID) { hasChanges = hasChanges || _deviceID != deviceID; _deviceID = deviceID; }
-    void setMovementTypeLUTKey(uint8_t typeKey) { _movementTypeKey = typeKey; };
+    void setSampleLength(uint32_t ms)               { hasChanges = hasChanges || _sampleLength != ms;           _sampleLength = ms; }
+    void setFrequencyLUTKey(uint8_t frequencyKey)   { hasChanges = hasChanges || _frequencyKey != frequencyKey; _frequencyKey = frequencyKey; }
+    void setDeviceID(uint8_t deviceID)              { hasChanges = hasChanges || _deviceID != deviceID;         _deviceID = deviceID; }
+    void setDataServerAddress(uint32_t address)     { hasChanges = hasChanges || _dataServerAddress != address; _dataServerAddress = address; }
+    void setDataServerPort(uint16_t port)           { hasChanges = hasChanges || _dataServerPort != port;       _dataServerPort = port; }
+    void setBrokerAddress(uint32_t address)         { hasChanges = hasChanges || _brokerAddress != address;     _brokerAddress = address; }
+    void setBrokerPort(uint16_t port)               { hasChanges = hasChanges || _brokerPort != port;           _brokerPort = port; }
+    void setMovementTypeLUTKey(uint8_t typeKey)     {                                                           _movementTypeKey = typeKey; };
 
     // -----------------------------------------------------
     // internal flash stuff
@@ -50,6 +58,12 @@ private:
     uint32_t _sampleLength;
     uint8_t _frequencyKey;
     uint8_t _deviceID;
+
+    uint32_t _dataServerAddress;
+    uint16_t _dataServerPort;
+
+    uint32_t _brokerAddress;
+    uint16_t _brokerPort;
     
     // -----------------------------------------------------
     // (to be) maybe persistent settings
@@ -61,6 +75,10 @@ private:
         uint32_t savedSampleLength;
         uint8_t savedFrequencyKey;
         uint8_t savedDeviceID;
+        uint32_t savedDataServerAddress;
+        uint16_t savedDataServerPort;
+        uint32_t savedBrokerAddress;
+        uint16_t savedBrokerPort;
     };
 
     bool hasChanges;
