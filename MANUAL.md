@@ -56,8 +56,10 @@ For linux/macOS, there are some limitations with dfu-util and therefore the easi
 - Port: the port of the Arduino, e. g. `/dev/ttyACM0`
 
 To compile the code, run `arduino-util <core> compile`.<br/>
-To upload (but not compile) the code, run `sudo arduino-util <core> upload <port>`<br/>
-The latter command needs to be run with _sudo_ to access the device port and, mainly, so that dfu-util works correctly.
+To upload (but not compile) the code, run `arduino-util <core> upload <port>`
+
+Important! If you get an access error from dfu-util, try create new rule for the portenta:<br>
+run `sudo nano /etc/udev/rules.d/99-arduino-portenta.rules` and then paste `SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="035b", GROUP="plugdev", MODE="0666"` into the editor. Save the file using Ctrl-O and exit using Ctrl-X. The run `sudo udevadm control --reload-rules` to reload the device rules, uploading should now work. You may need to relog/reboot the PC in some cases.
 
 :warning: If you having installed the Arduino CLI in its default location of `/home/linuxbrew/.linuxbrew/bin/arduino-cli`, you will need to update the `arduino-util`-script.
 
