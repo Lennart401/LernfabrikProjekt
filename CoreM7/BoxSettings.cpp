@@ -91,6 +91,7 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
         else if (subject == "settings/data-server-port") {
             char buffer[36];
             sprintf(buffer, "POST settings/data-server-port %u", _dataServerPort);
+            RPC1.println(buffer);
         }
         else if (subject == "settings/broker-address") {
             char buffer[39];
@@ -100,6 +101,7 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
         else if (subject == "settings/broker-port") {
             char buffer[31];
             sprintf(buffer, "POST settings/broker-port %u", _brokerPort);
+            RPC1.println(buffer);
         }
         else if (subject == "samples/movement-type") {
             char buffer[29];
