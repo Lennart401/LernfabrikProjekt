@@ -88,7 +88,7 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             sprintf(buffer, "POST settings/data-server-address %u", _dataServerAddress);
             RPC1.println(buffer);
         }
-        else if (subject == "setings/data-server-port") {
+        else if (subject == "settings/data-server-port") {
             char buffer[36];
             sprintf(buffer, "POST settings/data-server-port %u", _dataServerPort);
         }
@@ -97,7 +97,7 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             sprintf(buffer, "POST settings/broker-address %u", _brokerAddress);
             RPC1.println(buffer);
         }
-        else if (subject == "setings/broker-port") {
+        else if (subject == "settings/broker-port") {
             char buffer[31];
             sprintf(buffer, "POST settings/broker-port %u", _brokerPort);
         }
