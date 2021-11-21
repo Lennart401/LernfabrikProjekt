@@ -4,6 +4,7 @@
 #include "ScreenHeading.h"
 #include "OnboardingScreen.h"
 #include "IPAddressScreen.h"
+#include "WiFiEditScreen.h"
 
 // ---------------------------------------------------------
 // screen stuff
@@ -42,6 +43,10 @@ static lv_obj_t *labelBrokerAddress;
 static lv_obj_t *buttonBrokerAddress;
 static lv_obj_t *buttonBrokerAddressLabel;
 
+static lv_obj_t *labelWiFiSettings;
+static lv_obj_t *buttonWiFiSettings;
+static lv_obj_t *buttonWiFiSettingsLabel;
+
 // ---------------------------------------------------------
 // callbacks
 static void handleButtonClick(lv_event_t *event) {
@@ -62,6 +67,10 @@ static void handleButtonClick(lv_event_t *event) {
             RPC1.println("DO settings/save");
             ip_address_screen_set_mode(ADDRESS_MODE::BROKER);
             ip_address_screen_load();
+        }
+        else if (obj == buttonWiFiSettings) {
+            RPC1.println("DO settings/save");
+            wifi_edit_screen_load();
         }
     } else if (code == LV_EVENT_VALUE_CHANGED) {
         if (obj == dropdownFrequency) {
@@ -118,7 +127,7 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_style_set_pad_all(&gridLayoutStyle, 10);
 
     static lv_coord_t col_dsc[] = { 100, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-    static lv_coord_t row_dsc[] = { 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST }; // 5 rows (5 x 40 px)
+    static lv_coord_t row_dsc[] = { 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST }; // 5 rows (5 x 40 px)
 
     gridLayout = lv_obj_create(settingsScreen);
     lv_obj_set_grid_dsc_array(gridLayout, col_dsc, row_dsc);
@@ -213,6 +222,22 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     lv_label_set_text(buttonBrokerAddressLabel, "Edit IP/Port");
     lv_obj_center(buttonBrokerAddressLabel);
 
+    // wifi edit screen button / row 5
+    labelWiFiSettings = lv_label_create(gridLayout);
+    lv_label_set_text(labelWiFiSettings, "WiFi Network:");
+    lv_obj_set_grid_cell(labelWiFiSettings, LV_GRID_ALIGN_START, 0, 1, // col 0, spans 1 col
+                                            LV_GRID_ALIGN_CENTER, 5, 1); // row 5, spans 1 row
+
+    buttonWiFiSettings = lv_btn_create(gridLayout);
+    lv_group_add_obj(mainGroup, buttonWiFiSettings);
+    lv_obj_set_size(buttonWiFiSettings, lv_obj_get_width(spinboxDeviceID), lv_obj_get_height(spinboxDeviceID));
+    lv_obj_add_event_cb(buttonWiFiSettings, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_grid_cell(buttonWiFiSettings, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
+                                             LV_GRID_ALIGN_CENTER, 5, 1); // row 5, spans 1 row
+    buttonWiFiSettingsLabel = lv_label_create(buttonWiFiSettings);
+    lv_label_set_text(buttonWiFiSettingsLabel, "Edit Network");
+    lv_obj_center(buttonWiFiSettingsLabel);
+    
     // lastly, add the back button to the group
     lv_group_add_obj(mainGroup, btnBack);
 }

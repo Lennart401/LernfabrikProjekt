@@ -100,8 +100,8 @@ void UnitWiFi::setMode(WiFiMode mode) {
 }
 
 void UnitWiFi::connectWiFi() {
-    char ssid[] = SECRET_SSID;
-    char pass[] = SECRET_PASS;
+    char *ssid = BoxSettings.getWiFiSSID();
+    char *pass = BoxSettings.getWiFiPassphrase();
 
     static bool firstConnect = true;
     if (firstConnect) {
@@ -110,7 +110,7 @@ void UnitWiFi::connectWiFi() {
         rtos::ThisThread::sleep_for(1300);
     }
 
-    Serial.println("Connecting to network " + String(SECRET_SSID) + "...");
+    Serial.println("Connecting to network " + String(ssid) + "...");
     RPC1.println("POST wifi/status connecting");
     digitalWrite(MYLED, LOW);
 

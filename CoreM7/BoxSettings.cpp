@@ -1,6 +1,7 @@
 #include "BoxSettings.h"
 
 #include <RPC_internal.h>
+#include <cstring>
 #include "InternalComm.h"
 
 #if USE_INTERNAL_FLASH == 1 // defined in the header
@@ -45,6 +46,8 @@ BoxSettingsClass::BoxSettingsClass()
     , hasChanges(false)
     , storeOK(false)
     , tdbStoreKey("lfbox") {
+    strcpy(_wifiSSID, "MY_SSID");
+    strcpy(_wifiPassphrase, "MY_PASSPHRASE");
 }
 
 BoxSettingsClass::~BoxSettingsClass() {
@@ -103,6 +106,16 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
             sprintf(buffer, "POST settings/broker-port %u", _brokerPort);
             RPC1.println(buffer);
         }
+        else if (subject == "settings/wifi-ssid") {
+            char buffer[56];
+            sprintf(buffer, "POST settings/wifi-ssid %s", _wifiSSID);
+            RPC1.println(buffer);
+        }
+        else if (subject == "settings/wifi-passphrase") {
+            char buffer[94];
+            sprintf(buffer, "POST settings/wifi-passphrase %s", _wifiPassphrase);
+            RPC1.println(buffer);
+        }
         else if (subject == "samples/movement-type") {
             char buffer[29];
             sprintf(buffer, "POST samples/movement-type %2u", _movementTypeKey);
@@ -133,6 +146,12 @@ void BoxSettingsClass::processRPCCommand(String command, String subject, String 
         else if (subject == "settings/broker-port") {
             setBrokerPort(static_cast<uint16_t>(payload.toInt() & 0xFFFF));
         }
+        else if (subject == "settings/wifi-ssid") {
+            setWiFiSSID(const_cast<char*>(payload.c_str()));
+        }
+        else if (subject == "settings/wifi-passphrase") {
+            setWiFiPassphrase(const_cast<char*>(payload.c_str()));
+        }
         else if (subject == "samples/movement-type") {
             setMovementTypeLUTKey(static_cast<uint8_t>(payload.toInt() & 0xFF));
         }
@@ -159,6 +178,8 @@ void BoxSettingsClass::saveChanges() {
         newSettings.savedDataServerPort = _dataServerPort;
         newSettings.savedBrokerAddress = _brokerAddress;
         newSettings.savedBrokerPort = _brokerPort;
+        strcpy(newSettings.savedWifiSSID, _wifiSSID);
+        strcpy(newSettings.savedWifiPassphrase, _wifiPassphrase);
 
         auto result = setSavedBoxSettings(&newSettings);
         if (result == MBED_SUCCESS) {
@@ -227,6 +248,8 @@ void BoxSettingsClass::setupFlashStorage() {
             _dataServerPort = previousSettings.savedDataServerPort;
             _brokerAddress = previousSettings.savedBrokerAddress;
             _brokerPort = previousSettings.savedBrokerPort;
+            strcpy(_wifiSSID, previousSettings.savedWifiSSID);
+            strcpy(_wifiPassphrase, previousSettings.savedWifiPassphrase);
         } else {
             Serial.println("Failed to load settings from flash: " + String(result));
         }

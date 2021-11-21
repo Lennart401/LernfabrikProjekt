@@ -16,6 +16,7 @@
 #include "SettingsScreen.h"
 #include "ProductionScreen.h"
 #include "IPAddressScreen.h"
+#include "WiFiEditScreen.h"
 
 // ---------------------------------------------------------
 // defines
@@ -162,6 +163,7 @@ static void runM4RPCReceiver() {
                 settings_screen_receive_message(command, subject, payload);
                 production_screen_receive_message(command, subject, payload);
                 ip_address_screen_receive_message(command, subject, payload);
+                wifi_edit_screen_receive_message(command, subject, payload);
 
                 bufferString = "";
             }
@@ -265,6 +267,7 @@ void setup() {
     settings_screen_create(encoderIndev);
     production_screen_create(encoderIndev);
     ip_address_screen_create(encoderIndev);
+    wifi_edit_screen_create(encoderIndev);
 
     // start onboarding/record screen
     onboarding_screen_load();
