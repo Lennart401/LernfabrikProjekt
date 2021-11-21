@@ -12,12 +12,6 @@
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
-// this file contains the wifi credentials for now, this will change
-// as the project progresses. the idea is to save the credentials in the
-// QSPI flash and then get them from there before connecting. they could
-// been entered/changed through the touch screen user interface
-#include "arduino_secrets.h"
-
 #define BYTES_PER_SENSOR 6
 #define MIN_ROWS_PER_PACKET 2000
 #define MYLED LEDB
@@ -32,9 +26,6 @@
 UnitWiFi::UnitWiFi(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
     , currentMode(WiFiMode::SEND_TO_DATASERVER) {
-    Serial.println("SSID: " + String(SECRET_SSID));
-    Serial.println("Pass: " + String(SECRET_PASS));
-    Serial.println("Mode: " + String(currentMode));
 }
 
 UnitWiFi::~UnitWiFi() {
