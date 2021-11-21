@@ -62,7 +62,7 @@ static void runM7RPCReceiver() {
             char currentChar = RPC1.read();
             if (currentChar != '\n') bufferString += currentChar;
             else {
-                Serial.println("RPC message: '" + bufferString + "'"); 
+                Serial.println("RPC message: " + bufferString); 
 
                 int firstDelimiter = bufferString.indexOf(' ');
                 String command = bufferString.substring(0, firstDelimiter);
@@ -80,11 +80,11 @@ static void runM7RPCReceiver() {
                     payload = bufferString.substring(secondDelimiter+1, bufferString.length() - 1);
                 }
 
-                Serial.println("\nDecoded command: ");
-                Serial.println("Command: '" + command + "'");
-                Serial.println("Subject: '" + subject + "'");
-                if (payload.length() > 0) Serial.println("Payload: '" + payload + "'\n");
-                else Serial.println("No payload\n");
+                //Serial.println("\nDecoded command: ");
+                //Serial.println("Command: '" + command + "'");
+                //Serial.println("Subject: '" + subject + "'");
+                //if (payload.length() > 0) Serial.println("Payload: '" + payload + "'\n");
+                //else Serial.println("No payload\n");
 
                 if (command == "SET") {
                     if (subject == "mode/running") {
