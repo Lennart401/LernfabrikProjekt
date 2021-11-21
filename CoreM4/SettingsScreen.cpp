@@ -3,6 +3,7 @@
 #include <RPC_internal.h>
 #include "ScreenHeading.h"
 #include "OnboardingScreen.h"
+#include "IPAddressScreen.h"
 
 // ---------------------------------------------------------
 // screen stuff
@@ -51,6 +52,16 @@ static void handleButtonClick(lv_event_t *event) {
         if (obj == btnBack) {
             RPC1.println("DO settings/save");
             onboarding_screen_load();
+        }
+        else if (obj == buttonDataServerAddress) {
+            RPC1.println("DO settings/save");
+            ip_address_screen_set_mode(ADDRESS_MODE::DATA_SERVER);
+            ip_address_screen_load();
+        }
+        else if (obj == buttonBrokerAddress) {
+            RPC1.println("DO settings/save");
+            ip_address_screen_set_mode(ADDRESS_MODE::BROKER);
+            ip_address_screen_load();
         }
     } else if (code == LV_EVENT_VALUE_CHANGED) {
         if (obj == dropdownFrequency) {
@@ -179,7 +190,7 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     buttonDataServerAddress = lv_btn_create(gridLayout);
     lv_group_add_obj(mainGroup, buttonDataServerAddress);
     lv_obj_set_size(buttonDataServerAddress, lv_obj_get_width(spinboxDeviceID), lv_obj_get_height(spinboxDeviceID));
-    //lv_obj_add_event_cb(btnRecordPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(buttonDataServerAddress, handleButtonClick, LV_EVENT_CLICKED, NULL);
     lv_obj_set_grid_cell(buttonDataServerAddress, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
                                                   LV_GRID_ALIGN_CENTER, 3, 1); // row 3, spans 1 row
     buttonDataServerAddressLabel = lv_label_create(buttonDataServerAddress);
@@ -195,7 +206,7 @@ void settings_screen_create(lv_indev_t *_encoderIndev) {
     buttonBrokerAddress = lv_btn_create(gridLayout);
     lv_group_add_obj(mainGroup, buttonBrokerAddress);
     lv_obj_set_size(buttonBrokerAddress, lv_obj_get_width(spinboxDeviceID), lv_obj_get_height(spinboxDeviceID));
-    //lv_obj_add_event_cb(btnRecordPage, handleButtonClick, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(buttonBrokerAddress, handleButtonClick, LV_EVENT_CLICKED, NULL);
     lv_obj_set_grid_cell(buttonBrokerAddress, LV_GRID_ALIGN_END, 1, 1, // col 1, spans 1 row
                                               LV_GRID_ALIGN_CENTER, 4, 1); // row 4, spans 1 row
     buttonBrokerAddressLabel = lv_label_create(buttonBrokerAddress);
