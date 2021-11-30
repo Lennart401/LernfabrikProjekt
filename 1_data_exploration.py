@@ -9,7 +9,14 @@ from preprocessing import preprocessing, featureengineering
 # 1. Preprocessing
 # As a first step, we want to load all our samples and normalize the time, so we can plot them:
 all_movements = io.load_all_movements(paths.MOVEMENTS_PATH)
-all_movements = preprocessing.normalize_time(all_movements)
+
+RESAMPLE = True
+if RESAMPLE:
+    # however, if we decide to resample the dataset, do that now, before we normalize the time
+    resampled_movements = preprocessing.resample_dataset(all_movements)
+    all_movements = preprocessing.normalize_time(resampled_movements)
+else:
+    all_movements = preprocessing.normalize_time(all_movements)
 
 # The samples are loaded into one huge dictionary. The first level of keys represents the movement types as integers,
 # with the corresponding values being a list of pandas DataFrames. Each DataFrame is one samples, loaded from its csv

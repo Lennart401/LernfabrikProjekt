@@ -30,6 +30,36 @@ def normalize_time(movements: Dict[int, List[pd.DataFrame]]) -> Dict[int, List[p
     return movements_new
 
 
+def resample_dataset(movements: Dict[int, List[pd.DataFrame]], sample_length=100, resample_offset=10) \
+        -> Dict[int, List[pd.DataFrame]]:
+    """
+    Resample the dataset to create more samples.
+
+    This method will start at the beginning of the dataset (e.g. 150 samples) and create a new sample from the
+    existing data at 0 samples offset, then at 1*resample_offset, then 2*resample_offset and so on. Each of those
+    samples is sample_length many samples long. The samples are created until there is no more data from the original
+    sample left.
+
+    ``n_new_samples = int((len(original_sample) - sample_length) / resample_offset) + 1``
+
+    :param movements: the movements loaded from files
+    :param sample_length: how long each new sample should be (in number of rows)
+    :param resample_offset: the offset between every new sample (in number of rows)
+    :return: the resamples dataset in the same structure as movements
+    """
+    movements_new = {}
+    for movement_id in movements:
+        new_samples = []
+        for original_sample in movements[movement_id]:
+            n_new_samples = int((len(original_sample) - sample_length) / resample_offset) + 1
+            for i in range(0, n_new_samples):
+                start = i * resample_offset
+                end = start + sample_length
+                new_samples.append(original_sample.iloc[start:end].reset_index())
+        movements_new[movement_id] = new_samples
+    return movements_new
+
+
 def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, ndarray]:
     """
     Builds a usuable dataset from a movement-id ordered dictionary.
