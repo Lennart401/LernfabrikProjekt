@@ -55,7 +55,9 @@ def train_stable_model(model: tf.keras.Model,
     best_score = 0.0
 
     # train n models
-    for _ in range(n):
+    for i in range(n):
+        print(f'Training model {i+1} of {n} models...')
+
         # create a copy of the original model and train it
         temp_model = tf.keras.models.clone_model(model)
         temp_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
