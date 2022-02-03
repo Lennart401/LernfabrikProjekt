@@ -1,4 +1,5 @@
 import time
+from typing import Union, Optional, Tuple, Dict
 
 STATE_RULES = {
     1: {
@@ -54,23 +55,23 @@ STATE_RULES = {
 }
 
 
-def _is_state_type(state_id, movement_type):
+def _is_state_type(state_id: int, movement_type: int) -> bool:
     return movement_type in STATE_RULES[state_id]['movement_ids']
 
 
-def _is_transition_type(state_id, movement_type):
+def _is_transition_type(state_id: int, movement_type: int) -> bool:
     return movement_type in STATE_RULES[state_id]['transition']['movement_ids']
 
 
-def _get_state_length_string(state_id):
+def _get_state_length_string(state_id: int) -> str:
     return STATE_RULES[state_id]['length']
 
 
-def _get_transition_length_string(state_id):
+def _get_transition_length_string(state_id: int) -> str:
     return STATE_RULES[state_id]['transition']['length']
 
 
-def _meets_length_condition(length_string, records, since):
+def _meets_length_condition(length_string: str, records: int, since: float) -> bool:
     length_array = length_string.split(" ")
     length_array[1] = int(length_array[1])
 
@@ -87,7 +88,7 @@ def _meets_length_condition(length_string, records, since):
     return result
 
 
-def _get_next_state_id(state_id):
+def _get_next_state_id(state_id: int) -> int:
     return STATE_RULES[state_id]['transition']['next_state']
 
 
@@ -97,7 +98,7 @@ class RealtimeTracker:
         # 'states and transitions' dataset
         self.__stset = {}
 
-    def feed_movement_report(self, box_id: int, movement_type: int):
+    def feed_movement_report(self, box_id: int, movement_type: int) -> None:
         # record the data for now, we prob don't need it
         if self.__dataset[box_id] is None:
             self.__dataset[box_id] = []
@@ -110,7 +111,7 @@ class RealtimeTracker:
 
         self.__update_state(box_id, movement_type)
 
-    def __update_state(self, box_id: int, movement_type: int):
+    def __update_state(self, box_id: int, movement_type: int) -> None:
         # if there is no stset record for this box, create one
         if self.__stset[box_id] is None:
             self.__stset[box_id] = {
@@ -160,7 +161,8 @@ class RealtimeTracker:
         result_state['records'] += 1
         return result_state, result_transition
 
-    def __handle_transition(self, movement_type: int, current_state, current_transition):
+    def __handle_transition(self, movement_type: int, current_state: dict, current_transition: dict) -> \
+            Tuple[dict, Optional[dict]]:
         current_state_id = current_state['id']
         next_state_id = _get_next_state_id(current_state_id)
 
