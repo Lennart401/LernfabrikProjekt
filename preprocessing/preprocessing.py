@@ -62,7 +62,7 @@ def resample_dataset(movements: Dict[int, List[pd.DataFrame]], sample_length=100
 
 def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, ndarray]:
     """
-    Builds a usuable dataset from a movement-id ordered dictionary.
+    Build a usuable dataset from a movement-id ordered dictionary.
 
     This function returns the x-Data first and the y-Data second. The x-Data is a ndarray in the shape of
     (len(observations), len(features)). The y-Data is a ndarray in the shape of (len(observations),). The y-Data will be
@@ -84,7 +84,7 @@ def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, 
 
 def one_hot_encode_labels(labels: ndarray, categories: Union[str, List] = 'auto') -> ndarray:
     """
-    Transforms labels into a one-hot-encoded state for training.
+    Transform labels into a one-hot-encoded state for training.
 
     The input is a ndarray containing the classes of each observations, like this: ``array([0, 1, 2])``. The
     output is an array of arrays, each row containing the labels in a one-hot-encoded state:
