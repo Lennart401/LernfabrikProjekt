@@ -29,13 +29,13 @@ The M4's job is to control the user interface using [LVGL](https://lvgl.io/), di
 The M7 is responsible for multiple different tasks and is therefore split into multiple units:
 
 - Reading sensor data und writing it into a ring buffer. See [UnitSensors](/CoreM7/UnitSensors.h)
-- Send the recorded data to a the [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver) over WiFi. See [UnitWiFi](/CoreM7/UnitWiFi.h)
+- Send the recorded data to a the data-server over WiFi. See [UnitWiFi](/CoreM7/UnitWiFi.h)
 - Running a machine learning modell using TensorFlow Lite
 - Communicate with the M4 core using a [custom RPC protocol](#Internal-RPC-communication-protocol)
 
 Depeding on its mode of operation, the M7 will...
-- ...either record sensor data and send the data in batches to a webserver (See [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver))
-- ...or record sensor data and feed it into the Machine Learning Model Unit and then only send its currect state/position to the webserver
+- ...either record sensor data and send the data in batches to a webserver (See `data-server` sub-project in this repository)
+- ...or record sensor data and feed it into the Machine Learning Model Unit and then only send its currect state/position to an MQTT broker
 
 ## Libraries
 - Arduino mbed-enabled boards (see Arduino Board Manager)
@@ -92,7 +92,7 @@ There are five types of commands in total, with only some of them making use of 
 The subject string shall be formatted like a MQTT subject string, e.g. `wifi/status`.
 
 ### WiFi Dataserver communication protocol
-To minimize the data that required to be sent over wifi, I have developed a simple and lightweigt protocol. It's details can be found in the README of my [LernfabrikDataserver](https://github.com/Lennart401/LernfabrikDataserver/#communication-protocol)-Repository.
+To minimize the data that required to be sent over wifi, I have developed a simple and lightweigt protocol. It's details can be found in the README of the sub-project `data-server`.  
 
 ## Using the Code/a Box in a production enviroment
-Operative procedures and other information on productivly using the box is described in the user manual. See [MANUAL.md](https://github.com/Lennart401/LernfabrikArduino/blob/main/MANUAL.md).
+Operative procedures and other information on productivly using the box is described in the user manual. See [MANUAL.md](MANUAL.md).

@@ -12,8 +12,8 @@ port="$3"        # port for upload, e.g. "/dev/ttypACM0"
 
 # Set our variables
 fqbn_string="arduino:mbed_portenta:envie_${core,}"  # fqbn (fully qualified board name) string
-core_name="Core${core^}"
-build_path="./build-${core,}"
+core_name="./arduino/Core${core^}"
+build_path="./arduino/build-${core,}"
 
 if [ $action = "compile" ]; then
     /home/linuxbrew/.linuxbrew/bin/arduino-cli compile -v --fqbn $fqbn_string $core_name --build-path $build_path
