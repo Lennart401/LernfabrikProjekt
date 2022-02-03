@@ -1,0 +1,2 @@
+# Converting tflite models to c arrays
+Open a bash shell (on Windows you need to open Git Bash, CMD/PS won't work) and type `xxd -i <model_file>.tflite > <c_file>.h`, replacing `<model_file>` with the name of your tflite-file and `<c_file>` with the desired output model name.
