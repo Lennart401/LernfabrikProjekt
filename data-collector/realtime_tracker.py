@@ -113,7 +113,7 @@ class RealtimeTracker:
 
     def __update_state(self, box_id: int, movement_type: int) -> None:
         # if there is no stset record for this box, create one
-        if self.__stset[box_id] is None:
+        if box_id not in self.__stset:
             self.__stset[box_id] = {
                 'state': {
                     'id': 1,
@@ -141,7 +141,7 @@ class RealtimeTracker:
         self.__stset[box_id]['transition'] = current_transition
         self.__stset[box_id]['last_movement'] = movement_type
 
-    def __handle_no_transition(self, movement_type: int, current_state):
+    def __handle_no_transition(self, movement_type: int, current_state: dict) -> Tuple[dict, Optional[dict]]:
         current_state_id = current_state['id']
 
         result_state = current_state
@@ -192,11 +192,30 @@ class RealtimeTracker:
 
         return result_state, result_transition
 
-    def state_summary(self):
-        pass
+    def state_summary(self) -> str:
+        summary = ''
+        for box_id in self.__stset:
+            summary += f'---------------------------\n' \
+                       f'Box #{box_id}\n' \
+                       f'    Current State: {self.get_state(box_id)}\n'
+            transition, next_state = self.get_transition(box_id)
+            if transition:
+                summary += f'    In transition to state {next_state}\n'
+            else:
+                summary += f'    No transition\n'
+            summary += '\n'
 
-    def get_state(self, box_id):
-        pass
+    def get_state(self, box_id: int) -> int:
+        if box_id not in self.__stset:
+            return -1
+        else:
+            return self.__stset[box_id]['state']['id']
+
+    def get_transition(self, box_id: int) -> Tuple[bool, Optional[int]]:
+        if box_id in self.__stset and self.__stset[box_id]['transition'] is not None:
+            return True, STATE_RULES[self.get_state(box_id)]['transition']['next_state']
+        else:
+            return False, -1
 
     def get_history(self, box_id):
         pass
