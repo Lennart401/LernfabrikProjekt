@@ -1,0 +1,14 @@
+settings.json
+.vscode
+.temp_remove
+arduino_secrets.h
+
+build/
+build-m7/
+build-m4/
+
+
+start.cmm
+EmptyM7/
+EmptyM4/
+next_todo.txt
