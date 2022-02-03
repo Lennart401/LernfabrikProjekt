@@ -44,7 +44,7 @@ def send():
     # ------------------------------------------------------------------------------------------------------------------
     # with version 1, just save the contents
     if header_version == 1:
-        path = f"./saved4/"
+        path = f"saved4/"
         if not os.path.exists(path):
             os.makedirs(path)
 
