@@ -100,7 +100,7 @@ class RealtimeTracker:
 
     def feed_movement_report(self, box_id: int, movement_type: int) -> None:
         # record the data for now, we prob don't need it
-        if self.__dataset[box_id] is None:
+        if box_id not in self.__dataset:
             self.__dataset[box_id] = []
 
         self.__dataset[box_id].append({
@@ -130,13 +130,12 @@ class RealtimeTracker:
 
         # check if are not currently in a transition:
         if current_transition is None:
-            current_state, current_transtition = self.__handle_no_transition(movement_type, current_state)
+            current_state, current_transition = self.__handle_no_transition(movement_type, current_state)
 
         # check if transition is already ongoing:
         elif current_transition is not None:
             current_state, current_transition = self.__handle_transition(movement_type, current_state,
                                                                          current_transition)
-
         self.__stset[box_id]['state'] = current_state
         self.__stset[box_id]['transition'] = current_transition
         self.__stset[box_id]['last_movement'] = movement_type
@@ -204,6 +203,7 @@ class RealtimeTracker:
             else:
                 summary += f'    No transition\n'
             summary += '\n'
+        return summary
 
     def get_state(self, box_id: int) -> int:
         if box_id not in self.__stset:
