@@ -43,7 +43,7 @@ STATE_RULES = {
         },
     },
     5: {
-        'label': 'Transporting back to production',
+        'label': 'Transporting to production line',
         'length': 'min 3 seconds',
         'movement_ids': [3, 4],
         'transition': {
