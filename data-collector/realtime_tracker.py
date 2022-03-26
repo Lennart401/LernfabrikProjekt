@@ -8,7 +8,7 @@ STATE_RULES = {
         'movement_ids': [1],
         'transition': {
             'movement_ids': [2, 3, 4, 5, 6, 7, 8],
-            'length': 'max 2 records',
+            'length': 'min 1 seconds',
             'next_state': 2
         },
     },
@@ -18,7 +18,7 @@ STATE_RULES = {
         'movement_ids': [1],
         'transition': {
             'movement_ids': [5, 7, 8],
-            'length': 'min 2 records',
+            'length': 'min 2 seconds',
             'next_state': 3,
         },
     },
@@ -28,27 +28,27 @@ STATE_RULES = {
         'movement_ids': [2],
         'transition': {
             'movement_ids': [5, 7, 8],
-            'length': 'min 2 records',
+            'length': 'min 2 seconds',
             'next_state': 4,
         },
     },
     4: {
         'label': 'Transporting to warehouse',
-        'length': 'min 3 seconds',
+        'length': 'min 4 seconds',
         'movement_ids': [3, 4],
         'transition': {
             'movement_ids': [5, 6, 7, 8],
-            'length': 'min 4 records',
+            'length': 'min 4 seconds',
             'next_state': 5,
         },
     },
     5: {
         'label': 'Transporting to production line',
-        'length': 'min 3 seconds',
+        'length': 'min 4 seconds',
         'movement_ids': [3, 4],
         'transition': {
             'movement_ids': [5, 7, 8],
-            'length': 'min 2 records',
+            'length': 'min 2 seconds',
             'next_state': 1,
         },
     },
@@ -92,6 +92,10 @@ def _get_next_state_id(ruleset: dict, state_id: int) -> int:
     return ruleset[state_id]['transition']['next_state']
 
 
+def _is_transition_too_long(max_length: float, transition_start: float) -> bool:
+    return time.time() - transition_start >= max_length
+
+
 class RealtimeTracker:
     """Realtime tracker for position of every box.
 
@@ -112,14 +116,16 @@ class RealtimeTracker:
         ruleset (dict): custom ruleset for states and transitions
     """
 
-    def __init__(self, ruleset: dict = None):
+    def __init__(self, ruleset: dict = None, max_transition_length: float = 5.0):
         """Create a realtime tracker instance, optionally with a custom ruleset.
 
         Args:
             ruleset (dict): a custom ruleset with states and transitions
+            max_transition_length (float): max length of a transition in seconds
         """
         self.__dataset = {}
         self.__stset = {}  # 'states and transitions' dataset
+        self.__max_transition_length = max_transition_length
         if ruleset is None:
             self.__ruleset = STATE_RULES
         else:
@@ -210,11 +216,39 @@ class RealtimeTracker:
                     'records': 0,
                 }
                 result_transition = None
+            else:
+                result_transition['records'] += 1
 
         # type 3: we are back to the original state
         elif _is_state_type(self.__ruleset, current_state_id, movement_type):
             result_state['records'] += 1
             result_transition = None
+
+        # handle too long transition: if a transition has been running for too long, we can assume the box is
+        # already in the next/a different state and has missed the length condition for the last transition. then we
+        # just find the best fitting state
+        if result_transition is not None and \
+                _is_transition_too_long(self.__max_transition_length, current_transition['since']):
+            # check first: are we already in the next state?
+            if _is_state_type(self.__ruleset, next_state_id, movement_type):
+                result_state = {
+                    'id': next_state_id,
+                    'since': time.time(),
+                    'records': 0,
+                }
+                result_transition = None
+
+            # otherwise: find the state that best fits the current movement type. if there is none, just keep going
+            else:
+                for k, v in self.__ruleset.items():
+                    if movement_type in v['movement_ids']:
+                        result_state = {
+                            'id': k,
+                            'since': time.time(),
+                            'records': 0,
+                        }
+                        result_transition = None
+                        break
 
         return result_state, result_transition
 
