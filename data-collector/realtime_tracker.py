@@ -18,7 +18,7 @@ STATE_RULES = {
         'movement_ids': [1],
         'transition': {
             'movement_ids': [5, 7, 8],
-            'length': 'min 3 records',
+            'length': 'min 2 records',
             'next_state': 3,
         },
     },
@@ -48,7 +48,7 @@ STATE_RULES = {
         'movement_ids': [3, 4],
         'transition': {
             'movement_ids': [5, 7, 8],
-            'length': 'min 3 records',
+            'length': 'min 2 records',
             'next_state': 1,
         },
     },
@@ -222,12 +222,15 @@ class RealtimeTracker:
         """Returns a printable print of the states/transitions of all known boxes."""
         summary = ''
         for box_id in self.__stset:
+            current_state_id = self.get_state(box_id)
+            current_state_name = self.__ruleset[current_state_id]['label']
             summary += f'---------------------------\n' \
                        f'Box #{box_id}\n' \
-                       f'    Current State: {self.get_state(box_id)}\n'
+                       f'    Current State: {current_state_id} ({current_state_name})\n'
             transition, next_state = self.get_transition(box_id)
             if transition:
-                summary += f'    In transition to state {next_state}\n'
+                next_state_name = self.__ruleset[next_state]['label']
+                summary += f'    In transition to state {next_state} ({next_state_name})\n'
             else:
                 summary += f'    No transition\n'
             summary += '\n'
