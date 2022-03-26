@@ -159,7 +159,8 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
 
     uint8_t settingsLastPrediction = InternalComm.lastPrediction; // mBoxSettings->getLastPrediction();
 
-    if (settingsLastPrediction != lastPublishedPrediction) {
+    if (settingsLastPrediction > 0) { // TODO change this back to something more serious. this is just a workaround to get it working for the experiment!
+        InternalComm.lastPrediction = 0;
         lastPublishedPrediction = settingsLastPrediction;
 
         //String buffer = String(lastPublishedPrediction);
@@ -176,7 +177,7 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
         mqttClient->publish(topic, messageBuffer, n, true);
     } else {
         mqttClient->loop();
-        rtos::ThisThread::sleep_for(200);
+        rtos::ThisThread::sleep_for(100);
     }
 }
 
