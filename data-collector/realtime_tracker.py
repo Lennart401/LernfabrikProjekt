@@ -1,5 +1,5 @@
 import time
-from typing import Union, Optional, Tuple, Dict
+from typing import Union, Optional, Tuple, Dict, List
 
 STATE_RULES = {
     1: {
@@ -253,7 +253,7 @@ class RealtimeTracker:
         return result_state, result_transition
 
     def state_summary(self) -> str:
-        """Returns a printable print of the states/transitions of all known boxes."""
+        """Return a printable print of the states/transitions of all known boxes."""
         summary = ''
         for box_id in self.__stset:
             current_state_id = self.get_state(box_id)
@@ -269,6 +269,14 @@ class RealtimeTracker:
                 summary += f'    No transition\n'
             summary += '\n'
         return summary
+
+    def get_all_states_and_transition(self) -> List[Tuple[int, Optional[int]]]:
+        """Return the states and transitions of all known boxes."""
+        all_states = []
+        for box_id in self.__stset:
+            all_states.append((self.get_state(box_id), self.get_transition(box_id)[1]))
+
+        return all_states
 
     def get_state(self, box_id: int) -> int:
         """Return the current state of the given box as int."""

@@ -19,6 +19,8 @@ def on_message(connect_client, userdata, msg):
     box_id, movement_type = dataparser.parse_movement_message(topic, payload)
     dbconnector.insert_movement_report(db_con, box_id, movement_type)
     rttracker.feed_movement_report(box_id, movement_type)
+    stset = rttracker.get_all_states_and_transition()
+    dbconnector.insert_stset(db_con, stset)
     print(rttracker.state_summary())
 
 
