@@ -26,6 +26,7 @@ def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
     :return: A dictionary of lists of DataFrames, each dictionary represents one movement type
     """
     movement_folders: List[Any] = glob.glob(f"{parent_folder}/*")
+    movement_folders.sort()
     movement_dict = {}
 
     # load all csvs into the movement_dict
