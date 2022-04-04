@@ -49,7 +49,7 @@ X_train, X_test, y_train, y_test = preprocessing.split_train_test(X, y, train_si
 if PRINT_INTERMEDIATE_RESULTS:
     print(X_test)
 
-# Next, we split the training data into the actual training set and a validation set, used for training the model an
+# Next, we split the training data into the actual training set and a validation set, used for training the model and
 # checking the score.
 X_train, X_val, y_train, y_val = preprocessing.split_train_test(X_train, y_train, train_size=0.7, random_state=10,
                                                                 stratify=y_train)
