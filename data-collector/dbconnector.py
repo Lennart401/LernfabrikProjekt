@@ -25,7 +25,7 @@ def close_connection(con: sqlite3.Connection) -> None:
 
 def insert_movement_report(con: sqlite3.Connection, box_id: int, movement_type: int) -> None:
     cur = con.cursor()
-    current_time = time.time_ns() / 1e6
+    current_time = round(time.time_ns() / 1e6)
     cur.execute(f'INSERT INTO movement_reports (time, box_id, movement_type) '
                 f'VALUES ({current_time}, {box_id}, {movement_type});')
     con.commit()
@@ -33,7 +33,7 @@ def insert_movement_report(con: sqlite3.Connection, box_id: int, movement_type: 
 
 def insert_stset(con: sqlite3.Connection, stset: list) -> None:
     cur = con.cursor()
-    current_time = time.time_ns() / 1e6
+    current_time = round(time.time_ns() / 1e6)
     stset_json = json.dumps(stset)
     cur.execute(f'INSERT INTO states_and_transitions (time, stset) VALUES ({current_time}, \'{stset_json}\');')
     con.commit()

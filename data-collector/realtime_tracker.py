@@ -205,7 +205,8 @@ class RealtimeTracker:
         if _is_transition_type(self.__ruleset, current_state_id, movement_type):
             result_transition['records'] += 1
 
-        # type 2: we are exiting the transition
+        # type 2: we are exiting the transition (or we cannot exit the transition, and we have to back to the original
+        # state if that uses the same movement types)
         elif _is_state_type(self.__ruleset, next_state_id, movement_type):
             length_string = _get_transition_length_string(self.__ruleset, current_state_id)
             if _meets_length_condition(length_string, current_transition['records'], current_transition['since']):
@@ -217,7 +218,15 @@ class RealtimeTracker:
                 }
                 result_transition = None
             else:
-                result_transition['records'] += 1
+                # if the timing condition were not met, but the movement type is of the current state, go back to that
+                # state.
+                if _is_state_type(self.__ruleset, current_state_id, movement_type):
+                    result_state['records'] += 1
+                    result_transition = None
+
+                # just count up the records
+                else:
+                    result_transition['records'] += 1
 
         # type 3: we are back to the original state
         elif _is_state_type(self.__ruleset, current_state_id, movement_type):

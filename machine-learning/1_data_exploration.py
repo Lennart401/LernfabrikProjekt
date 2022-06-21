@@ -2,6 +2,9 @@
 # This file explains and shows the workflow for the first step in ML: data exploration.
 # 
 # Before we start, lets import the required modules for our data exploration:
+import pandas as pd
+import numpy as np
+
 from util import paths, io, plotter, constants
 from preprocessing import preprocessing, featureengineering
 
@@ -36,6 +39,12 @@ plotter.plot_movements_raw(all_movements, sensors=['accx', 'accy', 'accz'])
 # computed feature.
 all_features = featureengineering.generate_basic_features(all_movements)
 print(all_features[1][0])
+
+# Let's also create a dictionary of features to make a table from
+keys = all_features[1][0].keys()
+feature_comprehensive \
+    = {label: {key: np.mean([x[key] for x in all_features[label]]) for key in keys} for label in all_features}
+features_comprehensive_df = pd.DataFrame.from_dict(feature_comprehensive, orient='index')
 
 # Having computed the features, let's start by plotting the mean of x, y, and z in a 3d-plot. To make the plot easier to
 # read, we can colorcode each movement type by using the following lookup table:
