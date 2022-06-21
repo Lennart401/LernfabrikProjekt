@@ -35,5 +35,5 @@ def insert_stset(con: sqlite3.Connection, stset: list) -> None:
     cur = con.cursor()
     current_time = time.time_ns() / 1e6
     stset_json = json.dumps(stset)
-    cur.execute(f'INSERT INTO states_and_transitions (time, stset) VALUES ({current_time}, {stset_json});')
+    cur.execute(f'INSERT INTO states_and_transitions (time, stset) VALUES ({current_time}, \'{stset_json}\');')
     con.commit()
