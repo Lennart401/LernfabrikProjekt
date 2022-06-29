@@ -41,6 +41,9 @@ if PRINT_INTERMEDIATE_RESULTS:
     print(X)
     print(y)
 
+# Let's do some intermediate cleanup:
+del all_movements, all_features
+
 # Next, the split the data into a training set and into a test set for model evaluation. We use a train size of 70%
 # and a random state for reproducable results. Feel free to change these values to whatever you need.
 X_train, X_test, y_train, y_test = preprocessing.split_train_test(X, y, train_size=0.7, random_state=10, stratify=y)
@@ -86,6 +89,10 @@ y_val_enc = preprocessing.one_hot_encode_labels(y_val, categories=categories)
 y_test_enc = preprocessing.one_hot_encode_labels(y_test, categories=categories)
 if PRINT_INTERMEDIATE_RESULTS:
     print(y_test_enc)
+
+# Again, some cleanup:
+del X
+del y, y_train, y_val, y_test
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 2. Machine Learning
@@ -141,8 +148,6 @@ del lr_history
 #                   loss=tf.keras.losses.CategoricalCrossentropy(),
 #                   metrics=['accuracy'])
 # 
-# TODO: what the hell is up with this learning rate?!? --> see learning rate optimizer in training.py
-# 
 # Next, we fit the model to our training data. To get a stable model, we train multiple models and take the best one.
 # This ensures that we do not mistake a good model for a worse one, just because the score is bad by random.
 # 
@@ -188,4 +193,4 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
 if input("save model? ") == "y":
-    tf.saved_model.save(model, "./tmp/final_model")
+    io.save_model(model, "./tmp/6_classes")
