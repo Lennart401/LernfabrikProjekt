@@ -12,10 +12,8 @@ from util import plotter, io, paths, constants
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Settings
-# If running this script as a whole, these are the settings to modify
 RESAMPLE = True
-EPOCHS = 50
-LEARNING_RATE = 0.01
+EPOCHS = 25
 
 PRINT_INTERMEDIATE_RESULTS = False
 
@@ -106,6 +104,33 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(len(y_train_enc[0]), activation=tf.keras.activations.softmax)
 ])
 
+# Let's define some constants for training the model:
+OPTIMIZER = tf.keras.optimizers.Adam()
+LOSS = tf.keras.losses.CategoricalCrossentropy()
+METRICS = ['accuracy']
+
+# Optionally, we can run the learning rate optimizer first to find the best learning rate. We need more epochs to find
+# the best learning rate. This may need adjusting, training should stop when the learning rate gets to around 10 or so
+# in order to create a clean graph.
+lr_history = training.optimize_learning_rate(model,
+                                             optimizer=OPTIMIZER,
+                                             loss=LOSS,
+                                             metrics=METRICS,
+                                             x_train=X_train,
+                                             y_train_enc=y_train_enc,
+                                             epochs=90,
+                                             minimum_lr=1e-8)
+
+# Plot the learning rate history and look for the first minimum:
+plotter.plot_learning_rate(lr_history)
+
+# Based on that graph, we can choose the best learning rate:
+LEARNING_RATE = 0.01
+OPTIMIZER = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
+
+# Cleanup the learning rate optimization variables:
+del lr_history
+
 # To create a usuable model, we have to compile it and provide tensorflow with an optimizer, a loss function and
 # specify, which training metric to use. We will use an Adam optimizer and a Categeorical-Crossentropy loss function.
 # For simplicity, we will use the metric 'accuracy'.
@@ -123,9 +148,9 @@ model = tf.keras.Sequential([
 # 
 # The function returns the fitted model and the training history for that model.
 model, history = training.train_stable_model(model=model,
-                                             optimizer=tf.keras.optimizers.Adam(LEARNING_RATE),
-                                             loss=tf.keras.losses.CategoricalCrossentropy(),
-                                             metrics=['accuracy'],
+                                             optimizer=OPTIMIZER,
+                                             loss=LOSS,
+                                             metrics=METRICS,
                                              x_train=X_train,
                                              y_train_enc=y_train_enc,
                                              epochs=EPOCHS,
