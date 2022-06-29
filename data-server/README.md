@@ -9,7 +9,22 @@ possible while still being very simple and easy to parse. The protocol builds on
 and sets a standard for the contents of the request. 
 
 The content consists of a header describing how to parse the payload, and a payload itself. The current version of the
-protocol is 2 with revision 2. 
+protocol is 2 with revision 2.
+
+## Protocol Version 2 rev 2
+For revision 2, movement types 7 and 8 have been removed. This is due to the findings in the bachelor thesis that these
+cause more harm than good. Thus, the table of movement types now looks like this:
+
+| Key | Movement             | Key | Movement  |
+|-----|----------------------|-----|-----------|
+| 0x0 | None (just data)     | 0x8 | (removed) |
+| 0x1 | On ramp              | 0x9 |           |
+| 0x2 | Ready for pickup     | 0xA |           |
+| 0x3 | On moving wagon      | 0xB |           |
+| 0x4 | No movement          | 0xC |           |
+| 0x5 | General movement     | 0xD |           |
+| 0x6 | Throw items into box | 0xE |           |
+| 0x7 | (removed)            | 0xF |           |
 
 ## Protocol Version 2 rev 1
 The only thing that changes for revision 1 is the table of movement types, with keys 0x1 to 0x4 being altered, and four
