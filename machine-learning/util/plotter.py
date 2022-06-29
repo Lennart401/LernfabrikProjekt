@@ -35,16 +35,23 @@ def plot_movements_raw(movements: Dict[int, List[pd.DataFrame]], sensors: List[s
         raise ValueError(f"{plot_movements_raw.__name__}: no movements have been passed, so nothing can be plotted. "
                          f"Please pass at least on movement with minimum one sample.")
 
+    color_lut = {
+        0: '#a1ccc9',
+        1: '#dbcb96',
+        2: '#bfc2ba'
+    }
+
     fig, axs = plt.subplots(nrows=len(movements), ncols=len(sensors), tight_layout=True, sharex=sharex, sharey=sharey)
     for row, movement_id in enumerate(movements):
         for sample in movements[movement_id]:
             for column, sensor in enumerate(sensors):
-                axs[row, column].plot(sample[index_col], sample[sensor])
+                axs[row, column].plot(sample[index_col], sample[sensor], color=color_lut[column])
                 # set the xlabel/title on the first row only
                 if row == 0:
                     axs[row, column].set_title(sensor)
             # the set ylabel on the first column only
-            axs[row, 0].set_ylabel(constants.LUT_MOVEMENT_ID_TO_NAME[movement_id])
+            # axs[row, 0].set_ylabel(constants.LUT_MOVEMENT_ID_TO_NAME[movement_id])
+            axs[row, 0].set_ylabel(str(movement_id))
     plt.show()
 
 
