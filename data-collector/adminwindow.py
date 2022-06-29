@@ -1,39 +1,59 @@
 import tkinter as tk
 
-from typing import Optional
+from realtime_tracker_2 import State
 
 
 STATES_LUT = {
-    1: {
+    State.SUPPLY_QUEUE: {
         'bg': 'green',
         'fg': 'white',
-        'state_text': 'On ramp, full',
-        'transition_text': 'sliding down',
+        'state_text': 'In supply on ramp',
     },
-    2: {
+    State.IN_USE: {
         'bg': 'yellow',
         'fg': 'black',
-        'state_text': 'On ramp, in use',
-        'transition_text': 'moving off ramp',
+        'state_text': 'In use',
     },
-    3: {
+    State.READY_FOR_PICKUP: {
         'bg': 'red',
         'fg': 'white',
         'state_text': 'Waiting for pickup',
-        'transition_text': 'loading onto wagon',
     },
-    4: {
-        'bg': 'purple',
+    State.WAITING_MOVE_TO_WAREHOUSE: {
+        'bg': 'maroon1',
+        'fg': 'black',
+        'state_text': 'Waiting for transport to warehouse',
+    },
+    State.MOVING_TO_WAREHOUSE: {
+        'bg': 'maroon1',
         'fg': 'white',
         'state_text': 'Transporting to warehouse',
-        'transition_text': 'refilling',
     },
-    5: {
+    State.WAITING_FOR_REFILL: {
+        'bg': 'dark violet',
+        'fg': 'white',
+        'state_text': 'In warehouse, waiting for refill',
+    },
+    State.REFILLING: {
+        'bg': 'grey55',
+        'fg': 'white',
+        'state_text': 'Refilling',
+    },
+    State.WAITING_FOR_WAY_BACK: {
+        'bg': 'grey72',
+        'fg': 'white',
+        'state_text': 'Refilled, waiting for transport',
+    },
+    State.MOVING_TO_PRODUCTION: {
         'bg': 'blue',
         'fg': 'white',
         'state_text': 'Transporting to production line',
-        'transition_text': 'lifting onto ramp',
-    }
+    },
+    State.WAITING_MOVE_TO_RAMP: {
+        'bg': 'blue',
+        'fg': 'white',
+        'state_text': 'Waiting for arrival',
+    },
 }
 
 
@@ -45,7 +65,7 @@ class AdminWindow:
         self.__statuslabels = {}
         self.__window.update()
 
-    def update(self, box_id: int, state: int, transition: Optional[int]):
+    def update(self, box_id: int, state: State):
         if box_id not in self.__boxlabels:
             boxlabel = tk.Label(text=f'Box #{box_id}', width=15, height=5)
             boxlabel.grid(column=0, row=box_id)
@@ -56,8 +76,7 @@ class AdminWindow:
             self.__statuslabels[box_id] = statuslabel
 
         state_text = STATES_LUT[state]['state_text']
-        transition_text = STATES_LUT[state]['transition_text']
-        new_text = f'{state_text}' if transition is None else f'{state_text} ({transition_text}...)'
+        new_text = f'{state_text}'
 
         fg = STATES_LUT[state]['fg']
         bg = STATES_LUT[state]['bg']

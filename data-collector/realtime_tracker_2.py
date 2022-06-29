@@ -51,7 +51,7 @@ class Box:
             self.__is_moving = False
 
         # handle the type by the given state method
-        getattr(self, f'__handle_state_{self.state.value}')(type)
+        getattr(self, f'_Box__handle_state_{self.state.value}')(type)
 
         # add to list of last movement types
         self.__last_movement_types.append(type)
@@ -66,86 +66,86 @@ class Box:
     def __has_moved_for(self, seconds: float) -> bool:
         return time.time() > self.__moved_since + seconds
 
-    def __handle_state_1(self, type: MovementType) -> None:
+    def __handle_state_1(self, mtype: MovementType) -> None:
         # SUPPLY_QUEUE
         if not self.__in_state_for(ON_RAMP_DURATION):
             return
 
-        if type == MovementType.GENERAL_MOVEMENT:
+        if mtype == MovementType.GENERAL_MOVEMENT:
             self.__change_state(State.IN_USE)
-        elif type == MovementType.READY_FOR_PICKUP \
+        elif mtype == MovementType.READY_FOR_PICKUP \
                 and self.__has_moved_for(1.5):
             self.__change_state(State.READY_FOR_PICKUP)
-        elif type == MovementType.NO_MOVEMENT:
+        elif mtype == MovementType.NO_MOVEMENT:
             self.__change_state(State.WAITING_MOVE_TO_WAREHOUSE)
 
-    def __handle_state_2(self, type: MovementType) -> None:
+    def __handle_state_2(self, mtype: MovementType) -> None:
         # IN_USE
         if not self.__in_state_for(ON_RAMP_DURATION):
             return
 
-        if type == MovementType.READY_FOR_PICKUP and self.__has_moved_for(1.5):
+        if mtype == MovementType.READY_FOR_PICKUP and self.__has_moved_for(1.5):
             self.__change_state(State.READY_FOR_PICKUP)
-        elif type == MovementType.NO_MOVEMENT:
+        elif mtype == MovementType.NO_MOVEMENT:
             self.__change_state(State.WAITING_MOVE_TO_WAREHOUSE)
 
-    def __handle_state_3(self, type: MovementType) -> None:
+    def __handle_state_3(self, mtype: MovementType) -> None:
         # READY FOR PICKUP
-        if type == MovementType.NO_MOVEMENT \
+        if mtype == MovementType.NO_MOVEMENT \
                 and self.__has_moved_for(1.5) \
                 and self.__in_state_for(WAIT_PICKUP_DURATION):
             self.__change_state(State.WAITING_MOVE_TO_WAREHOUSE)
 
-    def __handle_state_4(self, type: MovementType) -> None:
+    def __handle_state_4(self, mtype: MovementType) -> None:
         # WAITING MOVE TO WAREHOUSE
-        if type == MovementType.ON_MOVING_WAGON:
+        if mtype == MovementType.ON_MOVING_WAGON:
             self.__change_state(State.MOVING_TO_WAREHOUSE)
         
-    def __handle_state_5(self, type: MovementType) -> None:
+    def __handle_state_5(self, mtype: MovementType) -> None:
         # MOVING TO WAREHOUSE
-        if type == MovementType.NO_MOVEMENT \
+        if mtype == MovementType.NO_MOVEMENT \
                 and self.__in_state_for(MOVING_DURATION):
             self.__change_state(State.WAITING_FOR_REFILL)
     
-    def __handle_state_6(self, type: MovementType) -> None:
+    def __handle_state_6(self, mtype: MovementType) -> None:
         # WAITING FOR REFILL
-        if type == MovementType.THROW_ITEMS_INTO_BOX:
+        if mtype == MovementType.THROW_ITEMS_INTO_BOX:
             self.__change_state(State.REFILLING)
         # fallback: the box has moved for a least 2.5 seconds, then just assume
         # it has been refilled already
-        elif type == MovementType.NO_MOVEMENT and self.__has_moved_for(2.5):
+        elif mtype == MovementType.NO_MOVEMENT and self.__has_moved_for(2.5):
             self.__change_state(State.WAITING_FOR_WAY_BACK)
     
-    def __handle_state_7(self, type: MovementType) -> None:
+    def __handle_state_7(self, mtype: MovementType) -> None:
         # REFILLING
         if not self.__in_state_for(REFILLING_DURATION):
             return
 
-        if type == MovementType.NO_MOVEMENT:
+        if mtype == MovementType.NO_MOVEMENT:
             self.__change_state(State.WAITING_FOR_WAY_BACK)
-        elif type == MovementType.ON_MOVING_WAGON:
+        elif mtype == MovementType.ON_MOVING_WAGON:
             self.__change_state(State.MOVING_TO_PRODUCTION)
     
-    def __handle_state_8(self, type: MovementType) -> None:
+    def __handle_state_8(self, mtype: MovementType) -> None:
         # WAITING FOR WAY BACK
-        if type == MovementType.ON_MOVING_WAGON:
+        if mtype == MovementType.ON_MOVING_WAGON:
             self.__change_state(State.MOVING_TO_PRODUCTION)
     
-    def __handle_state_9(self, type: MovementType) -> None:
+    def __handle_state_9(self, mtype: MovementType) -> None:
         # MOVING TO PRODUCTION
-        if type == MovementType.NO_MOVEMENT \
+        if mtype == MovementType.NO_MOVEMENT \
                 and self.__in_state_for(MOVING_DURATION):
             self.__change_state(State.WAITING_MOVE_TO_RAMP)
 
-        if type == MovementType.ON_RAMP and self.__has_moved_for(1):
+        if mtype == MovementType.ON_RAMP and self.__has_moved_for(1):
             self.__change_state(State.SUPPLY_QUEUE)
 
-    def __handle_state_10(self, type: MovementType) -> None:
+    def __handle_state_10(self, mtype: MovementType) -> None:
         # WAITING MOVE TO RAMP
-        if type == MovementType.ON_RAMP and self.__has_moved_for(1.5):
+        if mtype == MovementType.ON_RAMP and self.__has_moved_for(1.5):
             self.__change_state(State.SUPPLY_QUEUE)
         # fallback: already on ramp but in state for more than 10 seconds
-        elif type == MovementType.ON_RAMP and self.__in_state_for(10):
+        elif mtype == MovementType.ON_RAMP and self.__in_state_for(10):
             self.__change_state(State.SUPPLY_QUEUE)
 
 

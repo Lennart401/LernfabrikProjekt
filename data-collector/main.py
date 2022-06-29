@@ -1,4 +1,4 @@
-from realtime_tracker import RealtimeTracker
+from realtime_tracker_2 import RealtimeTracker2
 from adminwindow import AdminWindow
 
 import paho.mqtt.client as mqtt
@@ -26,17 +26,16 @@ def on_message(connect_client, userdata, msg):
 
     # update window
     state = rttracker.get_state(box_id)
-    transition = rttracker.get_transition(box_id)[1]
-    ui.update(box_id, state, transition)
+    ui.update(box_id, state)
 
     # display states and transitions
-    stset = rttracker.get_all_states_and_transition()
-    dbconnector.insert_stset(db_con, stset)
-    print(rttracker.state_summary())
+    # stset = rttracker.get_all_states_and_transition()
+    # dbconnector.insert_stset(db_con, stset)
+    # print(rttracker.state_summary())
 
 
 if __name__ == '__main__':
-    rttracker = RealtimeTracker()
+    rttracker = RealtimeTracker2()
     db_con = dbconnector.open_connection()
     root = tk.Tk()
     ui = AdminWindow(root)
