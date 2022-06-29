@@ -56,7 +56,7 @@ if __name__ == "__main__":
                   metrics=["accuracy"])
 
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="./tmp/checkpoint",
+        filepath="../tmp/checkpoint",
         save_weights_only=False,
         save_best_only=True,
         mode="max",
@@ -96,4 +96,4 @@ if __name__ == "__main__":
     plt.show()
 
     if input("save model?") == "y":
-        tf.saved_model.save(model, "./tmp/final_model")
+        tf.saved_model.save(model, "../tmp/final_model")
