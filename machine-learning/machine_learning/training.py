@@ -89,7 +89,7 @@ def optimize_learning_rate(model: tf.keras.Model,
                            x_train: ndarray,
                            y_train_enc: ndarray,
                            epochs: int,
-                           minimum_lr: int = 1e-8) -> tf.keras.callbacks.History:
+                           minimum_lr: float = 1e-8) -> tf.keras.callbacks.History:
     """
     Optimizes the learning rate using a LearningRateScheduler, which gradually increases the learning rate.
 
