@@ -27,7 +27,7 @@ void UnitDataProcessing::runDataProcessing() {
     errorReporter = new tflite::MicroErrorReporter();
 
     // this is where the model gets loaded
-    model = tflite::GetModel(model_protocol_v2_2_2_tflite);
+    model = tflite::GetModel(tflite_model);
     if (model->version() != TFLITE_SCHEMA_VERSION) {
         TF_LITE_REPORT_ERROR(errorReporter, "Model provided is schema version %d not equal to supported version %d.", 
                              model->version(), TFLITE_SCHEMA_VERSION);
