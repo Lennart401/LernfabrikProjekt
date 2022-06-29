@@ -72,13 +72,25 @@ def save_model(model: tf.keras.Model, directory: str) -> None:
     tf.saved_model.save(model, directory)
 
 
+def convert_model_to_tflite(model: tf.keras.Model) -> Any:
+    """
+    Convert a keras pb-Model to a tflite model.
+
+    :param model: the model that should be converted
+    :return: the tflite model
+    """
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    return converter.convert()
+
+
 def save_model_as_tflite(model: tf.keras.Model, tflite_file: str) -> None:
     """
     Convert a tf.keras.Model to a tflite model and save it to a file.
 
     The tflite model will be saved as raw binary data to the file, the file should have an ending of `.tflite`. To
     convert the tflite file to a c array, open a bash shell (normal terminal on Unix-based systems or Git Bash on
-    Windows) and execute the following command. `xxd -i model_file.tflite > c_file.h`.
+    Windows) and execute the following command: `xxd -i model_file.tflite > c_file.h`.
+    Alternatively, the script in 4_deploy_model.py can also be used to convert a saved model to tflite c-array.
 
     :param model: the model that should be converted
     :param tflite_file: the filename or file which the tflite-model should be saved to
@@ -97,6 +109,7 @@ def convert_save_model_to_tflite(model_directory: str, tflite_file: str) -> None
     The tflite model will be saved as raw binary data to the file, the file should have an ending of `.tflite`. To
     convert the tflite file to a c array, open a bash shell (normal terminal on Unix-based systems or Git Bash on
     Windows) and execute the following command. `xxd -i model_file.tflite > c_file.h`.
+    Alternatively, the script in 4_deploy_model.py can also be used to convert a saved model to tflite c-array.
 
     :param model_directory: model directory of the keras pb-Model file
     :param tflite_file: the filename or file which the tflite-model should be saved to
@@ -109,3 +122,4 @@ def convert_save_model_to_tflite(model_directory: str, tflite_file: str) -> None
     # to convert a saved tflite model from .tflite to a C array, use the command
     # xxd -i converted_model.tflite > model_data.c
     # in a git bash command shell
+    # Alternatively, the script in 4_deploy_model.py can also be used to convert a saved model to tflite c-array.
