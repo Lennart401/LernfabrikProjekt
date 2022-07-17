@@ -16,7 +16,8 @@ def train_stable_model(model: tf.keras.Model,
                        x_val: ndarray = None,
                        y_val_enc: ndarray = None,
                        optimize: str = "train",
-                       n: int = 3) \
+                       n: int = 3,
+                       callbacks: list = None) \
         -> Tuple[tf.keras.Model, tf.keras.callbacks.History]:
     """
     Train a model n times and return the best model.
@@ -62,8 +63,11 @@ def train_stable_model(model: tf.keras.Model,
         temp_model = tf.keras.models.clone_model(model)
         temp_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-        temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs) if x_val is None \
-            else temp_model.fit(x_train, y_train_enc, epochs=epochs, validation_data=(x_val, y_val_enc))
+        if x_val is None:
+            temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs, callbacks=callbacks)
+        else:
+            temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs, validation_data=(x_val, y_val_enc),
+                                          callbacks=callbacks)
 
         # get the scores for the set optimize parameter and overwrite the best model if the accuracy is better than the
         # one from the previous best model
@@ -74,6 +78,7 @@ def train_stable_model(model: tf.keras.Model,
         else:  # optimize == 'test'
             scores = temp_model.evaluate(x_test, y_test_enc)
 
+        print(scores)
         if scores[1] > best_score:
             stable_model = temp_model
             stable_history = temp_history
@@ -109,6 +114,7 @@ def optimize_learning_rate(model: tf.keras.Model,
     temp_model = tf.keras.models.clone_model(model)
     temp_model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
+    # TODO implement early stopping once the loss becomes bigger than 15?
     lr_scheduler = tf.keras.callbacks.LearningRateScheduler(schedule=lambda epoch: minimum_lr * 10 ** (epoch / 10))
     temp_history = temp_model.fit(x_train, y_train_enc, epochs=epochs, callbacks=[lr_scheduler])
     return temp_history

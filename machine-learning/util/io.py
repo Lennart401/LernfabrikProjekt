@@ -1,4 +1,6 @@
 from typing import Dict, List, Any
+from util import paths
+
 import glob
 import os
 import pandas as pd
@@ -50,6 +52,43 @@ def load_all_movements(parent_folder: str) -> Dict[int, List[pd.DataFrame]]:
         movement_dict[movement_id] = samples
 
     return movement_dict
+
+
+def save_features(features: pd.DataFrame, filename: str):
+    """
+    Save the features to a csv file.
+
+    :param features: the features to be saved
+    :param filename: the filename of the csv file
+    """
+    features.to_csv(f'{paths.PREPROCESSED_DATA_PATH}/{filename}', index=False)
+
+
+def load_features(filename: str) -> pd.DataFrame:
+    """
+    Loads the features from a csv file.
+
+    :param filename: the filename of the csv file
+    :return: the features as a DataFrame
+    """
+    return pd.read_csv(f'{paths.PREPROCESSED_DATA_PATH}/{filename}', index_col=None, header=0)
+
+
+def save_metadata(scale, offset, pca_components):
+    """
+    Save the metadata to a file.
+
+    :param scale: the scale of the features
+    :param offset: the offset of the features
+    :param pca_components: the pca components of the features
+    """
+    with open(f'{paths.PREPROCESSED_DATA_PATH}/metadata.txt', 'w') as f:
+        f.write('SCALING\n')
+        f.write(f'scale:\n{scale}\n')
+        f.write(f'offset:\n{offset}\n')
+
+        f.write('PCA\n')
+        f.write(f'components:\n{pca_components}')
 
 
 def load_model(directory: str) -> tf.keras.Model:

@@ -55,31 +55,55 @@ def resample_dataset(movements: Dict[int, List[pd.DataFrame]], sample_length=100
             for i in range(0, n_new_samples):
                 start = i * resample_offset
                 end = start + sample_length
-                new_samples.append(original_sample.iloc[start:end].reset_index())
+                new_samples.append(original_sample.iloc[start:end].reset_index(drop=True))
         movements_new[movement_id] = new_samples
     return movements_new
 
 
-def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, ndarray]:
-    """
-    Build a usuable dataset from a movement-id ordered dictionary.
+def synthesize_transition_samples(movements: Dict[int, List[pd.DataFrame]],
+                                  transitions: ndarray,
+                                  splits: list,
+                                  drop: float = 0.9):
+    synthesized = {x: [] for x in movements.keys()}
 
-    This function returns the x-Data first and the y-Data second. The x-Data is a ndarray in the shape of
-    (len(observations), len(features)). The y-Data is a ndarray in the shape of (len(observations),). The y-Data will be
-    translated from movement-type to index using :any:`~util.constants.LUT_MOVEMENT_ID_TO_INDEX`.
+    for primary_type, secondary_type in transitions:
+        # list of DataFrames
+        primary_list = movements[primary_type]
+        secondary_list = movements[secondary_type]
+
+        for primary_df in primary_list:
+            for secondary_df in secondary_list:
+                for split in splits:
+                    if np.random.random() > drop:
+                        # split the primary and secondary DataFrames into their respective sizes
+                        primary_split = primary_df.iloc[:round(split * len(primary_df))]
+                        secondary_split = secondary_df.iloc[round(split * len(secondary_df)):]
+
+                        # concatenate the two DataFrames
+                        synthesized[primary_type].append(pd.concat([primary_split, secondary_split]))
+
+    return synthesized
+
+
+def convert_dict_to_dataset(movements: Dict[int, List[Dict]]) -> Tuple[ndarray, ndarray, list]:
+    """
+    Build an X, y dataset from a movement-id ordered dictionary.
 
     :param movements: movement-id ordered dictionary of Lists of Dicts containing the features
-    :return: usuable dataset as x- and y-Data
+    :return: dataset as X- and y-Data and the column names as a list
     """
     x_all = []
     y_all = []
+    names = None
     for movement_id in movements:
         for sample in movements[movement_id]:
+            if names is None:
+                names = list(sample.keys())
             # x_all.append([sample["y_mean"], sample["z_mean"], sample["z_std"]])
             x_all.append(list(sample.values()))
             y_all.append(constants.LUT_MOVEMENT_ID_TO_INDEX[movement_id])
 
-    return np.array(x_all), np.array(y_all)
+    return np.array(x_all), np.array(y_all), names
 
 
 def one_hot_encode_labels(labels: ndarray, categories: Union[str, List] = 'auto') -> ndarray:

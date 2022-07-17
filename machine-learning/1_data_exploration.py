@@ -40,6 +40,8 @@ plotter.plot_movements_raw(all_movements, sensors=['accx', 'accy', 'accz'])
 all_features = featureengineering.generate_basic_features(all_movements)
 print(all_features[1][0])
 
+all_features = featureengineering.generate_selected_features(all_movements)
+
 # Let's also create a dictionary of features to make a table from
 keys = all_features[1][0].keys()
 feature_comprehensive \

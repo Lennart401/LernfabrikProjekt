@@ -7,9 +7,9 @@ from util import io
 # Settings for file name
 PROTOCOL_VERSION = 2
 REVISION = 2
-MODEL_NO = 1
+MODEL_NO = 5
 FILE_NAME = f'protocol_v{PROTOCOL_VERSION}_rev_{REVISION}_model_{MODEL_NO}'
-NO_INPUT_TENSORS = 6
+NO_INPUT_TENSORS = 17
 NO_OUTPUT_TENSORS = 6
 
 # Convert the trained model to a tflite model:
