@@ -39,8 +39,10 @@ def generate_basic_features(movements: Dict[int, List[pd.DataFrame]]) -> Dict[in
     return movement_features
 
 
-def generate_selected_features(movements: Dict[int, List[pd.DataFrame]], selected_featrues: List[str] = None) \
-        -> Dict[int, List[Dict[str, float]]]:
+def generate_selected_features(movements: Dict[int, List[pd.DataFrame]],
+                               selected_featrues: List[str] = None,
+                               signal_length: int = 100,
+                               samples_per_seconds: int = 100) -> Dict[int, List[Dict[str, float]]]:
     if selected_featrues is None:
         selected_featrues = ['acc_x_mean',
                              'acc_y_mean',
@@ -104,21 +106,24 @@ def generate_selected_features(movements: Dict[int, List[pd.DataFrame]], selecte
             # gyro_y_entropy = entropy(np.abs(gyro_y_fft))
             # gyro_z_entropy = entropy(np.abs(gyro_z_fft))
 
-            sampling_freq = 100
+            # calculate power spectral density of different signals
+            acc_x_psd = (np.abs(acc_x_fft) ** 2) / len(np.abs(acc_x_fft))
+            acc_y_psd = (np.abs(acc_y_fft) ** 2) / len(np.abs(acc_y_fft))
+            acc_z_psd = (np.abs(acc_z_fft) ** 2) / len(np.abs(acc_z_fft))
+            acc_abs_psd = (np.abs(acc_abs_fft) ** 2) / len(np.abs(acc_abs_fft))
 
             # calculate power spectrum entropy of different signals
-            acc_x_pse = entropy(welch(acc_x_no_static.to_numpy(), fs=sampling_freq)[1])
-            acc_y_pse = entropy(welch(acc_y_no_static.to_numpy(), fs=sampling_freq)[1])
-            acc_z_pse = entropy(welch(acc_z_no_static.to_numpy(), fs=sampling_freq)[1])
-            acc_abs_pse = entropy(welch(acc_abs_no_static.to_numpy(), fs=sampling_freq)[1])
+            acc_x_pse = entropy(acc_x_psd)
+            acc_y_pse = entropy(acc_y_psd)
+            acc_z_pse = entropy(acc_z_psd)
+            acc_abs_pse = entropy(acc_abs_psd)
             # gyro_x_pse = entropy(welch(gyro_x_no_static.to_numpy(), fs=sampling_freq)[1])
             # gyro_y_pse = entropy(welch(gyro_y_no_static.to_numpy(), fs=sampling_freq)[1])
             # gyro_z_pse = entropy(welch(gyro_z_no_static.to_numpy(), fs=sampling_freq)[1])
 
             # peak frequency
-            sampling_freq_r = 1 / sampling_freq
-            signal_length = 500
-            fft_freqs = rfftfreq(signal_length, sampling_freq_r)
+            sampling_freq = 1 / samples_per_seconds
+            fft_freqs = rfftfreq(signal_length, sampling_freq)
 
             acc_x_peak_freq = fft_freqs[np.argmax(np.abs(acc_x_fft))]
             acc_y_peak_freq = fft_freqs[np.argmax(np.abs(acc_y_fft))]

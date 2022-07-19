@@ -21,13 +21,13 @@ from util import plotter, io, constants
 # 1. Load the dataset
 #
 # We load one of the preprocessed datasets from the previous script.
-dataset = io.load_features('pca.csv')
+dataset = io.load_features('selected_k15.csv')
 X = dataset.drop(columns=['movement_type']).to_numpy()
 y = dataset['movement_type'].to_numpy()
 
 # For the PCA dataset, drop some more columns:
-X = dataset.drop(columns=['movement_type', 'pca_17', 'pca_18', 'pca_19', 'pca_20', 'pca_21', 'pca_22', 'pca_23',
-                          'pca_24', 'pca_25', 'pca_26', 'pca_27']).to_numpy()
+X = dataset.drop(columns=['movement_type', 'pca_16', 'pca_17', 'pca_18', 'pca_19', 'pca_20', 'pca_21', 'pca_22',
+                          'pca_23', 'pca_24', 'pca_25', 'pca_26', 'pca_27']).to_numpy()
 
 # Next, the split the data into a training set and into a test set for model evaluation. We use a train size of 70%
 # and a random state for reproducable results. Feel free to change these values to whatever you need.
@@ -87,8 +87,8 @@ y_test_enc = preprocessing.one_hot_encode_labels(y_test, categories=categories)
 # b_model = baseline_model
 b_model = tf.keras.Sequential([
     tf.keras.layers.Input(shape=[len(X_train[0])]),
-    tf.keras.layers.Dense(16, activation=tf.keras.activations.relu),
-    tf.keras.layers.Dropout(0.),
+    tf.keras.layers.Dense(28, activation=tf.keras.activations.relu),
+    tf.keras.layers.Dropout(0.1),
     # tf.keras.layers.Dense(15, activation=tf.keras.activations.relu),
     tf.keras.layers.Dense(len(y_train_enc[0]), activation=tf.keras.activations.softmax)
 ])
@@ -171,7 +171,7 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 # Last but not least, create a plot of the model's history, to see if the need more/less epochs.
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
-io.save_model(b_model, "./tmp/model")
+io.save_model(b_model, "./tmp/model_k15")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 4. Improving the model
@@ -209,13 +209,16 @@ tuner = kt.Hyperband(build_model,
                      factor=3,
                      hyperband_iterations=10,
                      directory='./tmp/tuner',
-                     project_name='test2')
+                     project_name='test3')
 
 tuner.search_space_summary()
+
+STOP_EARLY = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 tuner.search(X_train, y_train_enc, epochs=EPOCHS, validation_data=(X_val, y_val_enc), callbacks=[STOP_EARLY])
 
 best_hps = tuner.get_best_hyperparameters()[0]
 h_model = tuner.hypermodel.build(best_hps)
+STOP_EARLY = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 h_model.fit(X_train, y_train_enc, epochs=EPOCHS, validation_data=(X_val, y_val_enc), callbacks=[STOP_EARLY])
 
 h_model.evaluate(X_train, y_train_enc, verbose=2)
@@ -228,5 +231,5 @@ confusion_matrix(y_train, h_pred_train)
 confusion_matrix(y_test, h_pred_test)
 
 # using the first 17 pca components
-io.save_model(h_model, "./tmp/model_tuned_2")
+io.save_model(h_model, "./tmp/model_tuned_k15")
 
