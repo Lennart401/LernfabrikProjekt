@@ -22,4 +22,3 @@ __pycache__/
 /machine-learning/figures
 /machine-learning/test_models
 /machine-learning/tmp
-/machine-learning/util/paths.py
