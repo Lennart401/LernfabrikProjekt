@@ -1,0 +1,1 @@
+{'num_layers': 2, 'units_0': 22, 'dropout_0': 0.0, 'learning_rate': 0.01, 'units_1': 16, 'dropout_1': 0.1, 'tuner/epochs': 35, 'tuner/initial_epoch': 12, 'tuner/bracket': 2, 'tuner/round': 2, 'tuner/trial_id': '0247'}
