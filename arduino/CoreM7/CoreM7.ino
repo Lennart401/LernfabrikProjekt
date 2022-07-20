@@ -35,7 +35,7 @@ static void runUnitSensors() {
     //Serial.println("Starting sensors...");
     //UnitSensors sensors(crcBuffer);
     //sensors.runSensors();
-    unitSensors = new UnitSensors(crcBuffer, 200);
+    unitSensors = new UnitSensors(crcBuffer, 100);
     unitSensors->runSensors();
     delete unitSensors;
 }

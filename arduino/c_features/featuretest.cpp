@@ -215,11 +215,11 @@ int main() {
     pffft_transform(my_setup, z_NoDC, z_fft, NULL, PFFFT_FORWARD);
     pffft_transform(my_setup, abs_NoDC, abs_fft, NULL, PFFFT_FORWARD);
 
-    float *tmp = (float*) pffft_aligned_malloc(nbytes);
-    pffft_zreorder(my_setup, x_fft, tmp, PFFFT_FORWARD); memcpy(x_fft, tmp, nbytes);
-    pffft_zreorder(my_setup, y_fft, tmp, PFFFT_FORWARD); memcpy(y_fft, tmp, nbytes);
-    pffft_zreorder(my_setup, z_fft, tmp, PFFFT_FORWARD); memcpy(z_fft, tmp, nbytes);
-    pffft_zreorder(my_setup, abs_fft, tmp, PFFFT_FORWARD); memcpy(abs_fft, tmp, nbytes);
+    float *tmp_buffer = (float*) pffft_aligned_malloc(nbytes);
+    pffft_zreorder(my_setup, x_fft, tmp_buffer, PFFFT_FORWARD); memcpy(x_fft, tmp_buffer, nbytes);
+    pffft_zreorder(my_setup, y_fft, tmp_buffer, PFFFT_FORWARD); memcpy(y_fft, tmp_buffer, nbytes);
+    pffft_zreorder(my_setup, z_fft, tmp_buffer, PFFFT_FORWARD); memcpy(z_fft, tmp_buffer, nbytes);
+    pffft_zreorder(my_setup, abs_fft, tmp_buffer, PFFFT_FORWARD); memcpy(abs_fft, tmp_buffer, nbytes);
 
     int fftlen = nrows / 2;
     float x_rfft[fftlen], y_rfft[fftlen], z_rfft[fftlen], abs_rfft[fftlen];
@@ -244,22 +244,15 @@ int main() {
         abs_rfft_sum += abs_rfft[i];
 
         // calculate max and argmax of fft
-        if (x_rfft[i] > x_rfft_max) {
-            x_rfft_max = x_rfft[i];
-            x_rfft_argmax = i;
-        }
-        if (y_rfft[i] > y_rfft_max) {
-            y_rfft_max = y_rfft[i];
-            y_rfft_argmax = i;
-        }
-        if (z_rfft[i] > z_rfft_max) {
-            z_rfft_max = z_rfft[i];
-            z_rfft_argmax = i;
-        }
-        if (abs_rfft[i] > abs_rfft_max) {
-            abs_rfft_max = abs_rfft[i];
-            abs_rfft_argmax = i;
-        }
+        x_rfft_max = std::max(x_rfft_max, x_rfft[i]);
+        y_rfft_max = std::max(y_rfft_max, y_rfft[i]);
+        z_rfft_max = std::max(z_rfft_max, z_rfft[i]);
+        abs_rfft_max = std::max(abs_rfft_max, abs_rfft[i]);
+
+        x_rfft_argmax = (x_rfft_max < x_rfft[i]) ? i : x_rfft_argmax;
+        y_rfft_argmax = (y_rfft_max < y_rfft[i]) ? i : y_rfft_argmax;
+        z_rfft_argmax = (z_rfft_max < z_rfft[i]) ? i : z_rfft_argmax;
+        abs_rfft_argmax = (abs_rfft_max < abs_rfft[i]) ? i : abs_rfft_argmax;
 
         // calculate power spectral density
         x_rfft_psd[i] = x_rfft[i] * x_rfft[i] / nrows;
@@ -341,5 +334,5 @@ int main() {
     pffft_aligned_free(y_NoDC);
     pffft_aligned_free(z_NoDC);
     pffft_aligned_free(abs_NoDC);
-    pffft_aligned_free(tmp);
+    pffft_aligned_free(tmp_buffer);
 }

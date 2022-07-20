@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <TensorFlowLite.h>
+#include "pffft.h"
 #include "Row.h"
 #include "MbedCircularBuffer.h"
 
@@ -43,7 +44,21 @@ private:
     const int tensorArenaSize = 2 * 1024;
     uint8_t *tensorArena;
 
+    PFFFT_Setup *fftSetup = nullptr;
+    float *x_NoDC = nullptr;
+    float *y_NoDC = nullptr;
+    float *z_NoDC = nullptr;
+    float *abs_NoDC = nullptr;
+    float *x_fft = nullptr;
+    float *y_fft = nullptr;
+    float *z_fft = nullptr;
+    float *abs_fft = nullptr;
+    float *tmp_buffer = nullptr;
+
     uint32_t nrows;
+    uint32_t nbytes;
+    uint32_t fftlen;
+
     mbed::MbedCircularBuffer<Row, BUF_ROWS> *crcBuffer;
 
     volatile bool running = true;

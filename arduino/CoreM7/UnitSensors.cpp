@@ -2,6 +2,7 @@
 
 #include <mbed.h>
 #include <rtos.h>
+#include <cmath>
 #include <RPC_internal.h>
 #include "Accelerometer.h"
 #include "Ultrasonic.h"
@@ -45,12 +46,13 @@ void UnitSensors::runSensors() {
                 insertRow.acc_x = temp[0];
                 insertRow.acc_y = temp[1];
                 insertRow.acc_z = temp[2];
+                insertRow.acc_abs = std::sqrt(temp[0]*temp[0] + temp[1]*temp[1] + temp[2]*temp[2]);
                 //insertRow.realacc_x = temp[3];
                 //insertRow.realacc_y = temp[4];
                 //insertRow.realacc_z = temp[5];
-                insertRow.gyro_x = temp[6];
-                insertRow.gyro_y = temp[7];
-                insertRow.gyro_z = temp[8];
+                //insertRow.gyro_x = temp[6];
+                //insertRow.gyro_y = temp[7];
+                //insertRow.gyro_z = temp[8];
                 //insertRow.temperature = temp[6];
                 //insertRow.distance = temp[7];
                 insertRow.quaternion_w = temp[10];

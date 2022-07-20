@@ -21,9 +21,12 @@ from util import plotter, io, constants
 # 1. Load the dataset
 #
 # We load one of the preprocessed datasets from the previous script.
-dataset = io.load_features('selected_k15.csv')
+dataset = io.load_features('full.csv')
 X = dataset.drop(columns=['movement_type']).to_numpy()
 y = dataset['movement_type'].to_numpy()
+
+# For the full data, optionally drop the PCA columns
+X = dataset.drop(columns=['movement_type'] + [col for col in dataset.columns if col.startswith('pca_')]).to_numpy()
 
 # For the PCA dataset, drop some more columns:
 X = dataset.drop(columns=['movement_type', 'pca_16', 'pca_17', 'pca_18', 'pca_19', 'pca_20', 'pca_21', 'pca_22',
@@ -171,7 +174,7 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 # Last but not least, create a plot of the model's history, to see if the need more/less epochs.
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
-io.save_model(b_model, "./tmp/model_k15")
+io.save_model(b_model, "./tmp/model_full")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 4. Improving the model
@@ -209,7 +212,7 @@ tuner = kt.Hyperband(build_model,
                      factor=3,
                      hyperband_iterations=10,
                      directory='./tmp/tuner',
-                     project_name='test3')
+                     project_name='test4')
 
 tuner.search_space_summary()
 
@@ -231,5 +234,5 @@ confusion_matrix(y_train, h_pred_train)
 confusion_matrix(y_test, h_pred_test)
 
 # using the first 17 pca components
-io.save_model(h_model, "./tmp/model_tuned_k15")
+io.save_model(h_model, "./tmp/model_tuned_scaled_k15")
 
