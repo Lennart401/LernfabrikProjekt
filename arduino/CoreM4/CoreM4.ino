@@ -45,7 +45,8 @@ static rtos::Thread encoderCheckThread(osPriorityRealtime);
 
 static void runEncoderCheckThread() {
     encoder.tick();
-    rtos::ThisThread::sleep_for((uint32_t) 1);
+    rtos::ThisThread::yield();
+    //rtos::ThisThread::sleep_for((uint32_t) 1);
 }
 
 static void checkPosition() {
