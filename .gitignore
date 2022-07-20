@@ -1,3 +1,25 @@
 .vscode/
 .idea/
 venv/
+__pycache__/
+
+/arduino/build-m4
+/arduino/build-m7
+/arduino/build
+/arduino/c_features/featuretest
+
+/data-collector/local.db
+/data-collector/local (1).db
+/data-collector/test.db
+
+/data-server/movements
+/data-server/saved
+/data-server/saved2
+/data-server/saved3
+/data-server/saved4
+
+/machine-learning/data
+/machine-learning/figures
+/machine-learning/test_models
+/machine-learning/tmp
+/machine-learning/util/paths.py
