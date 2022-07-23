@@ -16,6 +16,8 @@ public:
     // the lastest prediction that UnitDataProcessing has made
     uint8_t lastPrediction;
 
+    float lastDistance;
+
 };
 
 extern InternalCommClass InternalComm;

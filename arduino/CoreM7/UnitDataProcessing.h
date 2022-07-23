@@ -41,7 +41,7 @@ private:
     TfLiteTensor *inputTensor = nullptr;
     TfLiteTensor *outputTensor = nullptr;
 
-    const int tensorArenaSize = 2 * 1024;
+    const int tensorArenaSize;
     uint8_t *tensorArena;
 
     PFFFT_Setup *fftSetup = nullptr;

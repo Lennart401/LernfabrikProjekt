@@ -16,14 +16,14 @@
 UnitSensors::UnitSensors(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer, uint32_t hz)
     : crcBuffer(buffer)
     , mHz(hz)
-    , mUltrasonic(4, 5)
+    , mUltrasonic(5, 4)
     , currentMode(SensorsMode::IDLE)
     , runsLeft(0) {
 }
 
 void UnitSensors::runSensors() {
     accelerometer::initialize();
-    //mUltrasonic.initialize();
+    mUltrasonic.initialize();
 
     float temp[20];
 
@@ -40,7 +40,7 @@ void UnitSensors::runSensors() {
                 if (InternalComm.useMovementTypes) runsLeft--;
 
                 accelerometer::readValues(temp);
-                //mUltrasonic.readValue(&temp[7]);
+                mUltrasonic.getLastValue(&temp[19]);
 
                 insertRow.timestamp = currentTime;
                 insertRow.acc_x = temp[0];
@@ -54,11 +54,11 @@ void UnitSensors::runSensors() {
                 //insertRow.gyro_y = temp[7];
                 //insertRow.gyro_z = temp[8];
                 //insertRow.temperature = temp[6];
-                //insertRow.distance = temp[7];
-                insertRow.quaternion_w = temp[10];
-                insertRow.quaternion_x = temp[11];
-                insertRow.quaternion_y = temp[12];
-                insertRow.quaternion_z = temp[13];
+                insertRow.distance = temp[19];
+                //insertRow.quaternion_w = temp[10];
+                //insertRow.quaternion_x = temp[11];
+                //insertRow.quaternion_y = temp[12];
+                //insertRow.quaternion_z = temp[13];
 
                 //Serial.println(insertRow.timestamp);
                 crcBuffer->push(insertRow);

@@ -13,6 +13,7 @@
 UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *buffer)
     : crcBuffer(buffer)
     , currentMode(DPMode::IDLE)
+    , tensorArenaSize(2 * 1024)
     , tensorArena(new uint8_t[tensorArenaSize])
     , nrows(128)
     , nbytes(nrows * sizeof(float))
@@ -21,9 +22,6 @@ UnitDataProcessing::UnitDataProcessing(mbed::MbedCircularBuffer<Row, BUF_ROWS> *
 
 UnitDataProcessing::~UnitDataProcessing() {
     delete tensorArena;
-    delete errorReporter;
-    delete resolver;
-    delete interpreter;
     
     pffft_destroy_setup(fftSetup);
     pffft_aligned_free(x_NoDC);
@@ -82,24 +80,30 @@ void UnitDataProcessing::runDataProcessing() {
                 computeFeatures(sample, rawData);
                 // make a prediction on the sample
                 lastPrediction = predict(sample);
+
+                Serial.println("Last distance: " + String(rawData[0].distance));
                 
                 // mBoxSettings->setLastPrediction(lastPrediction);
                 InternalComm.lastPrediction = lastPrediction;
+                InternalComm.lastDistance = rawData[0].distance;
                 RPC1.println("POST data-processing/last-prediction " + String(lastPrediction));
                 Serial.println("Prediction: " + String(lastPrediction));
             } else {
-                rtos::ThisThread::sleep_for(200);
+                rtos::ThisThread::sleep_for(100);
             }
             break;
         
         case IDLE:
-            rtos::ThisThread::sleep_for(200);
+            rtos::ThisThread::sleep_for(500);
             break;
         }
     }
 
     delete rawData;
     delete sample;
+    delete errorReporter;
+    delete resolver;
+    delete interpreter;
 }
 
 void UnitDataProcessing::stopDataProcessing() {

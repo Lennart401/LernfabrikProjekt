@@ -14,11 +14,11 @@ struct Row {
     //float gyro_y;
     //float gyro_z;
     //float temperature;
-    //float distance;
-    float quaternion_w;
-    float quaternion_x;
-    float quaternion_y;
-    float quaternion_z;
+    float distance;
+    //float quaternion_w;
+    //float quaternion_x;
+    //float quaternion_y;
+    //float quaternion_z;
 };
 
 #endif // ROW_H_

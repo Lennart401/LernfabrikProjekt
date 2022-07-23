@@ -158,15 +158,17 @@ void UnitWiFi::loopReportToBroker(WiFiClient &client) {
     }
 
     uint8_t settingsLastPrediction = InternalComm.lastPrediction; // mBoxSettings->getLastPrediction();
+    float settingsLastDistance = InternalComm.lastDistance;
 
     if (settingsLastPrediction > 0) { // TODO change this back to something more serious. this is just a workaround to get it working for the experiment!
         InternalComm.lastPrediction = 0;
         lastPublishedPrediction = settingsLastPrediction;
 
         //String buffer = String(lastPublishedPrediction);
-        char buffer[5];
+        char buffer[30];
         int arg = lastPublishedPrediction;
-        int n = sprintf(buffer, "%d", arg);
+        float arg2 = settingsLastDistance;
+        int n = sprintf(buffer, "{'mt': %d, 'dist': %.2f}", arg, arg2);
 
         const uint8_t *messageBuffer = reinterpret_cast<const uint8_t*>(buffer);
 

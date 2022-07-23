@@ -3,7 +3,8 @@
 InternalCommClass::InternalCommClass() 
     : useMovementTypes(false)
     , sampleRecordFlush(false) 
-    , lastPrediction(0) {
+    , lastPrediction(0)
+    , lastDistance(0.0) {
 }
 
 InternalCommClass InternalComm;

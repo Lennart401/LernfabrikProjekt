@@ -36,9 +36,13 @@ static void configureOffsets() {
 	mpu.setXGyroOffset(163);
 	mpu.setYGyroOffset(80);
 	mpu.setZGyroOffset(-92);
+
 	mpu.setXAccelOffset(1300);
 	mpu.setYAccelOffset(-1587);
 	mpu.setZAccelOffset(1606);
+    //mpu.setXAccelOffset(-2192);
+	//mpu.setYAccelOffset(2385);
+	//mpu.setZAccelOffset(6474);
 }
 
 // implementations from header
@@ -117,9 +121,11 @@ void accelerometer::readValues(float *temp) {
 }
 
 void accelerometer::calibrate() {
+    mpu.PrintActiveOffsets();
+
     mpu.setDMPEnabled(false);
-    mpu.CalibrateAccel();
-    mpu.CalibrateGyro();
+    mpu.CalibrateAccel(10);
+    //mpu.CalibrateGyro();
     mpu.PrintActiveOffsets();
     mpu.setDMPEnabled(true);
 
