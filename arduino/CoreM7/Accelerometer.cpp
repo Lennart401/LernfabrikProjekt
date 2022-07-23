@@ -48,9 +48,9 @@ static void configureOffsets() {
 	// mpu.setZAccelOffset(6474);
 
     // Box #3
-    mpu.setXAccelOffset(-44);
-    mpu.setYAccelOffset(1293);
-    mpu.setZAccelOffset(6510);
+    mpu.setXAccelOffset(-2168);
+    mpu.setYAccelOffset(2338);
+    mpu.setZAccelOffset(1165);
 }
 
 // implementations from header
