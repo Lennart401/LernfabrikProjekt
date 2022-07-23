@@ -95,7 +95,7 @@ y_test_enc = preprocessing.one_hot_encode_labels(y_test, categories=categories)
 # b_model = baseline_model
 b_model = tf.keras.Sequential([
     tf.keras.layers.Input(shape=[len(X_train.iloc[0])]),
-    tf.keras.layers.Dense(12, activation=tf.keras.activations.relu),
+    tf.keras.layers.Dense(10, activation=tf.keras.activations.relu),
     # tf.keras.layers.Dense(28, activation=tf.keras.activations.relu),
     # tf.keras.layers.Dropout(0.1),
     # tf.keras.layers.Dense(15, activation=tf.keras.activations.relu),
@@ -180,7 +180,7 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 # Last but not least, create a plot of the model's history, to see if the need more/less epochs.
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
-io.save_model(b_model, "./models/protocol_v2_rev_2_model_12")
+io.save_model(b_model, "./models/protocol_v2_rev_2_model_13")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 4. Improving the model

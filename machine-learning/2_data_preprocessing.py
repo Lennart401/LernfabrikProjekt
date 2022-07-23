@@ -38,7 +38,7 @@ transitions = np.array([
     [1, 5], [5, 1],
     [2, 5], [5, 2],
     [4, 5], [5, 4],
-    [6, 5], [5, 6],
+    # [6, 5], [5, 6],
     # [3, 4], [4, 3],
 ])
 transition_movements = preprocessing.synthesize_transition_samples(synthesize_samples,
