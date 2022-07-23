@@ -10,7 +10,8 @@ def open_connection(db_name: str = 'local.db') -> sqlite3.Connection:
                 '(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                 'time INTEGER,'
                 'box_id INTEGER,'
-                'movement_type INTEGER);')
+                'movement_type INTEGER,'
+                'distance REAL);')
     cur.execute('CREATE TABLE IF NOT EXISTS states_and_transitions '
                 '(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                 'time INTEGER,'
@@ -23,11 +24,11 @@ def close_connection(con: sqlite3.Connection) -> None:
     con.close()
 
 
-def insert_movement_report(con: sqlite3.Connection, box_id: int, movement_type: int) -> None:
+def insert_movement_report(con: sqlite3.Connection, box_id: int, movement_type: int, distance: float) -> None:
     cur = con.cursor()
     current_time = round(time.time_ns() / 1e6)
-    cur.execute(f'INSERT INTO movement_reports (time, box_id, movement_type) '
-                f'VALUES ({current_time}, {box_id}, {movement_type});')
+    cur.execute(f'INSERT INTO movement_reports (time, box_id, movement_type, distance) '
+                f'VALUES ({current_time}, {box_id}, {movement_type}, {distance});')
     con.commit()
 
 

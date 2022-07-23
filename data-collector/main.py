@@ -20,8 +20,8 @@ def on_message(connect_client, userdata, msg):
     print(f'Received message: {topic} - {payload}')
 
     # get and insert
-    box_id, movement_type = dataparser.parse_movement_message(topic, payload)
-    dbconnector.insert_movement_report(db_con, box_id, movement_type)
+    box_id, movement_type, distance = dataparser.parse_movement_message(topic, payload)
+    dbconnector.insert_movement_report(db_con, box_id, movement_type, distance)
     rttracker.feed_movement_report(box_id, movement_type)
 
     # update window
@@ -36,7 +36,7 @@ def on_message(connect_client, userdata, msg):
 
 if __name__ == '__main__':
     rttracker = RealtimeTracker2()
-    db_con = dbconnector.open_connection()
+    db_con = dbconnector.open_connection('local_2.db')
     root = tk.Tk()
     ui = AdminWindow(root)
 
