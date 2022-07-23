@@ -1,3 +1,4 @@
+import random
 from typing import Dict, List
 
 from scipy.fft import rfft, rfftfreq
@@ -42,7 +43,8 @@ def generate_basic_features(movements: Dict[int, List[pd.DataFrame]]) -> Dict[in
 def generate_selected_features(movements: Dict[int, List[pd.DataFrame]],
                                selected_featrues: List[str] = None,
                                signal_length: int = 100,
-                               samples_per_seconds: int = 100) -> Dict[int, List[Dict[str, float]]]:
+                               samples_per_seconds: int = 100,
+                               random_deviation: bool = True) -> Dict[int, List[Dict[str, float]]]:
     if selected_featrues is None:
         selected_featrues = ['acc_x_mean',
                              'acc_y_mean',
@@ -125,10 +127,13 @@ def generate_selected_features(movements: Dict[int, List[pd.DataFrame]],
             sampling_freq = 1 / samples_per_seconds
             fft_freqs = rfftfreq(signal_length, sampling_freq)
 
-            acc_x_peak_freq = fft_freqs[np.argmax(np.abs(acc_x_fft))]
-            acc_y_peak_freq = fft_freqs[np.argmax(np.abs(acc_y_fft))]
-            acc_z_peak_freq = fft_freqs[np.argmax(np.abs(acc_z_fft))]
-            acc_abs_peak_freq = fft_freqs[np.argmax(np.abs(acc_abs_fft))]
+            deviation = 0.01
+            random_dev = ((random.random() * deviation) - (deviation / 2)) if random_deviation else 0
+
+            acc_x_peak_freq = fft_freqs[np.argmax(np.abs(acc_x_fft))] + random_dev
+            acc_y_peak_freq = fft_freqs[np.argmax(np.abs(acc_y_fft))] + random_dev
+            acc_z_peak_freq = fft_freqs[np.argmax(np.abs(acc_z_fft))] + random_dev
+            acc_abs_peak_freq = fft_freqs[np.argmax(np.abs(acc_abs_fft))] + random_dev
             # gyro_x_peak_freq = fft_freqs[np.argmax(np.abs(gyro_x_fft))]
             # gyro_y_peak_freq = fft_freqs[np.argmax(np.abs(gyro_y_fft))]
             # gyro_z_peak_freq = fft_freqs[np.argmax(np.abs(gyro_z_fft))]

@@ -25,6 +25,11 @@ dataset = io.load_features('full.csv')
 X = dataset.drop(columns=['movement_type']).to_numpy()
 y = dataset['movement_type'].to_numpy()
 
+# Greatly simplified dataset
+X = dataset[['acc_x_mean', 'acc_y_mean', 'acc_z_mean',
+             'acc_x_std', 'acc_y_std', 'acc_z_std',
+             'acc_x_pse', 'acc_y_pse', 'acc_z_pse']]
+
 # For the full data, optionally drop the PCA columns
 X = dataset.drop(columns=['movement_type'] + [col for col in dataset.columns if col.startswith('pca_')]).to_numpy()
 
@@ -89,9 +94,10 @@ y_test_enc = preprocessing.one_hot_encode_labels(y_test, categories=categories)
 
 # b_model = baseline_model
 b_model = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=[len(X_train[0])]),
-    tf.keras.layers.Dense(28, activation=tf.keras.activations.relu),
-    tf.keras.layers.Dropout(0.1),
+    tf.keras.layers.Input(shape=[len(X_train.iloc[0])]),
+    tf.keras.layers.Dense(12, activation=tf.keras.activations.relu),
+    # tf.keras.layers.Dense(28, activation=tf.keras.activations.relu),
+    # tf.keras.layers.Dropout(0.1),
     # tf.keras.layers.Dense(15, activation=tf.keras.activations.relu),
     tf.keras.layers.Dense(len(y_train_enc[0]), activation=tf.keras.activations.softmax)
 ])
@@ -174,7 +180,7 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 # Last but not least, create a plot of the model's history, to see if the need more/less epochs.
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
-io.save_model(b_model, "./tmp/model_9")
+io.save_model(b_model, "./models/protocol_v2_rev_2_model_12")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 4. Improving the model
