@@ -37,12 +37,20 @@ static void configureOffsets() {
 	mpu.setYGyroOffset(80);
 	mpu.setZGyroOffset(-92);
 
-	mpu.setXAccelOffset(1300);
-	mpu.setYAccelOffset(-1587);
-	mpu.setZAccelOffset(1606);
-    //mpu.setXAccelOffset(-2192);
-	//mpu.setYAccelOffset(2385);
-	//mpu.setZAccelOffset(6474);
+    // Box #1
+	// mpu.setXAccelOffset(1300);
+	// mpu.setYAccelOffset(-1587);
+	// mpu.setZAccelOffset(1606);
+
+    // Box #2
+    // mpu.setXAccelOffset(-2192);
+	// mpu.setYAccelOffset(2385);
+	// mpu.setZAccelOffset(6474);
+
+    // Box #3
+    mpu.setXAccelOffset(-44);
+    mpu.setYAccelOffset(1293);
+    mpu.setZAccelOffset(6510);
 }
 
 // implementations from header
