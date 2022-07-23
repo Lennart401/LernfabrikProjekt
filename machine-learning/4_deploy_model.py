@@ -7,7 +7,7 @@ from util import io
 # Settings for file name
 PROTOCOL_VERSION = 2
 REVISION = 2
-MODEL_NO = 8
+MODEL_NO = 9
 FILE_NAME = f'protocol_v{PROTOCOL_VERSION}_rev_{REVISION}_model_{MODEL_NO}'
 NO_INPUT_TENSORS = 28
 NO_OUTPUT_TENSORS = 6

@@ -174,7 +174,7 @@ plotter.plot_confusion_matrix(cm_test, classes=constants.LUT_MOVEMENT_ID_TO_NAME
 # Last but not least, create a plot of the model's history, to see if the need more/less epochs.
 plotter.plot_model_history(history, num_epochs=EPOCHS, use_validation_values=True)
 
-io.save_model(b_model, "./tmp/model_full")
+io.save_model(b_model, "./tmp/model_9")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 4. Improving the model
