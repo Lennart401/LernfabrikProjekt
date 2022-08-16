@@ -10,7 +10,7 @@ def parse_movement_message(topic: str, payload: str):
 
     box_id = int(topic[len(TOPIC_PREFIX):topic.find('/', len(TOPIC_PREFIX))])
     payload_json = json.loads(payload.replace('\'', '\"'))
-    movement_type = payload_json['mt']
-    distance = payload_json['dist']
+    movement_type = int(payload_json['mt'])
+    distance = float(payload_json['dist'])
 
     return box_id, movement_type, distance

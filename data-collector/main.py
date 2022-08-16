@@ -22,7 +22,7 @@ def on_message(connect_client, userdata, msg):
     # get and insert
     box_id, movement_type, distance = dataparser.parse_movement_message(topic, payload)
     dbconnector.insert_movement_report(db_con, box_id, movement_type, distance)
-    rttracker.feed_movement_report(box_id, movement_type)
+    rttracker.feed_movement_report(box_id, movement_type, distance)
 
     # update window
     state = rttracker.get_state(box_id)
