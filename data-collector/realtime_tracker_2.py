@@ -268,6 +268,6 @@ class RealtimeTracker2:
     
     def get_all_states(self) -> Dict[int, State]:
         all_states = {}
-        for id, box in self.__boxes.items():
-            all_states[id] = box.state
+        for box_id, box in self.__boxes.items():
+            all_states[box_id] = box.state
         return all_states
