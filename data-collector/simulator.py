@@ -1,13 +1,13 @@
 import sqlite3
 import time
+import json
 import pandas as pd
 import paho.mqtt.client as mqtt
 
 
-DB_FILE = 'local (1).db'
-START_TIME = 1648467794191
+DB_FILE = 'local_5.db'
+START_TIME = 1658585765751
 # START_TIME = 1648468081000
-BOX_ID = 1
 
 
 def millis():
@@ -29,9 +29,18 @@ records_sent = 0
 while records_sent < len(df):
     next_point = df.iloc[records_sent]
     if millis() >= start_time + (next_point.time - offset):
-        topic = f'lernfabrik/box_{BOX_ID}/movement'
-        message = f'{int(next_point.movement_type)}'
-        print(f'publishing point no. {records_sent} with movement type {message}')
-        client.publish(topic, message, retain=True)
+        current_time = millis() - start_time
+        box_id = round(next_point.box_id)
+        topic = f'lernfabrik/box_{box_id}/movement'
+        message = json.dumps({
+            'mt': round(next_point.movement_type),
+            'dist': next_point.distance
+        })
+
+        tabs = '\t\t\t\t\t' * (box_id - 1)
+        print(f'{(current_time / 1e3):10.3f}:\t{tabs}box {box_id} -> mtype {round(next_point.movement_type)}, '
+              f'dist {next_point.distance:4.2f}')
+
+        client.publish(topic, message, retain=False)
         records_sent += 1
 
