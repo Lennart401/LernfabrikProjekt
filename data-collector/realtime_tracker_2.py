@@ -68,7 +68,7 @@ class Box:
     def __change_state(self, new_state: State):
         self.state = new_state
         self.__state_since = time.time()
-        self.__moved_since = 0
+        self.__moved_since = float('inf')
 
     def __in_state_for(self, seconds: float) -> bool:
         return time.time() > self.__state_since + seconds
@@ -98,12 +98,12 @@ class Box:
                 return True
         return False
 
-    def __is_distance_increasing(self, current_distance: float, for_duration: float):
+    def __is_distance_increasing(self, current_distance: float, for_duration: float, tolerance: float = 0.25):
         current_time = time.time()
 
         last_distance = current_distance
         for i in range(1, len(self.__last_distances) + 1):
-            if self.__last_distances[-i][1] >= last_distance:
+            if self.__last_distances[-i][1] >= last_distance - tolerance:
                 return False
             elif self.__last_distances[-i][0] + for_duration <= current_time:
                 print(current_distance, self.__last_distances)
@@ -111,12 +111,12 @@ class Box:
             last_distance = self.__last_distances[-i][1]
         return False
 
-    def __is_distance_decreasing(self, current_distance: float, for_duration: float):
+    def __is_distance_decreasing(self, current_distance: float, for_duration: float, tolerance: float = 0.25):
         current_time = time.time()
 
         last_distance = current_distance
         for i in range(1, len(self.__last_distances) + 1):
-            if self.__last_distances[-i][1] <= last_distance:
+            if self.__last_distances[-i][1] <= last_distance + tolerance:
                 return False
             elif self.__last_distances[-i][0] + for_duration <= current_time:
                 return True
@@ -163,13 +163,16 @@ class Box:
             return
 
         # Nominal progression: the box is put on the rail for pickup
-        if self.__is_type_without_outliers(mtype, MovementType.READY_FOR_PICKUP, num_history=1) \
-                and self.__has_moved_for(1.5):
+        if self.__is_type_without_outliers(mtype, MovementType.READY_FOR_PICKUP, num_history=1):
             self.__change_state(State.READY_FOR_PICKUP)
 
-        # Fallback: already waiting on the wagon
-        elif self.__is_type_without_outliers(mtype, MovementType.READY_FOR_PICKUP, num_history=2):
+        # Fallback 1: already waiting on the wagon
+        elif self.__is_type_without_outliers(mtype, MovementType.NO_MOVEMENT, num_history=2):
             self.__change_state(State.WAITING_MOVE_TO_WAREHOUSE)
+
+        # Fallback 2: already moving on the wagon
+        elif self.__is_type_without_outliers(mtype, MovementType.ON_MOVING_WAGON, num_history=2):
+            self.__change_state(State.MOVING_TO_WAREHOUSE)
 
     def __handle_state_3(self, mtype: MovementType, _) -> None:
         # READY FOR PICKUP
@@ -192,9 +195,9 @@ class Box:
                 and self.__in_state_for(MOVING_DURATION):
             self.__change_state(State.WAITING_FOR_REFILL)
 
-        # # Fallback 1: the distance is decreasing, meaning material is being put into the box
-        # elif self.__is_distance_decreasing(distance, for_duration=2.0):
-        #     self.__change_state(State.REFILLING)
+        # Fallback 1: the distance is decreasing, meaning material is being put into the box
+        elif self.__is_distance_decreasing(distance, for_duration=2.0):
+            self.__change_state(State.REFILLING)
     
     def __handle_state_6(self, mtype: MovementType, distance: float) -> None:
         # WAITING FOR REFILL
