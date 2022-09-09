@@ -154,7 +154,7 @@ class Box:
             self.__change_state(State.READY_FOR_PICKUP)
 
         # Fallback 2: already waiting on the wagon
-        elif self.__is_type_without_outliers(mtype, MovementType.READY_FOR_PICKUP, num_history=2):
+        elif self.__is_type_without_outliers(mtype, MovementType.NO_MOVEMENT, num_history=2):
             self.__change_state(State.WAITING_MOVE_TO_WAREHOUSE)
 
     def __handle_state_2(self, mtype: MovementType, _) -> None:
