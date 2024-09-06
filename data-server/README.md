@@ -2,6 +2,8 @@
 The Dataserver one of the server-components for my Lernfabrik project at Leuphana University of Lüneburg. This server 
 receives any data recorded by the boxes, decodes it and saves it into a folder structure as csv files.
 
+It is a simple flask server. Running `python3 app.py` should suffice to run the server after having installed `flask` itself.
+
 
 ## Communication Protocol
 The data server uses a custom data format to save as much space as possible and keep the size of the data as small as 
