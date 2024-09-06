@@ -1,6 +1,6 @@
 import time
 
-from enum import Enum
+from enum import IntEnum
 from collections import deque
 from typing import Dict, Optional
 
@@ -13,7 +13,7 @@ MIN_MOVING_WAGON = 4.0
 MIN_STOPPED_WAGON = 3.0
 
 
-class State(Enum):
+class State(IntEnum):
     SUPPLY_QUEUE = 1
     IN_USE = 2
     READY_FOR_PICKUP = 3
@@ -26,7 +26,7 @@ class State(Enum):
     WAITING_MOVE_TO_RAMP = 10
 
 
-class MovementType(Enum):
+class MovementType(IntEnum):
     ON_RAMP = 1
     READY_FOR_PICKUP = 2
     ON_MOVING_WAGON = 3
@@ -106,7 +106,7 @@ class Box:
             if self.__last_distances[-i][1] >= last_distance - tolerance:
                 return False
             elif self.__last_distances[-i][0] + for_duration <= current_time:
-                print(current_distance, self.__last_distances)
+                # print(current_distance, self.__last_distances)
                 return True
             last_distance = self.__last_distances[-i][1]
         return False

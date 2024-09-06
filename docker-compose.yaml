@@ -1,0 +1,31 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./data-collector/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  websocket_provider:
+    build:
+      context: ./data-collector
+      dockerfile: Dockerfile_Websocket_Provider
+    ports:
+      - "8765:8765"
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+    depends_on:
+      - mosquitto
+
+  web_frontend:
+    build:
+      context: ./nextjs-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_WEBSOCKET_URL: ws://websocket_provider:8765
+    depends_on:
+      - websocket_provider
