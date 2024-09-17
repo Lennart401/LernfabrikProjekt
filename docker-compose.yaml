@@ -25,7 +25,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      NEXT_PUBLIC_WEBSOCKET_URL: ws://websocket_provider:8765
     depends_on:
       - websocket_provider

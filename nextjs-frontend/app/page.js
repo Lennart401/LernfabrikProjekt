@@ -5,7 +5,7 @@ import BoxesList from "@/app/components/boxes-list";
 import {useMemo} from "react";
 
 export default function Home() {
-    const { messages } = useWebSocket(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
+    const { messages } = useWebSocket(`ws://${window.location.hostname}:8765/`);
 
     const stateToLocation = {
         1: 'workstation',
