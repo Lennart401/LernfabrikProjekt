@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-const useWebSocket = (url) => {
+const useWebSocket = (port) => {
     const [messages, setMessages] = useState([]);
     const [ws, setWs] = useState(null);
 
     useEffect(() => {
-        const socket = new WebSocket(url);
+        const socket = new WebSocket(`ws://${window.location.hostname}:${port}/`);
         setWs(socket);
 
         socket.onmessage = (event) => {
@@ -15,7 +15,7 @@ const useWebSocket = (url) => {
         return () => {
             socket.close();
         };
-    }, [url]);
+    }, [port]);
 
     const sendMessage = (message) => {
         if (ws) {
